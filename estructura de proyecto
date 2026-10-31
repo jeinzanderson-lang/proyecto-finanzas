@@ -1,0 +1,87 @@
+ag_services_backend/
+│
+├── app/
+│   ├── __init__.py                 # Factory de Flask
+│   ├── config.py                   # Configuración (DB, JWT, etc.)
+│   ├── extensions.py               # db, jwt, cors, bcrypt
+│   │
+│   ├── domains/                    # 📂 TODOS LOS DOMINIOS AQUÍ
+│   │   │
+│   │   ├── auth/                   # 🔐 Autenticación
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── users/                  # 👥 Gestión de usuarios
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── dashboard/              # 📊 Dashboard
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── sales/                  # 💰 Ventas / Facturación
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── expenses/               # 💸 Gastos / Cuentas por pagar
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── inventory/              # 📦 Inventario
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── reports/                # 📈 Reportes financieros
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   ├── settings/               # ⚙️ Configuración y catálogo de cuentas
+│   │   │   ├── __init__.py
+│   │   │   ├── controller.py
+│   │   │   ├── service.py
+│   │   │   ├── repository.py
+│   │   │   ├── dto.py
+│   │   │   └── models.py
+│   │   │
+│   │   └── __init__.py             # Registro central de blueprints
+│   │
+│   └── shared/                     # 🧩 Utilidades compartidas
+│       ├── __init__.py
+│       ├── decorators.py           # @role_required
+│       ├── exceptions.py
+│       ├── responses.py
+│       └── validators.py
+│
+├── migrations/
+├── tests/
+├── requirements.txt
+├── run.py
+└── .env
