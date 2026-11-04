@@ -1,6 +1,7 @@
-
+// src/js/api/http.js
 import { storage } from '../utils/storage.js';
 import { getErrorMessage } from '../utils/errorMessages.js';
+import { navigateTo } from '../router/routes.js';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -27,10 +28,17 @@ export async function httpClient(endpoint, options = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-      // Si es 401, limpiamos la sesión automáticamente
+      // Si es 401 (No autorizado), limpiar sesión y redirigir al login
       if (response.status === 401) {
         storage.clear();
-        window.location.reload(); // Recarga para ir al login
+        navigateTo('login');
+        window.location.reload();
+        throw new Error('Sesión expirada. Por favor, inicia sesión nuevamente.');
+      }
+      
+      // Si es 403 (Prohibido), lanzar error específico
+      if (response.status === 403) {
+        throw new Error(data.message || 'No tienes permisos para realizar esta acción.');
       }
       
       throw new Error(data.message || getErrorMessage(response.status));
