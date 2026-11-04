@@ -3,27 +3,47 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import '../css/main.css';
 
-const app = document.querySelector('#app');
+import { sessionService } from './auth/session.service.js';
+import { renderLoginPage } from './pages/LoginPage.js';
+import { renderSidebar, initSidebarEvents } from './components/layout/Sidebar.js';
 
-if (app) {
-  app.innerHTML = `
-    <main class="welcome-shell">
-      <section class="container py-5">
-        <div class="row justify-content-center">
-          <div class="col-12 col-lg-8">
-            <div class="card border-0 shadow-sm welcome-card">
-              <div class="card-body p-4 p-md-5 text-center">
-                <i class="bi bi-calculator-fill fs-1 text-primary mb-3"></i>
-                <h1 class="h3 mb-3">Frontend de AG Services listo</h1>
-                <p class="text-muted mb-0">
-                  Esta es la pantalla base temporal del Tutorial 1.
-                  En los siguientes tutoriales se reemplazará por el login, el dashboard y los módulos contables reales.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  `;
+function initApp() {
+  const app = document.querySelector('#app');
+
+  if (!sessionService.isAuthenticated()) {
+    renderLoginPage();
+  } else {
+    renderAppLayout(app);
+  }
 }
+
+function renderAppLayout(app) {
+  app.innerHTML = `
+    <div class="app-layout d-flex">
+      <div id="sidebar-container"></div>
+      <main id="main-content" class="flex-grow-1 p-4 bg-light" style="min-height: 100vh;">
+        <h2 class="h4 fw-bold mb-4">Dashboard</h2>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          El módulo de Dashboard se implementará en el Sprint 4.
+          Por ahora, la sesión está activa y el Sidebar funciona.
+        </div>
+      </main>
+    </div>
+  `;
+
+  document.getElementById('sidebar-container').innerHTML = renderSidebar('dashboard');
+
+  initSidebarEvents((module) => {
+    const content = document.getElementById('main-content');
+    content.innerHTML = `
+      <h2 class="h4 fw-bold mb-4">${module.charAt(0).toUpperCase() + module.slice(1)}</h2>
+      <div class="alert alert-info">
+        <i class="bi bi-tools me-2"></i>
+        Este módulo se implementará en los próximos sprints.
+      </div>
+    `;
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
