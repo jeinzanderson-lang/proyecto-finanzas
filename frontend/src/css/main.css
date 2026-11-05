@@ -44,3 +44,31 @@ body {
   color: #fff !important;
   border-left: 3px solid var(--bs-primary);
 }
+
+
+
+/* =========================================
+   Estilos del Dashboard (Sprint 4)
+   ========================================= */
+
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bg-primary-subtle { background-color: rgba(13, 110, 253, 0.1) !important; }
+.bg-success-subtle { background-color: rgba(25, 135, 84, 0.1) !important; }
+.bg-danger-subtle { background-color: rgba(220, 53, 69, 0.1) !important; }
+.bg-warning-subtle { background-color: rgba(255, 193, 7, 0.1) !important; }

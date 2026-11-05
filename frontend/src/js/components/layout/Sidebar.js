@@ -1,3 +1,4 @@
+
 // src/js/components/layout/Sidebar.js
 import { sessionService } from '../../auth/session.service.js';
 import { getAccessibleModules } from '../../auth/permissions.js';
