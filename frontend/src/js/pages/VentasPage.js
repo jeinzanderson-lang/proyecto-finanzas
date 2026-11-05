@@ -1,36 +1,17 @@
 // src/js/pages/VentasPage.js
 import { ventasService } from '../services/ventas.service.js';
+import * as bootstrap from 'bootstrap';
+
+let modalVentaInstance = null;
 
 export function renderVentasPage() {
   const ventas = ventasService.getAll();
   const estadisticas = ventasService.getEstadisticas();
 
-  const ventasRows = ventas.map(v => {
-    const estadoColor = v.estado === 'Completada' ? 'success' : v.estado === 'Pendiente' ? 'warning' : 'danger';
-    return `
-      <tr>
-        <td><span class="fw-bold text-primary">${v.numero}</span></td>
-        <td>${v.fecha}</td>
-        <td>${v.cliente}</td>
-        <td>${v.producto}</td>
-        <td class="text-center">${v.cantidad}</td>
-        <td class="fw-bold">$${v.total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
-        <td><span class="badge bg-${estadoColor}-subtle text-${estadoColor}">${v.estado}</span></td>
-        <td>
-          <button class="btn btn-sm btn-outline-primary me-1 btn-editar" data-id="${v.id}">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${v.id}">
-            <i class="bi bi-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('');
+  const ventasRows = renderTablaVentas(ventas);
 
   return `
     <div class="container-fluid">
-      <!-- Encabezado -->
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 class="h4 fw-bold mb-1">Gestión de Ventas</h2>
@@ -41,7 +22,6 @@ export function renderVentasPage() {
         </button>
       </div>
 
-      <!-- Tarjetas de estadísticas -->
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
           <div class="card border-0 shadow-sm">
@@ -77,7 +57,6 @@ export function renderVentasPage() {
         </div>
       </div>
 
-      <!-- Filtros y búsqueda -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body">
           <div class="row g-3">
@@ -101,7 +80,6 @@ export function renderVentasPage() {
         </div>
       </div>
 
-      <!-- Tabla de ventas -->
       <div class="card border-0 shadow-sm">
         <div class="card-body p-0">
           <div class="table-responsive">
@@ -118,7 +96,7 @@ export function renderVentasPage() {
                   <th>Acciones</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="tablaVentasBody">
                 ${ventasRows}
               </tbody>
             </table>
@@ -126,7 +104,6 @@ export function renderVentasPage() {
         </div>
       </div>
 
-      <!-- Modal para crear/editar venta (oculto por defecto) -->
       <div id="modalVenta" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
@@ -191,8 +168,94 @@ export function renderVentasPage() {
   `;
 }
 
+function renderTablaVentas(ventas) {
+  return ventas.map(v => {
+    const estadoColor = v.estado === 'Completada' ? 'success' : v.estado === 'Pendiente' ? 'warning' : 'danger';
+    return `
+      <tr>
+        <td><span class="fw-bold text-primary">${v.numero}</span></td>
+        <td>${v.fecha}</td>
+        <td>${v.cliente}</td>
+        <td>${v.producto}</td>
+        <td class="text-center">${v.cantidad}</td>
+        <td class="fw-bold">$${v.total.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+        <td><span class="badge bg-${estadoColor}-subtle text-${estadoColor}">${v.estado}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-primary me-1 btn-editar" data-id="${v.id}">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn btn-sm btn-outline-danger btn-eliminar" data-id="${v.id}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function aplicarFiltros() {
+  const busqueda = document.getElementById('buscarVenta')?.value || '';
+  const estado = document.getElementById('filtroEstado')?.value || '';
+
+  const filtros = {};
+  if (busqueda) filtros.busqueda = busqueda;
+  if (estado) filtros.estado = estado;
+
+  const ventasFiltradas = ventasService.getAll(filtros);
+  const tbody = document.getElementById('tablaVentasBody');
+  if (tbody) {
+    tbody.innerHTML = renderTablaVentas(ventasFiltradas);
+    adjuntarEventosTabla();
+  }
+}
+
+function adjuntarEventosTabla() {
+  document.querySelectorAll('.btn-editar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id);
+      const venta = ventasService.getById(id);
+      if (venta) {
+        document.getElementById('modalTitulo').textContent = 'Editar Venta';
+        document.getElementById('ventaId').value = venta.id;
+        document.getElementById('ventaCliente').value = venta.cliente;
+        document.getElementById('ventaProducto').value = venta.producto;
+        document.getElementById('ventaCantidad').value = venta.cantidad;
+        document.getElementById('ventaPrecio').value = venta.precioUnitario;
+        document.getElementById('ventaTotal').value = '$' + venta.total.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+        document.getElementById('ventaMetodoPago').value = venta.metodoPago;
+        document.getElementById('ventaEstado').value = venta.estado;
+        if (!modalVentaInstance) {
+          modalVentaInstance = new bootstrap.Modal(document.getElementById('modalVenta'));
+        }
+        modalVentaInstance.show();
+      }
+    });
+  });
+
+  document.querySelectorAll('.btn-eliminar').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.dataset.id);
+      if (confirm('¿Estás seguro de eliminar esta venta?')) {
+        ventasService.delete(id);
+        aplicarFiltros();
+        actualizarEstadisticas();
+      }
+    });
+  });
+}
+
+function actualizarEstadisticas() {
+  const estadisticas = ventasService.getEstadisticas();
+  const cards = document.querySelectorAll('.row.g-3.mb-4 .card-body h3');
+  if (cards.length === 4) {
+    cards[0].textContent = estadisticas.totalVentas;
+    cards[1].textContent = '$' + estadisticas.montoTotal.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+    cards[2].textContent = estadisticas.completadas;
+    cards[3].textContent = estadisticas.pendientes;
+  }
+}
+
 export function initVentasEvents() {
-  // Evento: Botón Nueva Venta
   const btnNueva = document.getElementById('btnNuevaVenta');
   if (btnNueva) {
     btnNueva.addEventListener('click', () => {
@@ -200,12 +263,13 @@ export function initVentasEvents() {
       document.getElementById('formVenta').reset();
       document.getElementById('ventaId').value = '';
       document.getElementById('ventaTotal').value = '$0.00';
-      const modal = new bootstrap.Modal(document.getElementById('modalVenta'));
-      modal.show();
+      if (!modalVentaInstance) {
+        modalVentaInstance = new bootstrap.Modal(document.getElementById('modalVenta'));
+      }
+      modalVentaInstance.show();
     });
   }
 
-  // Evento: Calcular total automáticamente
   const cantidadInput = document.getElementById('ventaCantidad');
   const precioInput = document.getElementById('ventaPrecio');
   const totalInput = document.getElementById('ventaTotal');
@@ -221,7 +285,6 @@ export function initVentasEvents() {
     precioInput.addEventListener('input', calcularTotal);
   }
 
-  // Evento: Guardar venta
   const btnGuardar = document.getElementById('btnGuardarVenta');
   if (btnGuardar) {
     btnGuardar.addEventListener('click', () => {
@@ -241,76 +304,33 @@ export function initVentasEvents() {
         ventasService.create(datos);
       }
 
-      // Cerrar modal y recargar
-      const modal = bootstrap.Modal.getInstance(document.getElementById('modalVenta'));
-      modal.hide();
-      window.location.hash = '#ventas';
-      window.location.reload();
+      if (modalVentaInstance) {
+        modalVentaInstance.hide();
+      }
+
+      aplicarFiltros();
+      actualizarEstadisticas();
     });
   }
 
-  // Evento: Botones de editar
-  document.querySelectorAll('.btn-editar').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = parseInt(btn.dataset.id);
-      const venta = ventasService.getById(id);
-      if (venta) {
-        document.getElementById('modalTitulo').textContent = 'Editar Venta';
-        document.getElementById('ventaId').value = venta.id;
-        document.getElementById('ventaCliente').value = venta.cliente;
-        document.getElementById('ventaProducto').value = venta.producto;
-        document.getElementById('ventaCantidad').value = venta.cantidad;
-        document.getElementById('ventaPrecio').value = venta.precioUnitario;
-        document.getElementById('ventaTotal').value = '$' + venta.total.toLocaleString('es-CO', { minimumFractionDigits: 2 });
-        document.getElementById('ventaMetodoPago').value = venta.metodoPago;
-        document.getElementById('ventaEstado').value = venta.estado;
-        const modal = new bootstrap.Modal(document.getElementById('modalVenta'));
-        modal.show();
-      }
-    });
-  });
+  adjuntarEventosTabla();
 
-  // Evento: Botones de eliminar
-  document.querySelectorAll('.btn-eliminar').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = parseInt(btn.dataset.id);
-      if (confirm('¿Estás seguro de eliminar esta venta?')) {
-        ventasService.delete(id);
-        window.location.hash = '#ventas';
-        window.location.reload();
-      }
-    });
-  });
-
-  // Evento: Búsqueda
   const buscarInput = document.getElementById('buscarVenta');
   if (buscarInput) {
-    buscarInput.addEventListener('input', (e) => {
-      const busqueda = e.target.value;
-      const estado = document.getElementById('filtroEstado').value;
-      const ventas = ventasService.getAll({ busqueda, estado: estado || undefined });
-      // Aquí podrías re-renderizar la tabla, pero por simplicidad recargamos
-      console.log('Buscando:', busqueda, 'Estado:', estado);
-    });
+    buscarInput.addEventListener('input', aplicarFiltros);
   }
 
-  // Evento: Filtro de estado
   const filtroEstado = document.getElementById('filtroEstado');
   if (filtroEstado) {
-    filtroEstado.addEventListener('change', () => {
-      window.location.hash = '#ventas';
-      window.location.reload();
-    });
+    filtroEstado.addEventListener('change', aplicarFiltros);
   }
 
-  // Evento: Limpiar filtros
   const btnLimpiar = document.getElementById('btnLimpiarFiltros');
   if (btnLimpiar) {
     btnLimpiar.addEventListener('click', () => {
       document.getElementById('buscarVenta').value = '';
       document.getElementById('filtroEstado').value = '';
-      window.location.hash = '#ventas';
-      window.location.reload();
+      aplicarFiltros();
     });
   }
 }

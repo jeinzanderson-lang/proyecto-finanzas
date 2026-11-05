@@ -7,13 +7,14 @@ import { renderLoginPage } from '../pages/LoginPage.js';
 import { renderForbiddenPage } from '../pages/ForbiddenPage.js';
 import { renderUsersPage } from '../pages/UsersPage.js';
 import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
-import { renderDashboardPage, initDashboardCharts } from '../pages/DashboardPage.js';
+import { renderGastosPage, initGastosEvents } from '../pages/GastosPage.js';
+import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
 import { chartsService } from '../services/charts.service.js';
 
 const moduleRenderers = {
   dashboard: () => renderDashboardPage(),
   ventas: () => renderVentasPage(),
-  gastos: () => `<h2 class="h4 fw-bold mb-4">Gastos</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 6).</div>`,
+  gastos: () => renderGastosPage(),
   inventario: () => `<h2 class="h4 fw-bold mb-4">Inventario</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 7).</div>`,
   reportes: () => `<h2 class="h4 fw-bold mb-4">Reportes</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 8).</div>`,
   configuracion: () => `<h2 class="h4 fw-bold mb-4">Configuración</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 9).</div>`,
@@ -23,10 +24,16 @@ const moduleRenderers = {
 const postRenderInitializers = {
   dashboard: () => {
     chartsService.destroyAll();
-    setTimeout(() => initDashboardCharts(), 50);
+    setTimeout(() => {
+      initDashboardCharts();
+      initDashboardEvents();
+    }, 100);
   },
   ventas: () => {
-    setTimeout(() => initVentasEvents(), 50);
+    setTimeout(() => initVentasEvents(), 100);
+  },
+  gastos: () => {
+    setTimeout(() => initGastosEvents(), 100);
   },
 };
 

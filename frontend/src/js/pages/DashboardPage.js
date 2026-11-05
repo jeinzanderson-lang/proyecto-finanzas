@@ -84,3 +84,60 @@ export function initDashboardCharts() {
   chartsService.createLineChart('chartVentasGastos', ventasVsGastos);
   chartsService.createDoughnutChart('chartCategorias', ventasPorCategoria);
 }
+
+export function initDashboardEvents() {
+  // Botón "Este mes" - mostrar alert informativo
+  const btnMes = document.querySelector('button.btn-outline-secondary');
+  if (btnMes) {
+    btnMes.addEventListener('click', () => {
+      alert('📅 Filtro de período: Actualmente mostrando datos de Noviembre 2026.\n\nEsta funcionalidad se conectará al backend en el Sprint 10.');
+    });
+  }
+
+  // Botón "Exportar" - simular exportación
+  const btnExportar = document.querySelector('button.btn-primary');
+  if (btnExportar) {
+    btnExportar.addEventListener('click', () => {
+      const datos = {
+        fecha: new Date().toISOString(),
+        kpis: mockDashboardService.getKPIs(),
+        transacciones: mockDashboardService.getUltimasTransacciones(),
+      };
+      
+      const dataStr = JSON.stringify(datos, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `dashboard-export-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      
+      alert('✅ Datos exportados exitosamente en formato JSON.');
+    });
+  }
+
+  // Enlace "Ver todas" - navegar a transacciones (placeholder)
+  const btnVerTodas = document.querySelector('a.btn-outline-primary');
+  if (btnVerTodas) {
+    btnVerTodas.addEventListener('click', (e) => {
+      e.preventDefault();
+      alert('📋 Esta funcionalidad mostrará todas las transacciones en el Sprint 8 (Reportes).');
+    });
+  }
+
+  // Hacer tarjetas KPI clickeables
+  document.querySelectorAll('.kpi-card').forEach((card, index) => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      const kpis = mockDashboardService.getKPIs();
+      const kpiValues = Object.values(kpis);
+      const kpi = kpiValues[index];
+      
+      if (kpi) {
+        alert(`📊 ${kpi.label}\n\nValor: ${kpi.label.includes('stock') || kpi.label.includes('Productos') ? kpi.valor : '$' + kpi.valor.toLocaleString('es-CO', { minimumFractionDigits: 2 })}\n\nTendencia: ${kpi.tendencia === 'up' ? '↑' : '↓'} ${kpi.cambio}% vs mes anterior\n\nEsta funcionalidad mostrará detalles completos en el Sprint 8 (Reportes).`);
+      }
+    });
+  });
+}
