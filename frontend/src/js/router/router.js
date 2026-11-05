@@ -9,6 +9,8 @@ import { renderUsersPage } from '../pages/UsersPage.js';
 import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
 import { renderGastosPage, initGastosEvents } from '../pages/GastosPage.js';
 import { renderInventarioPage, initInventarioEvents } from '../pages/InventarioPage.js';
+import { renderUsuariosPage, initUsuariosEvents } from '../pages/UsuariosPage.js';
+import { renderConfiguracionPage, initConfiguracionEvents } from '../pages/ConfiguracionPage.js';
 import { renderReportesPage, initReportesEvents } from '../pages/ReportesPage.js';
 import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
 import { chartsService } from '../services/charts.service.js';
@@ -19,8 +21,8 @@ const moduleRenderers = {
   gastos: () => renderGastosPage(),
   inventario: () => renderInventarioPage(),
   reportes: () => renderReportesPage(),
-  configuracion: () => `<h2 class="h4 fw-bold mb-4">Configuración</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 9).</div>`,
-  usuarios: () => renderUsersPage(),
+  usuarios: () => renderUsuariosPage(),
+  configuracion: () => renderConfiguracionPage(),
 };
 
 const postRenderInitializers = {
@@ -45,6 +47,12 @@ const postRenderInitializers = {
     chartsService.destroyAll();
     initReportesEvents();
   }, 100);
+  },
+  usuarios: () => {
+   setTimeout(() => initUsuariosEvents(), 100);
+  },
+  configuracion: () => {
+   etTimeout(() => initConfiguracionEvents(), 100);
 },
 };
 
