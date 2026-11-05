@@ -8,6 +8,7 @@ import { renderForbiddenPage } from '../pages/ForbiddenPage.js';
 import { renderUsersPage } from '../pages/UsersPage.js';
 import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
 import { renderGastosPage, initGastosEvents } from '../pages/GastosPage.js';
+import { renderInventarioPage, initInventarioEvents } from '../pages/InventarioPage.js';
 import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
 import { chartsService } from '../services/charts.service.js';
 
@@ -15,7 +16,7 @@ const moduleRenderers = {
   dashboard: () => renderDashboardPage(),
   ventas: () => renderVentasPage(),
   gastos: () => renderGastosPage(),
-  inventario: () => `<h2 class="h4 fw-bold mb-4">Inventario</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 7).</div>`,
+  inventario: () => renderInventarioPage(),
   reportes: () => `<h2 class="h4 fw-bold mb-4">Reportes</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 8).</div>`,
   configuracion: () => `<h2 class="h4 fw-bold mb-4">Configuración</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 9).</div>`,
   usuarios: () => renderUsersPage(),
@@ -34,6 +35,9 @@ const postRenderInitializers = {
   },
   gastos: () => {
     setTimeout(() => initGastosEvents(), 100);
+  },
+  inventario: () => {
+    setTimeout(() => initInventarioEvents(), 100);
   },
 };
 
