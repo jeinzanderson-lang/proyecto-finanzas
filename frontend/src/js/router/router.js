@@ -6,15 +6,13 @@ import { renderSidebar, initSidebarEvents } from '../components/layout/Sidebar.j
 import { renderLoginPage } from '../pages/LoginPage.js';
 import { renderForbiddenPage } from '../pages/ForbiddenPage.js';
 import { renderUsersPage } from '../pages/UsersPage.js';
+import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
 import { renderDashboardPage, initDashboardCharts } from '../pages/DashboardPage.js';
 import { chartsService } from '../services/charts.service.js';
 
 const moduleRenderers = {
   dashboard: () => renderDashboardPage(),
-  ventas: () => `
-    <h2 class="h4 fw-bold mb-4">Ventas</h2>
-    <div class="alert alert-info"><i class="bi bi-info-circle me-2"></i>Módulo en desarrollo (Sprint 5).</div>
-  `,
+  ventas: () => renderVentasPage(),
   gastos: () => `<h2 class="h4 fw-bold mb-4">Gastos</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 6).</div>`,
   inventario: () => `<h2 class="h4 fw-bold mb-4">Inventario</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 7).</div>`,
   reportes: () => `<h2 class="h4 fw-bold mb-4">Reportes</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 8).</div>`,
@@ -26,6 +24,9 @@ const postRenderInitializers = {
   dashboard: () => {
     chartsService.destroyAll();
     setTimeout(() => initDashboardCharts(), 50);
+  },
+  ventas: () => {
+    setTimeout(() => initVentasEvents(), 50);
   },
 };
 
