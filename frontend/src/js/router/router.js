@@ -9,6 +9,7 @@ import { renderUsersPage } from '../pages/UsersPage.js';
 import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
 import { renderGastosPage, initGastosEvents } from '../pages/GastosPage.js';
 import { renderInventarioPage, initInventarioEvents } from '../pages/InventarioPage.js';
+import { renderReportesPage, initReportesEvents } from '../pages/ReportesPage.js';
 import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
 import { chartsService } from '../services/charts.service.js';
 
@@ -17,7 +18,7 @@ const moduleRenderers = {
   ventas: () => renderVentasPage(),
   gastos: () => renderGastosPage(),
   inventario: () => renderInventarioPage(),
-  reportes: () => `<h2 class="h4 fw-bold mb-4">Reportes</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 8).</div>`,
+  reportes: () => renderReportesPage(),
   configuracion: () => `<h2 class="h4 fw-bold mb-4">Configuración</h2><div class="alert alert-info">Módulo en desarrollo (Sprint 9).</div>`,
   usuarios: () => renderUsersPage(),
 };
@@ -39,6 +40,12 @@ const postRenderInitializers = {
   inventario: () => {
     setTimeout(() => initInventarioEvents(), 100);
   },
+  reportes: () => {
+   setTimeout(() => {
+    chartsService.destroyAll();
+    initReportesEvents();
+  }, 100);
+},
 };
 
 export function initRouter() {
