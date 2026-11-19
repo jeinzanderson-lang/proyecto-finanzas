@@ -37,7 +37,8 @@ def crear_app():
     migrate.init_app(app, db)
     # Importar modelos para las migraciones
     from app.dominios.usuarios.modelos import Usuario  # noqa: F401
-
+    from app.dominios.ventas.modelos import Venta  # noqa: F401
+    from app.dominios.gastos.modelos import Gasto  # noqa: F401
     # Permitir conexion con el frontend
     CORS(
         app,
@@ -76,7 +77,11 @@ def crear_app():
             }
         }, 500
     from app.dominios.usuarios.controladores import auth_bp
+    from app.dominios.ventas.controladores import ventas_bp
+    from app.dominios.gastos.controladores import gastos_bp
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(ventas_bp)
+    app.register_blueprint(gastos_bp)
 
     return app
