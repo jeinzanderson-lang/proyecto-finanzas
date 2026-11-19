@@ -1,10 +1,11 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, g, jsonify, request
 
 from app.dominios.usuarios.dtos import (
     validar_login,
     validar_registro
 )
 from app.dominios.usuarios.servicios import UsuarioServicio
+from app.seguridad import rol_requerido, token_requerido
 
 
 auth_bp = Blueprint(
@@ -15,6 +16,7 @@ auth_bp = Blueprint(
 
 
 @auth_bp.route("/register", methods=["POST"])
+@rol_requerido("ADMIN")
 def registrar():
     data = request.get_json()
 
@@ -68,4 +70,15 @@ def login():
 def logout():
     return jsonify({
         "message": "Sesión cerrada correctamente."
+    }), 200
+
+@auth_bp.route("/me", methods=["GET"])
+@token_requerido
+def obtener_usuario_actual():
+    return jsonify({
+        "user": {
+            "id": int(g.usuario_actual["sub"]),
+            "username": g.usuario_actual["username"],
+            "role": g.usuario_actual["role"]
+        }
     }), 200
