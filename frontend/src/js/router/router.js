@@ -2,8 +2,8 @@
 import { sessionService } from '../auth/session.service.js';
 import { moduleGuard } from './guards.js';
 import { getCurrentRoute, navigateTo } from './routes.js';
-import { renderSidebar, initSidebarEvents } from '../components/layout/Sidebar.js';
-import { renderLoginPage } from '../pages/LoginPage.js';
+import { renderNavbar, initNavbarEvents } from '../components/layout/navbar.js';
+import { renderLoginPage, initLoginEvents } from '../pages/LoginPage.js';
 import { renderForbiddenPage } from '../pages/ForbiddenPage.js';
 import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
 import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
@@ -64,7 +64,8 @@ export function initRouter() {
       if (currentRoute !== 'login') {
         navigateTo('login');
       }
-      renderLoginPage();
+      app.innerHTML = renderLoginPage();
+      setTimeout(() => initLoginEvents(), 100);
       return;
     }
 
@@ -77,12 +78,19 @@ export function initRouter() {
 
     if (!guardResult.allowed) {
       if (guardResult.redirectTo === 'forbidden') {
-        renderForbiddenPage(guardResult.message);
-        document.getElementById('sidebar-container').innerHTML = renderSidebar();
-        initSidebarEvents();
+        app.innerHTML = `
+          <div class="app-container">
+            ${renderNavbar()}
+            <div class="main-content">
+              ${renderForbiddenPage(guardResult.message)}
+            </div>
+          </div>
+        `;
+        initNavbarEvents();
       } else {
         navigateTo('login');
-        renderLoginPage();
+        app.innerHTML = renderLoginPage();
+        setTimeout(() => initLoginEvents(), 100);
       }
       return;
     }
@@ -90,16 +98,15 @@ export function initRouter() {
     const renderer = moduleRenderers[currentRoute] || moduleRenderers.dashboard;
     
     app.innerHTML = `
-      <div class="d-flex">
-        <div id="sidebar-container"></div>
-        <main id="main-content" class="flex-grow-1 p-4 bg-light" style="min-height: 100vh;">
+      <div class="app-container">
+        ${renderNavbar()}
+        <main class="main-content">
           ${renderer()}
         </main>
       </div>
     `;
 
-    document.getElementById('sidebar-container').innerHTML = renderSidebar();
-    initSidebarEvents();
+    initNavbarEvents();
 
     if (postRenderInitializers[currentRoute]) {
       postRenderInitializers[currentRoute]();

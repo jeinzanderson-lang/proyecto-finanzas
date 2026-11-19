@@ -1,87 +1,530 @@
 /* =========================================
-   AG Services - Estilos Principales
+   AG Services - Sistema Contable
+   Diseño Moderno - Colores Claros
    ========================================= */
 
+:root {
+  --primary: #1e2a5a;
+  --primary-light: #2d3f7a;
+  --accent: #c9a227;
+  --accent-light: #e8c84a;
+  --success: #2d8a5e;
+  --danger: #c94040;
+  --warning: #d4940a;
+  --info: #3a7bd5;
+  --bg: #f5f6fa;
+  --card-bg: #ffffff;
+  --text: #2c3e50;
+  --text-muted: #7f8c8d;
+  --border: #e8e8e8;
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: #f8f9fa;
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Sidebar activo */
-.sidebar .nav-link.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-left: 3px solid #0d6efd;
+h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
-}
-
-.sidebar .nav-link:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--primary);
 }
 
 /* =========================================
-   Estilos del Dashboard
+   Navbar Superior
+   ========================================= */
+
+.top-navbar {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-brand .logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.5px;
+}
+
+.navbar-brand .logo span {
+  color: var(--accent);
+}
+
+.navbar-brand .brand-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-brand .brand-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.navbar-brand .brand-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-menu .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-menu .nav-link:hover {
+  background: var(--bg);
+  color: var(--primary);
+}
+
+.nav-menu .nav-link.active {
+  background: var(--primary);
+  color: white;
+}
+
+.nav-menu .nav-link i {
+  font-size: 1rem;
+}
+
+.btn-logout {
+  color: var(--danger) !important;
+  font-weight: 600;
+}
+
+.btn-logout:hover {
+  background: #fee !important;
+  color: var(--danger) !important;
+}
+
+/* =========================================
+   Layout Principal
+   ========================================= */
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* =========================================
+   Cards
+   ========================================= */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-hover);
+}
+
+.card-header {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* =========================================
+   KPI Cards
    ========================================= */
 
 .kpi-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .kpi-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: var(--shadow-hover);
 }
 
-.icon-box {
+.kpi-card .kpi-icon {
   width: 48px;
   height: 48px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.5rem;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+}
+
+.kpi-card .kpi-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-card .kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+}
+
+.kpi-card .kpi-trend {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.kpi-card .kpi-trend.up {
+  color: var(--success);
+}
+
+.kpi-card .kpi-trend.down {
+  color: var(--danger);
 }
 
 /* =========================================
-   Diseño Responsive
+   Tablas
+   ========================================= */
+
+.table {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.table thead th {
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: none;
+  padding: 1rem 1.5rem;
+}
+
+.table tbody td {
+  padding: 1rem 1.5rem;
+  border-color: var(--border);
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background: var(--bg);
+}
+
+/* =========================================
+   Badges
+   ========================================= */
+
+.badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.bg-success-subtle {
+  background-color: #e8f5e9 !important;
+  color: var(--success) !important;
+}
+
+.bg-danger-subtle {
+  background-color: #fde8e8 !important;
+  color: var(--danger) !important;
+}
+
+.bg-warning-subtle {
+  background-color: #fff8e1 !important;
+  color: var(--warning) !important;
+}
+
+.bg-primary-subtle {
+  background-color: #e8eaf6 !important;
+  color: var(--primary) !important;
+}
+
+.bg-info-subtle {
+  background-color: #e3f2fd !important;
+  color: var(--info) !important;
+}
+
+.bg-secondary-subtle {
+  background-color: #f5f5f5 !important;
+  color: var(--text-muted) !important;
+}
+
+/* =========================================
+   Botones
+   ========================================= */
+
+.btn {
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-light);
+}
+
+.btn-success {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.btn-danger {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
+/* =========================================
+   Formularios
+   ========================================= */
+
+.form-control,
+.form-select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(30, 42, 90, 0.1);
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+/* =========================================
+   Login Page
+   ========================================= */
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f6fa 0%, #e8eaf6 100%);
+  padding: 1rem;
+}
+
+.login-card {
+  background: var(--card-bg);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 420px;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-logo .logo-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -1px;
+}
+
+.login-logo .logo-text span {
+  color: var(--accent);
+}
+
+.login-logo .logo-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.role-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.role-option {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--card-bg);
+}
+
+.role-option:hover {
+  border-color: var(--primary);
+  background: #f8f9ff;
+}
+
+.role-option.selected {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: white;
+}
+
+.role-option i {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.role-option .role-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* =========================================
+   Títulos de Página
+   ========================================= */
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header .page-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 0.5rem;
+}
+
+.page-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 0.5rem 0;
+}
+
+.page-header .page-description {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* =========================================
+   Toast Notifications
+   ========================================= */
+
+.toast-container {
+  z-index: 9999;
+}
+
+.toast {
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+   Responsive
    ========================================= */
 
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: -260px;
-    top: 0;
-    bottom: 0;
-    z-index: 1050;
-    transition: left 0.3s ease;
-    width: 260px !important;
+  .top-navbar {
+    padding: 0.75rem 1rem;
+    flex-wrap: wrap;
   }
 
-  .sidebar.show {
-    left: 0;
+  .nav-menu {
+    width: 100%;
+    overflow-x: auto;
+    padding: 0.5rem 0;
   }
 
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1040;
+  .main-content {
+    padding: 1rem;
   }
 
-  .sidebar-overlay.show {
-    display: block;
+  .page-header h2 {
+    font-size: 1.5rem;
   }
 
-  #main-content {
-    padding: 1rem !important;
-  }
-
-  .table-responsive {
-    font-size: 0.85rem;
-  }
-
-  .kpi-card h3 {
-    font-size: 1.3rem;
+  .kpi-card .kpi-value {
+    font-size: 1.25rem;
   }
 }

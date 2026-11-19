@@ -15,10 +15,11 @@ export function renderGastosPage() {
 
   return `
     <div class="container-fluid">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="page-header d-flex justify-content-between align-items-start mb-4">
         <div>
-          <h2 class="h4 fw-bold mb-1">Gestión de Gastos</h2>
-          <p class="text-muted mb-0 small">Administra los egresos y gastos del sistema</p>
+          <div class="page-subtitle">GESTIÓN DE EGRESOS</div>
+          <h2>Gastos</h2>
+          <p class="page-description">Administra los egresos y gastos del sistema.</p>
         </div>
         <button class="btn btn-danger" id="btnNuevoGasto">
           <i class="bi bi-plus-circle me-2"></i>Nuevo Gasto
@@ -27,40 +28,36 @@ export function renderGastosPage() {
 
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Total Gastos</h6>
-              <h3 class="fw-bold mb-0">${estadisticas.totalGastos}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Gastos</div>
+            <div class="kpi-value">${estadisticas.totalGastos}</div>
+            <div class="kpi-trend down">Registros acumulados</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Monto Total</h6>
-              <h3 class="fw-bold mb-0 text-danger">$${estadisticas.montoTotal.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Monto Total</div>
+            <div class="kpi-value">$${estadisticas.montoTotal.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</div>
+            <div class="kpi-trend down">Egresos totales</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Pagado</h6>
-              <h3 class="fw-bold mb-0 text-success">$${estadisticas.montoPagado.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Pagado</div>
+            <div class="kpi-value">$${estadisticas.montoPagado.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</div>
+            <div class="kpi-trend up">Cancelados</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Pendiente</h6>
-              <h3 class="fw-bold mb-0 text-warning">$${estadisticas.montoPendiente.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Pendiente</div>
+            <div class="kpi-value">$${estadisticas.montoPendiente.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</div>
+            <div class="kpi-trend down">Por pagar</div>
           </div>
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm mb-4">
+      <div class="card mb-4">
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12 col-md-5">
@@ -89,11 +86,11 @@ export function renderGastosPage() {
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm">
+      <div class="card">
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
-              <thead class="table-light">
+              <thead>
                 <tr>
                   <th>Número</th>
                   <th>Fecha</th>
@@ -116,16 +113,16 @@ export function renderGastosPage() {
       <div id="modalGasto" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
+            <div class="modal-header">
               <h5 class="modal-title fw-bold" id="modalTituloGasto">Nuevo Gasto</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
               <form id="formGasto">
                 <input type="hidden" id="gastoId">
                 <div class="row g-3">
                   <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold">Categoría</label>
+                    <label class="form-label">Categoría</label>
                     <select class="form-select" id="gastoCategoria" required>
                       <option value="Servicios Públicos">Servicios Públicos</option>
                       <option value="Insumos">Insumos</option>
@@ -136,19 +133,19 @@ export function renderGastosPage() {
                     </select>
                   </div>
                   <div class="col-12 col-md-6">
-                    <label class="form-label fw-bold">Proveedor</label>
+                    <label class="form-label">Proveedor</label>
                     <input type="text" class="form-control" id="gastoProveedor" required>
                   </div>
                   <div class="col-12">
-                    <label class="form-label fw-bold">Concepto</label>
+                    <label class="form-label">Concepto</label>
                     <input type="text" class="form-control" id="gastoConcepto" required>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Monto</label>
+                    <label class="form-label">Monto</label>
                     <input type="number" class="form-control" id="gastoMonto" min="0" step="0.01" required>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Método de Pago</label>
+                    <label class="form-label">Método de Pago</label>
                     <select class="form-select" id="gastoMetodoPago" required>
                       <option value="Efectivo">Efectivo</option>
                       <option value="Tarjeta">Tarjeta</option>
@@ -157,7 +154,7 @@ export function renderGastosPage() {
                     </select>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Estado</label>
+                    <label class="form-label">Estado</label>
                     <select class="form-select" id="gastoEstado" required>
                       <option value="Pendiente">Pendiente</option>
                       <option value="Pagado">Pagado</option>
@@ -181,17 +178,20 @@ export function renderGastosPage() {
 }
 
 function renderTablaGastos(gastos) {
+  if (gastos.length === 0) {
+    return '<tr><td colspan="8" class="text-center text-muted py-4">No hay gastos registrados</td></tr>';
+  }
   return gastos.map(g => {
     const estadoColor = g.estado === 'Pagado' ? 'success' : g.estado === 'Pendiente' ? 'warning' : 'danger';
     return `
       <tr>
         <td><span class="fw-bold text-danger">${g.numero}</span></td>
         <td>${g.fecha}</td>
-        <td><span class="badge bg-secondary-subtle text-secondary">${g.categoria}</span></td>
+        <td><span class="badge bg-secondary-subtle">${g.categoria}</span></td>
         <td>${g.concepto}</td>
         <td>${g.proveedor}</td>
-        <td class="fw-bold text-danger">$${g.monto.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
-        <td><span class="badge bg-${estadoColor}-subtle text-${estadoColor}">${g.estado}</span></td>
+        <td class="fw-bold text-danger">$${g.monto.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</td>
+        <td><span class="badge bg-${estadoColor}-subtle">${g.estado}</span></td>
         <td>
           <button class="btn btn-sm btn-outline-primary me-1 btn-editar-gasto" data-id="${g.id}">
             <i class="bi bi-pencil"></i>
@@ -261,12 +261,12 @@ function adjuntarEventosTabla() {
 
 function actualizarEstadisticas() {
   const estadisticas = gastosService.getEstadisticas();
-  const cards = document.querySelectorAll('.row.g-3.mb-4 .card-body h3');
+  const cards = document.querySelectorAll('.row.g-3.mb-4 .kpi-card .kpi-value');
   if (cards.length === 4) {
     cards[0].textContent = estadisticas.totalGastos;
-    cards[1].textContent = '$' + estadisticas.montoTotal.toLocaleString('es-CO', { minimumFractionDigits: 2 });
-    cards[2].textContent = '$' + estadisticas.montoPagado.toLocaleString('es-CO', { minimumFractionDigits: 2 });
-    cards[3].textContent = '$' + estadisticas.montoPendiente.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+    cards[1].textContent = '$' + estadisticas.montoTotal.toLocaleString('es-CO', { minimumFractionDigits: 0 });
+    cards[2].textContent = '$' + estadisticas.montoPagado.toLocaleString('es-CO', { minimumFractionDigits: 0 });
+    cards[3].textContent = '$' + estadisticas.montoPendiente.toLocaleString('es-CO', { minimumFractionDigits: 0 });
   }
 }
 
@@ -288,11 +288,26 @@ export function initGastosEvents() {
   if (btnGuardar) {
     btnGuardar.addEventListener('click', () => {
       const id = document.getElementById('gastoId').value;
+      const monto = parseFloat(document.getElementById('gastoMonto').value);
+      const proveedor = document.getElementById('gastoProveedor').value.trim();
+      const concepto = document.getElementById('gastoConcepto').value.trim();
+
+      // Validaciones
+      if (!proveedor || !concepto) {
+        showToast('⚠️ Debes completar todos los campos', 'warning');
+        return;
+      }
+
+      if (isNaN(monto) || monto <= 0) {
+        showToast('⚠️ El monto debe ser mayor a cero', 'error');
+        return;
+      }
+
       const datos = {
         categoria: document.getElementById('gastoCategoria').value,
-        proveedor: document.getElementById('gastoProveedor').value,
-        concepto: document.getElementById('gastoConcepto').value,
-        monto: parseFloat(document.getElementById('gastoMonto').value),
+        proveedor: proveedor,
+        concepto: concepto,
+        monto: monto,
         metodoPago: document.getElementById('gastoMetodoPago').value,
         estado: document.getElementById('gastoEstado').value,
       };

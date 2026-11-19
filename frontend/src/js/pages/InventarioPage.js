@@ -15,10 +15,11 @@ export function renderInventarioPage() {
 
   return `
     <div class="container-fluid">
-      <div class="d-flex justify-content-between align-items-center mb-4">
+      <div class="page-header d-flex justify-content-between align-items-start mb-4">
         <div>
-          <h2 class="h4 fw-bold mb-1">Gestión de Inventario</h2>
-          <p class="text-muted mb-0 small">Administra los productos y el stock del sistema</p>
+          <div class="page-subtitle">CONTROL DE STOCK</div>
+          <h2>Inventario</h2>
+          <p class="page-description">Administra los productos y el stock del sistema.</p>
         </div>
         <button class="btn btn-success" id="btnNuevoProducto">
           <i class="bi bi-plus-circle me-2"></i>Nuevo Producto
@@ -27,40 +28,36 @@ export function renderInventarioPage() {
 
       <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Total Productos</h6>
-              <h3 class="fw-bold mb-0">${estadisticas.total}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Productos</div>
+            <div class="kpi-value">${estadisticas.total}</div>
+            <div class="kpi-trend up">Registrados</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Disponibles</h6>
-              <h3 class="fw-bold mb-0 text-success">${estadisticas.disponibles}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Disponibles</div>
+            <div class="kpi-value">${estadisticas.disponibles}</div>
+            <div class="kpi-trend up">En stock</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Stock Bajo</h6>
-              <h3 class="fw-bold mb-0 text-warning">${estadisticas.stockBajo}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Stock Bajo</div>
+            <div class="kpi-value">${estadisticas.stockBajo}</div>
+            <div class="kpi-trend down">Por reponer</div>
           </div>
         </div>
         <div class="col-12 col-sm-6 col-lg-3">
-          <div class="card border-0 shadow-sm">
-            <div class="card-body">
-              <h6 class="text-muted small mb-1">Valor Inventario</h6>
-              <h3 class="fw-bold mb-0 text-primary">$${estadisticas.valorInventario.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</h3>
-            </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Valor Inventario</div>
+            <div class="kpi-value">$${estadisticas.valorInventario.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</div>
+            <div class="kpi-trend up">Valor total</div>
           </div>
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm mb-4">
+      <div class="card mb-4">
         <div class="card-body">
           <div class="row g-3">
             <div class="col-12 col-md-4">
@@ -89,11 +86,11 @@ export function renderInventarioPage() {
         </div>
       </div>
 
-      <div class="card border-0 shadow-sm">
+      <div class="card">
         <div class="card-body p-0">
           <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
-              <thead class="table-light">
+              <thead>
                 <tr>
                   <th>Código</th>
                   <th>Nombre</th>
@@ -116,20 +113,20 @@ export function renderInventarioPage() {
       <div id="modalProducto" class="modal fade" tabindex="-1">
         <div class="modal-dialog modal-lg">
           <div class="modal-content">
-            <div class="modal-header bg-success text-white">
+            <div class="modal-header">
               <h5 class="modal-title fw-bold" id="modalTitulo">Nuevo Producto</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
               <form id="formProducto">
                 <input type="hidden" id="productoId">
                 <div class="row g-3">
                   <div class="col-12 col-md-8">
-                    <label class="form-label fw-bold">Nombre del Producto</label>
+                    <label class="form-label">Nombre del Producto</label>
                     <input type="text" class="form-control" id="productoNombre" required>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Categoría</label>
+                    <label class="form-label">Categoría</label>
                     <select class="form-select" id="productoCategoria" required>
                       <option value="Computadores">Computadores</option>
                       <option value="Accesorios">Accesorios</option>
@@ -141,19 +138,19 @@ export function renderInventarioPage() {
                     </select>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Precio</label>
+                    <label class="form-label">Precio</label>
                     <input type="number" class="form-control" id="productoPrecio" min="0" step="0.01" required>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Stock Actual</label>
+                    <label class="form-label">Stock Actual</label>
                     <input type="number" class="form-control" id="productoStock" min="0" required>
                   </div>
                   <div class="col-12 col-md-4">
-                    <label class="form-label fw-bold">Stock Mínimo</label>
+                    <label class="form-label">Stock Mínimo</label>
                     <input type="number" class="form-control" id="productoStockMinimo" min="0" required>
                   </div>
                   <div class="col-12">
-                    <label class="form-label fw-bold">Proveedor</label>
+                    <label class="form-label">Proveedor</label>
                     <input type="text" class="form-control" id="productoProveedor" required>
                   </div>
                 </div>
@@ -173,6 +170,9 @@ export function renderInventarioPage() {
 }
 
 function renderTablaProductos(productos) {
+  if (productos.length === 0) {
+    return '<tr><td colspan="8" class="text-center text-muted py-4">No hay productos registrados</td></tr>';
+  }
   return productos.map(p => {
     const estadoColor = p.estado === 'Disponible' ? 'success' : p.estado === 'Stock Bajo' ? 'warning' : 'danger';
     const stockClass = p.estado === 'Stock Bajo' ? 'text-warning fw-bold' : p.estado === 'Agotado' ? 'text-danger fw-bold' : '';
@@ -180,11 +180,11 @@ function renderTablaProductos(productos) {
       <tr>
         <td><span class="fw-bold text-success">${p.codigo}</span></td>
         <td>${p.nombre}</td>
-        <td><span class="badge bg-secondary-subtle text-secondary">${p.categoria}</span></td>
-        <td class="fw-bold">$${p.precio.toLocaleString('es-CO', { minimumFractionDigits: 2 })}</td>
+        <td><span class="badge bg-secondary-subtle">${p.categoria}</span></td>
+        <td class="fw-bold">$${p.precio.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</td>
         <td class="text-center ${stockClass}">${p.stock}</td>
         <td class="text-center text-muted">${p.stockMinimo}</td>
-        <td><span class="badge bg-${estadoColor}-subtle text-${estadoColor}">${p.estado}</span></td>
+        <td><span class="badge bg-${estadoColor}-subtle">${p.estado}</span></td>
         <td>
           <button class="btn btn-sm btn-outline-primary me-1 btn-editar-prod" data-id="${p.id}">
             <i class="bi bi-pencil"></i>
@@ -254,12 +254,12 @@ function adjuntarEventosTabla() {
 
 function actualizarEstadisticas() {
   const estadisticas = inventarioService.getEstadisticas();
-  const cards = document.querySelectorAll('.row.g-3.mb-4 .card-body h3');
+  const cards = document.querySelectorAll('.row.g-3.mb-4 .kpi-card .kpi-value');
   if (cards.length === 4) {
     cards[0].textContent = estadisticas.total;
     cards[1].textContent = estadisticas.disponibles;
     cards[2].textContent = estadisticas.stockBajo;
-    cards[3].textContent = '$' + estadisticas.valorInventario.toLocaleString('es-CO', { minimumFractionDigits: 2 });
+    cards[3].textContent = '$' + estadisticas.valorInventario.toLocaleString('es-CO', { minimumFractionDigits: 0 });
   }
 }
 
@@ -281,13 +281,40 @@ export function initInventarioEvents() {
   if (btnGuardar) {
     btnGuardar.addEventListener('click', () => {
       const id = document.getElementById('productoId').value;
+      const nombre = document.getElementById('productoNombre').value.trim();
+      const precio = parseFloat(document.getElementById('productoPrecio').value);
+      const stock = parseInt(document.getElementById('productoStock').value);
+      const stockMinimo = parseInt(document.getElementById('productoStockMinimo').value);
+      const proveedor = document.getElementById('productoProveedor').value.trim();
+
+      // Validaciones
+      if (!nombre || !proveedor) {
+        showToast('⚠️ Debes completar todos los campos', 'warning');
+        return;
+      }
+
+      if (isNaN(precio) || precio <= 0) {
+        showToast('⚠️ El precio debe ser mayor a cero', 'error');
+        return;
+      }
+
+      if (isNaN(stock) || stock < 0) {
+        showToast('⚠️ El stock actual no puede ser negativo', 'error');
+        return;
+      }
+
+      if (isNaN(stockMinimo) || stockMinimo < 0) {
+        showToast('⚠️ El stock mínimo no puede ser negativo', 'error');
+        return;
+      }
+
       const datos = {
-        nombre: document.getElementById('productoNombre').value,
+        nombre: nombre,
         categoria: document.getElementById('productoCategoria').value,
-        precio: parseFloat(document.getElementById('productoPrecio').value),
-        stock: parseInt(document.getElementById('productoStock').value),
-        stockMinimo: parseInt(document.getElementById('productoStockMinimo').value),
-        proveedor: document.getElementById('productoProveedor').value,
+        precio: precio,
+        stock: stock,
+        stockMinimo: stockMinimo,
+        proveedor: proveedor,
       };
 
       if (id) {
