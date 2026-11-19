@@ -1,0 +1,87 @@
+/* =========================================
+   AG Services - Estilos Principales
+   ========================================= */
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Sidebar activo */
+.sidebar .nav-link.active {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-left: 3px solid #0d6efd;
+  font-weight: 600;
+}
+
+.sidebar .nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* =========================================
+   Estilos del Dashboard
+   ========================================= */
+
+.kpi-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+.icon-box {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* =========================================
+   Diseño Responsive
+   ========================================= */
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    bottom: 0;
+    z-index: 1050;
+    transition: left 0.3s ease;
+    width: 260px !important;
+  }
+
+  .sidebar.show {
+    left: 0;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  #main-content {
+    padding: 1rem !important;
+  }
+
+  .table-responsive {
+    font-size: 0.85rem;
+  }
+
+  .kpi-card h3 {
+    font-size: 1.3rem;
+  }
+}
