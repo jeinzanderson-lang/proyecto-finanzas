@@ -1,0 +1,18 @@
+flowchart LR
+    USER["Administrador / Vendedor"]
+
+    subgraph SC["Sistema Contable AG Services"]
+        FRONT["Frontend SPA<br/>HTML5 + CSS3 + Bootstrap<br/>Vanilla JavaScript"]
+        API["Backend API REST<br/>Python + Flask<br/>Puerto 5000"]
+        DB[("MySQL<br/>sistema_contable_db")]
+    end
+
+    USER -->|"Interacción desde navegador"| FRONT
+
+    FRONT -->|"HTTP asíncrono<br/>JSON + JWT"| API
+
+    API -->|"SQLAlchemy ORM"| DB
+
+    DB -->|"Datos persistidos"| API
+
+    API -->|"Respuestas JSON<br/>HTTP 200 / 201 / 204 / 400 / 401 / 403 / 404"| FRONT

@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor U as Usuario
+    participant F as Frontend SPA
+    participant C as VentaController
+    participant S as Seguridad JWT
+    participant D as DTO Venta
+    participant SV as VentaServicio
+    participant R as VentaRepositorio
+    participant M as Modelo Venta
+    participant DB as MySQL
+
+    U->>F: Completa formulario de venta
+
+    F->>C: POST /api/v1/ventas
+    Note over F,C: JSON + Authorization: Bearer JWT
+
+    C->>S: Validar token y rol
+    S-->>C: Usuario autorizado
+
+    C->>D: validar_venta(data)
+
+    alt Datos inválidos
+        D-->>C: Error de validación
+        C-->>F: HTTP 400 + JSON
+        F-->>U: Muestra error
+    else Datos válidos
+        D-->>C: Datos correctos
+        C->>SV: crear(data, usuario)
+        SV->>SV: Calcular total
+        SV->>R: siguiente_numero()
+        R->>DB: Consultar último ID
+        DB-->>R: Resultado
+        R-->>SV: FAC-XXX
+
+        SV->>M: Crear Venta
+        SV->>R: guardar(venta)
+        R->>DB: INSERT
+        DB-->>R: Venta almacenada
+        R-->>SV: Venta
+        SV-->>C: Venta creada
+        C-->>F: HTTP 201 + JSON
+        F-->>U: Actualiza interfaz
+    end

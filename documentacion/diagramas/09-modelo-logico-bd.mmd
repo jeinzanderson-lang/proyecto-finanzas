@@ -1,0 +1,59 @@
+erDiagram
+
+    USUARIO ||--o{ VENTA : crea
+    USUARIO ||--o{ GASTO : registra
+
+    USUARIO {
+        int id
+        string username
+        string full_name
+        string email
+        string password
+        string role
+        boolean activo
+    }
+
+    VENTA {
+        int id
+        string numero
+        date fecha
+        string cliente
+        string producto
+        int cantidad
+        decimal precio_unitario
+        decimal total
+        string estado
+        string metodo_pago
+    }
+
+    GASTO {
+        int id
+        string numero
+        date fecha
+        string categoria
+        string concepto
+        string proveedor
+        decimal monto
+        string metodo_pago
+        string estado
+    }
+
+    PRODUCTO {
+        int id
+        string codigo
+        string nombre
+        string categoria
+        decimal precio
+        decimal costo
+        int stock
+        int stock_minimo
+        string proveedor
+    }
+
+    CUENTA {
+        int id
+        string codigo
+        string nombre
+        string tipo
+        string descripcion
+    }

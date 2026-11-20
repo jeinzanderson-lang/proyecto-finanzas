@@ -1,0 +1,42 @@
+flowchart TB
+    FRONT["Frontend SPA"]
+
+    subgraph API["Backend Flask"]
+        AUTH["Seguridad<br/>JWT + Roles"]
+
+        subgraph DOM["Dominios funcionales"]
+            US["Usuarios"]
+            VE["Ventas"]
+            GA["Gastos"]
+            IN["Inventario"]
+            CU["Cuentas"]
+            RE["Reportes / Dashboard"]
+        end
+
+        CTRL["Controladores<br/>Blueprints / Endpoints"]
+        DTO["DTO<br/>Validación de entrada"]
+        SERV["Servicios<br/>Reglas de negocio"]
+        REP["Repositorios<br/>Acceso a datos"]
+        MOD["Modelos<br/>SQLAlchemy ORM"]
+    end
+
+    DB[("MySQL")]
+
+    FRONT -->|"HTTP + JSON + Bearer Token"| CTRL
+
+    AUTH --> CTRL
+
+    US --> CTRL
+    VE --> CTRL
+    GA --> CTRL
+    IN --> CTRL
+    CU --> CTRL
+    RE --> CTRL
+
+    CTRL --> DTO
+    CTRL --> SERV
+    SERV --> REP
+    REP --> MOD
+    MOD --> DB
+
+    RE -.->|"Consulta Ventas,<br/>Gastos e Inventario"| REP

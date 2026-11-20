@@ -1,0 +1,23 @@
+flowchart LR
+
+    subgraph CLIENTE["Equipo Cliente"]
+        BROWSER["Navegador Web"]
+        SPA["Frontend SPA<br/>HTML + CSS + Bootstrap + JavaScript"]
+    end
+
+    subgraph APP["Servidor de Aplicación"]
+        FLASK["Backend Flask<br/>API REST<br/>Puerto 5000"]
+        ORM["SQLAlchemy ORM"]
+    end
+
+    subgraph DBNODE["Servidor de Base de Datos"]
+        MYSQL[("MySQL<br/>Puerto 3306<br/>sistema_contable_db")]
+    end
+
+    BROWSER --> SPA
+
+    SPA -->|"HTTP / JSON<br/>JWT Bearer"| FLASK
+
+    FLASK --> ORM
+
+    ORM -->|"SQL"| MYSQL
