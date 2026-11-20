@@ -1,84 +1,75 @@
 // src/js/services/gastos.service.js
+import { httpClient } from '../api/http.js';
 
-// Datos simulados de gastos
-let gastosMock = [
-  { id: 1, numero: 'GAS-001', fecha: '2026-11-01', categoria: 'Servicios Públicos', concepto: 'Factura de electricidad', proveedor: 'Electricaribe', monto: 450.00, metodoPago: 'Transferencia', estado: 'Pagado', comprobante: 'REC-001.pdf' },
-  { id: 2, numero: 'GAS-002', fecha: '2026-11-02', categoria: 'Insumos', concepto: 'Compra de papelería', proveedor: 'Papelería Central', monto: 125.50, metodoPago: 'Efectivo', estado: 'Pagado', comprobante: 'REC-002.pdf' },
-  { id: 3, numero: 'GAS-003', fecha: '2026-11-03', categoria: 'Transporte', concepto: 'Combustible vehículo empresa', proveedor: 'Terpel', monto: 280.00, metodoPago: 'Tarjeta', estado: 'Pendiente', comprobante: '' },
-  { id: 4, numero: 'GAS-004', fecha: '2026-11-04', categoria: 'Nómina', concepto: 'Pago quincenal empleados', proveedor: 'Interno', monto: 3500.00, metodoPago: 'Transferencia', estado: 'Pagado', comprobante: 'NOM-001.pdf' },
-  { id: 5, numero: 'GAS-005', fecha: '2026-11-04', categoria: 'Mantenimiento', concepto: 'Reparación impresora', proveedor: 'TecnoService', monto: 180.00, metodoPago: 'Efectivo', estado: 'Cancelado', comprobante: '' },
-];
-
-let nextId = 6;
+const ENDPOINT = '/gastos';
 
 export const gastosService = {
-  getAll(filtros = {}) {
-    let resultado = [...gastosMock];
-
-    if (filtros.estado) {
-      resultado = resultado.filter(g => g.estado === filtros.estado);
+  async getAll(filtros = {}) {
+    try {
+      const response = await httpClient.get(ENDPOINT, { params: filtros });
+      return response.data || response;
+    } catch (error) {
+      console.error('Error al obtener gastos:', error);
+      return [];
     }
+  },
 
-    if (filtros.categoria) {
-      resultado = resultado.filter(g => g.categoria === filtros.categoria);
+  async getById(id) {
+    try {
+      const response = await httpClient.get(`${ENDPOINT}/${id}`);
+      return response.data || response;
+    } catch (error) {
+      console.error('Error al obtener gasto:', error);
+      return null;
     }
+  },
 
-    if (filtros.busqueda) {
-      const busqueda = filtros.busqueda.toLowerCase();
-      resultado = resultado.filter(g =>
-        g.concepto.toLowerCase().includes(busqueda) ||
-        g.proveedor.toLowerCase().includes(busqueda) ||
-        g.numero.toLowerCase().includes(busqueda)
-      );
+  async create(datos) {
+    try {
+      const response = await httpClient.post(ENDPOINT, datos);
+      return response.data || response;
+    } catch (error) {
+      console.error('Error al crear gasto:', error);
+      throw error;
     }
-
-    return resultado;
   },
 
-  getById(id) {
-    return gastosMock.find(g => g.id === id) || null;
+  async update(id, datos) {
+    try {
+      const response = await httpClient.patch(`${ENDPOINT}/${id}`, datos);
+      return response.data || response;
+    } catch (error) {
+      console.error('Error al actualizar gasto:', error);
+      throw error;
+    }
   },
 
-  create(gasto) {
-    const nuevoGasto = {
-      id: nextId++,
-      numero: `GAS-${String(nextId - 1).padStart(3, '0')}`,
-      fecha: new Date().toISOString().split('T')[0],
-      estado: 'Pendiente',
-      ...gasto,
-    };
-    gastosMock.push(nuevoGasto);
-    return nuevoGasto;
+  async delete(id) {
+    try {
+      await httpClient.delete(`${ENDPOINT}/${id}`);
+      return true;
+    } catch (error) {
+      console.error('Error al eliminar gasto:', error);
+      throw error;
+    }
   },
 
-  update(id, datosActualizados) {
-    const index = gastosMock.findIndex(g => g.id === id);
-    if (index === -1) return null;
-    gastosMock[index] = { ...gastosMock[index], ...datosActualizados };
-    return gastosMock[index];
+  async getEstadisticas() {
+    try {
+      const gastos = await this.getAll();
+      const totalGastos = gastos.length;
+      const montoTotal = gastos.reduce((sum, g) => sum + (g.monto || 0), 0);
+      const montoPagado = gastos.filter(g => g.estado === 'Pagado').reduce((sum, g) => sum + (g.monto || 0), 0);
+      const montoPendiente = gastos.filter(g => g.estado === 'Pendiente').reduce((sum, g) => sum + (g.monto || 0), 0);
+
+      return { totalGastos, montoTotal, montoPagado, montoPendiente };
+    } catch (error) {
+      return { totalGastos: 0, montoTotal: 0, montoPagado: 0, montoPendiente: 0 };
+    }
   },
 
-  delete(id) {
-    const index = gastosMock.findIndex(g => g.id === id);
-    if (index === -1) return false;
-    gastosMock.splice(index, 1);
-    return true;
-  },
-
-  getEstadisticas() {
-    const total = gastosMock.reduce((sum, g) => sum + g.monto, 0);
-    const pagados = gastosMock.filter(g => g.estado === 'Pagado').reduce((sum, g) => sum + g.monto, 0);
-    const pendientes = gastosMock.filter(g => g.estado === 'Pendiente').reduce((sum, g) => sum + g.monto, 0);
-
-    return {
-      totalGastos: gastosMock.length,
-      montoTotal: total,
-      montoPagado: pagados,
-      montoPendiente: pendientes,
-    };
-  },
-
-  getCategorias() {
-    return [...new Set(gastosMock.map(g => g.categoria))];
-  },
+  async getCategorias() {
+    // Puedes hardcodearlas o pedirle al backend si tienes un endpoint para eso
+    return ['Servicios Públicos', 'Insumos', 'Transporte', 'Nómina', 'Mantenimiento', 'Otros'];
+  }
 };
