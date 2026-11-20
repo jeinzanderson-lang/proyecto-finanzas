@@ -1,0 +1,28 @@
+flowchart LR
+    ADMIN["👤 ADMIN"]
+    VENDEDOR["👤 VENDEDOR"]
+
+    LOGIN(("Iniciar sesión"))
+    DASH(("Consultar dashboard"))
+    USERS(("Gestionar usuarios"))
+    VENTAS(("Gestionar ventas"))
+    GASTOS(("Gestionar gastos"))
+    INVENTARIO(("Consultar inventario"))
+    ADMININV(("Gestionar inventario"))
+    CUENTAS(("Gestionar cuentas"))
+    REPORTES(("Consultar reportes"))
+
+    ADMIN --> LOGIN
+    ADMIN --> DASH
+    ADMIN --> USERS
+    ADMIN --> VENTAS
+    ADMIN --> GASTOS
+    ADMIN --> INVENTARIO
+    ADMIN --> ADMININV
+    ADMIN --> CUENTAS
+    ADMIN --> REPORTES
+
+    VENDEDOR --> LOGIN
+    VENDEDOR --> DASH
+    VENDEDOR --> VENTAS
+    VENDEDOR --> INVENTARIO

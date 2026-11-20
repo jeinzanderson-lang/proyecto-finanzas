@@ -1,0 +1,59 @@
+flowchart TD
+
+    USER["Usuario"]
+
+    LOGIN["Formulario de inicio de sesión"]
+
+    AUTH["POST /api/v1/auth/login"]
+
+    FIND["Buscar usuario en la base de datos"]
+
+    HASH["Verificar contraseña con password_hash"]
+
+    VALID{"¿Credenciales válidas?"}
+
+    TOKEN["Generar JWT<br/>id + username + role + exp"]
+
+    STORE["Frontend almacena el token"]
+
+    REQUEST["Solicitud protegida<br/>Authorization: Bearer JWT"]
+
+    TOKENREQ["token_requerido"]
+
+    TOKVALID{"¿JWT válido<br/>y vigente?"}
+
+    ROLE["rol_requerido"]
+
+    ROLEOK{"¿Rol autorizado?"}
+
+    ENDPOINT["Ejecutar endpoint protegido"]
+
+    R401["HTTP 401<br/>No autenticado"]
+
+    R403["HTTP 403<br/>Sin permisos"]
+
+    USER --> LOGIN
+    LOGIN --> AUTH
+    AUTH --> FIND
+    FIND --> HASH
+    HASH --> VALID
+
+    VALID -- "No" --> R401
+
+    VALID -- "Sí" --> TOKEN
+    TOKEN --> STORE
+    STORE --> REQUEST
+
+    REQUEST --> TOKENREQ
+    TOKENREQ --> TOKVALID
+
+    TOKVALID -- "No" --> R401
+
+    TOKVALID -- "Sí" --> ROLE
+    ROLE --> ROLEOK
+
+    ROLEOK -- "No" --> R403
+
+    ROLEOK -- "Sí" --> ENDPOINT
+
+    ENDPOINT -->|"JSON + HTTP 200 / 201 / 204"| USER

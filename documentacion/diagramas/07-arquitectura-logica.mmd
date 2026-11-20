@@ -1,0 +1,76 @@
+flowchart TB
+
+    UI["FRONTEND SPA<br/>Páginas + Componentes + Router + Servicios"]
+
+    subgraph BACK["BACKEND FLASK"]
+
+        SEG["Seguridad<br/>JWT / Roles"]
+
+        subgraph D1["Dominio Usuarios"]
+            U1["Controlador"]
+            U2["DTO"]
+            U3["Servicio"]
+            U4["Repositorio"]
+            U5["Modelo"]
+        end
+
+        subgraph D2["Dominio Ventas"]
+            V1["Controlador"]
+            V2["DTO"]
+            V3["Servicio"]
+            V4["Repositorio"]
+            V5["Modelo"]
+        end
+
+        subgraph D3["Dominio Gastos"]
+            G1["Controlador"]
+            G2["DTO"]
+            G3["Servicio"]
+            G4["Repositorio"]
+            G5["Modelo"]
+        end
+
+        subgraph D4["Dominio Inventario"]
+            I1["Controlador"]
+            I2["DTO"]
+            I3["Servicio"]
+            I4["Repositorio"]
+            I5["Modelo"]
+        end
+
+        subgraph D5["Dominio Cuentas"]
+            C1["Controlador"]
+            C2["DTO"]
+            C3["Servicio"]
+            C4["Repositorio"]
+            C5["Modelo"]
+        end
+
+        subgraph D6["Reportes"]
+            R1["Controlador"]
+            R2["Servicio"]
+            R3["Repositorio"]
+        end
+    end
+
+    DB[("MySQL")]
+
+    UI --> SEG
+
+    SEG --> U1
+    SEG --> V1
+    SEG --> G1
+    SEG --> I1
+    SEG --> C1
+    SEG --> R1
+
+    U1 --> U2 --> U3 --> U4 --> U5 --> DB
+    V1 --> V2 --> V3 --> V4 --> V5 --> DB
+    G1 --> G2 --> G3 --> G4 --> G5 --> DB
+    I1 --> I2 --> I3 --> I4 --> I5 --> DB
+    C1 --> C2 --> C3 --> C4 --> C5 --> DB
+
+    R1 --> R2 --> R3
+    R3 --> V5
+    R3 --> G5
+    R3 --> I5

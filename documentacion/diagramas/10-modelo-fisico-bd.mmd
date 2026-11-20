@@ -1,0 +1,69 @@
+erDiagram
+
+    usuarios ||--o{ ventas : "FK creado_por_id"
+    usuarios ||--o{ gastos : "FK creado_por_id"
+
+    usuarios {
+        INT id PK
+        VARCHAR_80 username UK
+        VARCHAR_120 full_name
+        VARCHAR_120 email UK
+        VARCHAR_255 password_hash
+        VARCHAR_20 role
+        BOOLEAN activo
+        DATETIME ultimo_acceso
+        DATETIME creado_en
+    }
+
+    ventas {
+        INT id PK
+        VARCHAR_20 numero UK
+        DATE fecha
+        VARCHAR_120 cliente
+        VARCHAR_120 producto
+        INT cantidad
+        DECIMAL_12_2 precio_unitario
+        DECIMAL_12_2 total
+        VARCHAR_20 estado
+        VARCHAR_50 metodo_pago
+        INT creado_por_id FK
+        BOOLEAN activo
+    }
+
+    gastos {
+        INT id PK
+        VARCHAR_20 numero UK
+        DATE fecha
+        VARCHAR_80 categoria
+        VARCHAR_200 concepto
+        VARCHAR_120 proveedor
+        DECIMAL_12_2 monto
+        VARCHAR_50 metodo_pago
+        VARCHAR_20 estado
+        VARCHAR_255 comprobante
+        INT creado_por_id FK
+        BOOLEAN activo
+    }
+
+    productos {
+        INT id PK
+        VARCHAR_30 codigo UK
+        VARCHAR_120 nombre
+        VARCHAR_80 categoria
+        DECIMAL_12_2 precio
+        DECIMAL_12_2 costo
+        INT stock
+        INT stock_minimo
+        VARCHAR_120 proveedor
+        VARCHAR_255 descripcion
+        BOOLEAN activo
+    }
+
+    cuentas {
+        INT id PK
+        VARCHAR_20 codigo UK
+        VARCHAR_120 nombre
+        VARCHAR_30 tipo
+        VARCHAR_255 descripcion
+        BOOLEAN activo
+    }

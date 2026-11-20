@@ -1,0 +1,77 @@
+classDiagram
+
+class Usuario {
+    +Integer id
+    +String username
+    +String full_name
+    +String email
+    +String password_hash
+    +String role
+    +Boolean activo
+    +DateTime ultimo_acceso
+    +DateTime creado_en
+    +establecer_password()
+    +verificar_password()
+    +to_dict()
+}
+
+class Venta {
+    +Integer id
+    +String numero
+    +Date fecha
+    +String cliente
+    +String producto
+    +Integer cantidad
+    +Decimal precio_unitario
+    +Decimal total
+    +String estado
+    +String metodo_pago
+    +Integer creado_por_id
+    +Boolean activo
+    +to_dict()
+}
+
+class Gasto {
+    +Integer id
+    +String numero
+    +Date fecha
+    +String categoria
+    +String concepto
+    +String proveedor
+    +Decimal monto
+    +String metodo_pago
+    +String estado
+    +String comprobante
+    +Integer creado_por_id
+    +Boolean activo
+    +to_dict()
+}
+
+class Producto {
+    +Integer id
+    +String codigo
+    +String nombre
+    +String categoria
+    +Decimal precio
+    +Decimal costo
+    +Integer stock
+    +Integer stock_minimo
+    +String proveedor
+    +String descripcion
+    +Boolean activo
+    +calcular_estado()
+    +to_dict()
+}
+
+class Cuenta {
+    +Integer id
+    +String codigo
+    +String nombre
+    +String tipo
+    +String descripcion
+    +Boolean activo
+    +to_dict()
+}
+
+Usuario "1" --> "0..*" Venta : crea
+Usuario "1" --> "0..*" Gasto : registra
