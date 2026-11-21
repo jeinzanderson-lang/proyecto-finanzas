@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Informe Proyecto Final | Sistema Contable AG Services</title>
+  <style>
+    :root{
+      --navy:#1D1861;--gold:#C5A40F;--ink:#111827;--muted:#64748b;
+      --line:#e2e8f0;--soft:#f8fafc;--ok:#047857;--warn:#b45309;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;color:var(--ink);background:#f6f7fb;line-height:1.65}
+    a{color:var(--navy)}
+    .wrap{max-width:1180px;margin:auto;padding:0 24px}
+    header{background:linear-gradient(135deg,#17124f,#2c267c);color:white;padding:70px 0 54px;border-bottom:6px solid var(--gold)}
+    header .eyebrow{color:#f5dc70;font-weight:800;letter-spacing:.16em;text-transform:uppercase;font-size:12px}
+    h1{font-size:44px;line-height:1.08;margin:10px 0 16px}
+    header p{max-width:860px;color:#e2e8f0;font-size:18px}
+    .meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+    .pill{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);padding:8px 13px;border-radius:999px;font-size:13px}
+    nav{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    nav .wrap{display:flex;gap:8px;overflow:auto;padding-top:10px;padding-bottom:10px}
+    nav a{white-space:nowrap;text-decoration:none;font-weight:700;font-size:13px;padding:8px 11px;border-radius:9px;color:#475569}
+    nav a:hover{background:#eef2ff;color:var(--navy)}
+    main{padding:34px 0 70px}
+    section{background:white;border:1px solid var(--line);border-radius:20px;padding:30px;margin:0 0 24px;box-shadow:0 8px 30px rgba(15,23,42,.04)}
+    h2{font-size:28px;margin:0 0 14px;color:var(--navy)}
+    h3{font-size:19px;margin:26px 0 9px}
+    h4{font-size:16px;margin:20px 0 7px}
+    .lead{font-size:17px;color:#475569}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+    .grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .card{border:1px solid var(--line);border-radius:14px;padding:18px;background:var(--soft)}
+    .card strong{color:var(--navy)}
+    .k{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);font-weight:900}
+    table{width:100%;border-collapse:collapse;margin:14px 0 8px;font-size:14px}
+    th,td{padding:11px 12px;border:1px solid var(--line);vertical-align:top;text-align:left}
+    th{background:#f1f5f9;color:#334155}
+    code,pre{font-family:Consolas,monospace}
+    pre{background:#0f172a;color:#e2e8f0;padding:16px;border-radius:12px;overflow:auto;font-size:13px}
+    .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:15px 0}
+    .flow span{background:#eef2ff;border:1px solid #c7d2fe;color:var(--navy);padding:10px 13px;border-radius:10px;font-weight:800}
+    .arrow{color:var(--gold);font-weight:900}
+    figure{margin:20px 0;border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff}
+    figure img{width:100%;height:auto;object-fit:contain;display:block}.diagram-inline{width:100%;overflow-x:auto;background:#fff}.diagram-inline svg{display:block;width:100%;height:auto;min-width:700px;max-width:none}
+    figcaption{font-size:13px;color:var(--muted);padding:8px 4px 0}
+    .note{border-left:4px solid var(--gold);background:#fffdf3;padding:14px 16px;border-radius:0 10px 10px 0}
+    .ok{border-left-color:#10b981;background:#ecfdf5}
+    .risk{border-left-color:#f59e0b;background:#fffbeb}
+    .small{font-size:13px;color:var(--muted)}
+    .evidence-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+    .evidence-grid figure{margin:0}
+    footer{background:#111827;color:#cbd5e1;padding:28px 0;font-size:13px}
+    @media(max-width:800px){h1{font-size:34px}.grid,.grid3,.evidence-grid{grid-template-columns:1fr}section{padding:22px}}
+    @media print{nav{display:none}body{background:#fff}section{box-shadow:none;break-inside:avoid}header{padding:35px 0}.wrap{max-width:none}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">Proyecto Final · Arquitectura de Software</div>
+    <h1>Sistema Contable AG Services</h1>
+    <p>Aplicación web Full Stack para centralizar ventas, gastos, inventario, catálogo de cuentas, dashboard y reportes, con autenticación JWT, autorización por roles y persistencia real en MySQL.</p>
+    <div class="meta">
+      <span class="pill">Jeinz Anderson Diaz Ortega</span>
+      <span class="pill">Diego Alejandro Fuentes Ortiz</span>
+      <span class="pill">Versión final · Noviembre 2026</span>
+      <span class="pill">Frontend + Backend + MySQL</span>
+    </div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <a href="#resumen">Resumen</a>
+    <a href="#fase1">Fase 01</a>
+    <a href="#fase2">Fase 02</a>
+    <a href="#fase3">Fase 03</a>
+    <a href="#fase4">Fase 04</a>
+    <a href="#fase5">Fase 05</a>
+    <a href="#arquitectura">Arquitectura</a>
+    <a href="#seguridad">Seguridad</a>
+    <a href="#adr">ADR</a>
+    <a href="#calidad">Calidad y riesgos</a>
+    <a href="#evidencias">Evidencias</a>
+    <a href="#conclusiones">Conclusiones</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<section id="resumen">
+  <div class="k">Resumen ejecutivo</div>
+  <h2>1. Visión general del proyecto</h2>
+  <p class="lead">AG Services requiere información contable clara, oportuna y trazable. El sistema desarrollado responde a esa necesidad mediante una SPA web conectada a una API REST en Flask y a una base de datos MySQL.</p>
+
+  <div class="grid3">
+    <div class="card"><strong>Problema</strong><br>Información tardía, baja trazabilidad, dificultad para controlar movimientos, inventario y resultados.</div>
+    <div class="card"><strong>Solución</strong><br>Aplicación contable integrada con módulos operativos, seguridad por roles y almacenamiento persistente.</div>
+    <div class="card"><strong>Resultado</strong><br>Flujo real Navegador → Flask → SQLAlchemy → MySQL, validado mediante Network, terminal y Workbench.</div>
+  </div>
+
+  <h3>1.1 Alcance funcional</h3>
+  <div class="grid">
+    <div class="card">Autenticación JWT y roles <strong>ADMIN</strong> y <strong>VENDEDOR</strong>.</div>
+    <div class="card">Dashboard con indicadores financieros y últimos movimientos.</div>
+    <div class="card">CRUD de ventas, gastos, inventario y catálogo de cuentas.</div>
+    <div class="card">Reportes financieros construidos a partir de datos persistidos.</div>
+  </div>
+
+  <h3>1.2 Stack tecnológico implementado</h3>
+  <table>
+    <tr><th>Capa</th><th>Tecnologías</th><th>Responsabilidad</th></tr>
+    <tr><td>Frontend</td><td>HTML5, CSS3, Tailwind CSS, JavaScript Vanilla, Vite, Font Awesome</td><td>SPA, DOM, eventos, formularios, navegación y consumo asíncrono de API.</td></tr>
+    <tr><td>Backend</td><td>Python, Flask, Flask-CORS, PyJWT, Marshmallow</td><td>API REST, validaciones, seguridad, reglas de negocio y respuestas HTTP.</td></tr>
+    <tr><td>Persistencia</td><td>SQLAlchemy, Flask-Migrate, PyMySQL, MySQL</td><td>ORM, repositorios, migraciones y almacenamiento persistente.</td></tr>
+    <tr><td>Gestión</td><td>Git, GitHub, Jira, Mermaid</td><td>Versionado, trabajo incremental, trazabilidad y documentación arquitectónica.</td></tr>
+  </table>
+</section>
+
+<section id="fase1">
+  <div class="k">Fase 01</div>
+  <h2>2. Gestión comercial y atención inicial</h2>
+  <p>La iniciativa parte de una necesidad empresarial concreta: mejorar el control, oportunidad y confiabilidad de la información contable de AG Services y sus procesos operativos. En el análisis inicial se identificaron problemas de atraso de información, complejidad tributaria, ausencia de control presupuestario, poca supervisión y baja capacidad de proyección financiera.</p>
+
+  <h3>2.1 Necesidad identificada</h3>
+  <div class="grid">
+    <div class="card"><strong>Información clara</strong><br>Disponer de movimientos y saldos organizados para conocer la situación del negocio.</div>
+    <div class="card"><strong>Control operativo</strong><br>Registrar ventas, gastos e inventario en un sistema único y trazable.</div>
+    <div class="card"><strong>Decisiones seguras</strong><br>Convertir los registros transaccionales en dashboard y reportes útiles.</div>
+    <div class="card"><strong>Seguridad</strong><br>Diferenciar permisos entre administración y operación mediante roles.</div>
+  </div>
+
+  <h3>2.2 Propuesta de valor tecnológica</h3>
+  <p>La solución no pretende sustituir todas las funciones de un ERP contable empresarial. El alcance académico se concentra en demostrar una arquitectura Full Stack coherente y funcional para organizar, procesar, consultar y reportar información financiera básica de AG Services.</p>
+</section>
+
+<section id="fase2">
+  <div class="k">Fase 02</div>
+  <h2>3. Descubrimiento, requisitos y contratación</h2>
+
+  <h3>3.1 Requisitos funcionales</h3>
+  <table>
+    <tr><th>ID</th><th>Requisito</th><th>Actor principal</th></tr>
+    <tr><td>RF-01</td><td>Iniciar sesión con credenciales válidas y obtener un token JWT.</td><td>ADMIN / VENDEDOR</td></tr>
+    <tr><td>RF-02</td><td>Consultar dashboard con indicadores y movimientos recientes.</td><td>ADMIN / VENDEDOR</td></tr>
+    <tr><td>RF-03</td><td>Crear, consultar, editar y eliminar ventas según autorización.</td><td>ADMIN / VENDEDOR</td></tr>
+    <tr><td>RF-04</td><td>Gestionar gastos y mantener trazabilidad en MySQL.</td><td>ADMIN</td></tr>
+    <tr><td>RF-05</td><td>Consultar inventario; el ADMIN puede crear, editar y eliminar productos.</td><td>ADMIN / VENDEDOR</td></tr>
+    <tr><td>RF-06</td><td>Consultar reportes financieros basados en registros reales.</td><td>ADMIN</td></tr>
+    <tr><td>RF-07</td><td>Gestionar catálogo de cuentas.</td><td>ADMIN</td></tr>
+    <tr><td>RF-08</td><td>Cerrar sesión y retirar el token almacenado en el cliente.</td><td>ADMIN / VENDEDOR</td></tr>
+  </table>
+
+  <h3>3.2 Requisitos arquitectónicamente relevantes</h3>
+  <table>
+    <tr><th>RAR</th><th>Necesidad</th><th>Respuesta arquitectónica</th></tr>
+    <tr><td>RAR-01</td><td>Separar presentación, lógica y persistencia.</td><td>SPA + API REST + MySQL; backend modular por capas.</td></tr>
+    <tr><td>RAR-02</td><td>Proteger funciones por identidad y rol.</td><td>JWT, decoradores <code>token_requerido</code> y <code>rol_requerido</code>.</td></tr>
+    <tr><td>RAR-03</td><td>Evitar acceso directo del frontend a MySQL.</td><td>Toda persistencia se realiza mediante API Flask y repositorios SQLAlchemy.</td></tr>
+    <tr><td>RAR-04</td><td>Facilitar cambios por dominio funcional.</td><td>Monolito modular: usuarios, ventas, gastos, inventario, cuentas y reportes.</td></tr>
+    <tr><td>RAR-05</td><td>Reproducir la estructura de datos.</td><td>Migraciones con Flask-Migrate.</td></tr>
+  </table>
+
+  <h3>3.3 Restricciones</h3>
+  <ul>
+    <li>Frontend desarrollado con HTML5, CSS3 y JavaScript Vanilla, sin React, Angular o Vue.</li>
+    <li>Backend desarrollado en Flask.</li>
+    <li>Persistencia relacional en MySQL mediante ORM.</li>
+    <li>Ejecución actual orientada a entorno local académico.</li>
+    <li>Uso de JSON y HTTP para la comunicación entre frontend y backend.</li>
+  </ul>
+
+  <h3>3.4 Atributos de calidad</h3>
+  <div class="grid3">
+    <div class="card"><strong>Modificabilidad</strong><br>Dominios y capas reducen el impacto de cambios.</div>
+    <div class="card"><strong>Seguridad</strong><br>JWT, hashes de contraseña, roles y validación de entrada.</div>
+    <div class="card"><strong>Usabilidad</strong><br>SPA con navegación simple, retroalimentación y validación.</div>
+    <div class="card"><strong>Confiabilidad</strong><br>Persistencia en MySQL y respuestas HTTP explícitas.</div>
+    <div class="card"><strong>Trazabilidad</strong><br>GitHub, evidencias, migraciones y documentación.</div>
+    <div class="card"><strong>Desplegabilidad</strong><br>Configuración por variables de entorno y dependencias declaradas.</div>
+  </div>
+</section>
+
+<section id="fase3">
+  <div class="k">Fase 03</div>
+  <h2>4. Scrum, arquitectura y diseño</h2>
+  <p>El desarrollo se organizó incrementalmente mediante trabajo por sprints y seguimiento en Jira. La arquitectura fue definida antes de la integración final y posteriormente ajustada para mantener correspondencia con la implementación real.</p>
+
+  <h3>4.1 Organización del trabajo</h3>
+  <p>Se definieron épicas para configuración y arquitectura, autenticación y seguridad, ventas y gastos, inventario y catálogo de cuentas, dashboard y reportes, integración Frontend–Backend y documentación/entrega final.</p>
+
+  <h3 id="arquitectura">4.2 Arquitectura general</h3>
+  <div class="flow">
+    <span>Navegador / SPA</span><b class="arrow">→</b>
+    <span>API REST Flask</span><b class="arrow">→</b>
+    <span>Servicios</span><b class="arrow">→</b>
+    <span>Repositorios</span><b class="arrow">→</b>
+    <span>SQLAlchemy</span><b class="arrow">→</b>
+    <span>MySQL</span>
+  </div>
+
+  <h3>4.3 C4 — Contexto</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="797pt" height="158pt"
+ viewBox="0.00 0.00 797.40 158.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 133.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-133.2 772.2,-133.2 772.2,25.2 -25.2,25.2"/>
+<!-- admin -->
+<g id="node1" class="node">
+<title>admin</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M160.5,-108C160.5,-108 46.5,-108 46.5,-108 40.5,-108 34.5,-102 34.5,-96 34.5,-96 34.5,-82 34.5,-82 34.5,-76 40.5,-70 46.5,-70 46.5,-70 160.5,-70 160.5,-70 166.5,-70 172.5,-76 172.5,-82 172.5,-82 172.5,-96 172.5,-96 172.5,-102 166.5,-108 160.5,-108"/>
+<text text-anchor="middle" x="103.5" y="-92.2" font-family="Arial" font-size="11.00" fill="#111827">ADMINISTRADOR</text>
+<text text-anchor="middle" x="103.5" y="-80.2" font-family="Arial" font-size="11.00" fill="#111827">Gestiona todo el sistema</text>
+</g>
+<!-- sys -->
+<g id="node3" class="node">
+<title>sys</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M468,-79C468,-79 284,-79 284,-79 278,-79 272,-73 272,-67 272,-67 272,-41 272,-41 272,-35 278,-29 284,-29 284,-29 468,-29 468,-29 474,-29 480,-35 480,-41 480,-41 480,-67 480,-67 480,-73 474,-79 468,-79"/>
+<text text-anchor="middle" x="376" y="-63.2" font-family="Arial" font-size="11.00" fill="#111827">SISTEMA CONTABLE AG SERVICES</text>
+<text text-anchor="middle" x="376" y="-51.2" font-family="Arial" font-size="11.00" fill="#111827">Aplicación web para gestionar ventas,</text>
+<text text-anchor="middle" x="376" y="-39.2" font-family="Arial" font-size="11.00" fill="#111827">gastos, inventario, cuentas y reportes</text>
+</g>
+<!-- admin&#45;&gt;sys -->
+<g id="edge1" class="edge">
+<title>admin&#45;&gt;sys</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M172.76,-80.17C200.46,-76.58 233.18,-72.35 264.14,-68.34"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="264.86,-70.9 271.96,-67.33 264.19,-65.69 264.86,-70.9"/>
+<text text-anchor="middle" x="239.5" y="-74.8" font-family="Arial" font-size="9.00" fill="#475569">Usa</text>
+</g>
+<!-- vend -->
+<g id="node2" class="node">
+<title>vend</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M195,-38C195,-38 12,-38 12,-38 6,-38 0,-32 0,-26 0,-26 0,-12 0,-12 0,-6 6,0 12,0 12,0 195,0 195,0 201,0 207,-6 207,-12 207,-12 207,-26 207,-26 207,-32 201,-38 195,-38"/>
+<text text-anchor="middle" x="103.5" y="-22.2" font-family="Arial" font-size="11.00" fill="#111827">VENDEDOR</text>
+<text text-anchor="middle" x="103.5" y="-10.2" font-family="Arial" font-size="11.00" fill="#111827">Gestiona ventas y consulta información</text>
+</g>
+<!-- vend&#45;&gt;sys -->
+<g id="edge2" class="edge">
+<title>vend&#45;&gt;sys</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M207.15,-32.28C225.89,-34.71 245.51,-37.25 264.46,-39.7"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="264.2,-42.31 271.97,-40.67 264.87,-37.1 264.2,-42.31"/>
+<text text-anchor="middle" x="239.5" y="-39.8" font-family="Arial" font-size="9.00" fill="#475569">Usa</text>
+</g>
+<!-- db -->
+<g id="node4" class="node">
+<title>db</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M747,-75.48C747,-78.11 712.71,-80.25 670.5,-80.25 628.29,-80.25 594,-78.11 594,-75.48 594,-75.48 594,-32.52 594,-32.52 594,-29.89 628.29,-27.75 670.5,-27.75 712.71,-27.75 747,-29.89 747,-32.52 747,-32.52 747,-75.48 747,-75.48"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M747,-75.48C747,-72.84 712.71,-70.7 670.5,-70.7 628.29,-70.7 594,-72.84 594,-75.48"/>
+<text text-anchor="middle" x="670.5" y="-57.2" font-family="Arial" font-size="11.00" fill="#111827">MYSQL</text>
+<text text-anchor="middle" x="670.5" y="-45.2" font-family="Arial" font-size="11.00" fill="#111827">Persistencia de información</text>
+</g>
+<!-- sys&#45;&gt;db -->
+<g id="edge3" class="edge">
+<title>sys&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M480.12,-54C514.84,-54 553.12,-54 586.12,-54"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="586.45,-56.63 593.95,-54 586.45,-51.38 586.45,-56.63"/>
+<text text-anchor="middle" x="537" y="-56.8" font-family="Arial" font-size="9.00" fill="#475569">Lee y almacena</text>
+</g>
+</g>
+</svg></div><figcaption>Administrador y Vendedor utilizan el Sistema Contable AG Services; el sistema persiste información en MySQL.</figcaption></figure>
+
+  <h3>4.4 C4 — Contenedores</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="1014pt" height="193pt"
+ viewBox="0.00 0.00 1014.40 193.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 168.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-168.2 989.2,-168.2 989.2,25.2 -25.2,25.2"/>
+<g id="clust1" class="cluster">
+<title>cluster_sc</title>
+<path fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" d="M285,-8C285,-8 944,-8 944,-8 950,-8 956,-14 956,-20 956,-20 956,-123 956,-123 956,-129 950,-135 944,-135 944,-135 285,-135 285,-135 279,-135 273,-129 273,-123 273,-123 273,-20 273,-20 273,-14 279,-8 285,-8"/>
+<text text-anchor="middle" x="614.5" y="-120.6" font-family="Arial" font-size="13.00" fill="#1d1861">Sistema Contable AG Services</text>
+</g>
+<!-- user -->
+<g id="node1" class="node">
+<title>user</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M175,-79C175,-79 12,-79 12,-79 6,-79 0,-73 0,-67 0,-67 0,-55 0,-55 0,-49 6,-43 12,-43 12,-43 175,-43 175,-43 181,-43 187,-49 187,-55 187,-55 187,-67 187,-67 187,-73 181,-79 175,-79"/>
+<text text-anchor="middle" x="93.5" y="-58.2" font-family="Arial" font-size="11.00" fill="#111827">ADMINISTRADOR / VENDEDOR</text>
+</g>
+<!-- front -->
+<g id="node2" class="node">
+<title>front</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M445,-92C445,-92 293,-92 293,-92 287,-92 281,-86 281,-80 281,-80 281,-42 281,-42 281,-36 287,-30 293,-30 293,-30 445,-30 445,-30 451,-30 457,-36 457,-42 457,-42 457,-80 457,-80 457,-86 451,-92 445,-92"/>
+<text text-anchor="middle" x="369" y="-76.2" font-family="Arial" font-size="11.00" fill="#111827">FRONTEND SPA</text>
+<text text-anchor="middle" x="369" y="-64.2" font-family="Arial" font-size="11.00" fill="#111827">HTML5 + CSS3 + Tailwind CSS</text>
+<text text-anchor="middle" x="369" y="-52.2" font-family="Arial" font-size="11.00" fill="#111827">JavaScript Vanilla + Vite</text>
+<text text-anchor="middle" x="369" y="-40.2" font-family="Arial" font-size="11.00" fill="#111827">Puerto 5173</text>
+</g>
+<!-- user&#45;&gt;front -->
+<g id="edge1" class="edge">
+<title>user&#45;&gt;front</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M187.09,-61C214.72,-61 245.03,-61 272.82,-61"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.08,-63.63 280.58,-61 273.08,-58.38 273.08,-63.63"/>
+<text text-anchor="middle" x="234" y="-63.8" font-family="Arial" font-size="9.00" fill="#475569">Navegador</text>
+</g>
+<!-- api -->
+<g id="node3" class="node">
+<title>api</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M689,-92C689,-92 584,-92 584,-92 578,-92 572,-86 572,-80 572,-80 572,-42 572,-42 572,-36 578,-30 584,-30 584,-30 689,-30 689,-30 695,-30 701,-36 701,-42 701,-42 701,-80 701,-80 701,-86 695,-92 689,-92"/>
+<text text-anchor="middle" x="636.5" y="-76.2" font-family="Arial" font-size="11.00" fill="#111827">BACKEND API REST</text>
+<text text-anchor="middle" x="636.5" y="-64.2" font-family="Arial" font-size="11.00" fill="#111827">Python + Flask</text>
+<text text-anchor="middle" x="636.5" y="-52.2" font-family="Arial" font-size="11.00" fill="#111827">JWT + Roles</text>
+<text text-anchor="middle" x="636.5" y="-40.2" font-family="Arial" font-size="11.00" fill="#111827">Puerto 5000</text>
+</g>
+<!-- front&#45;&gt;api -->
+<g id="edge2" class="edge">
+<title>front&#45;&gt;api</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M457.3,-61C491.86,-61 531.1,-61 563.94,-61"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="564.21,-63.63 571.71,-61 564.21,-58.38 564.21,-63.63"/>
+<text text-anchor="middle" x="514.5" y="-73.8" font-family="Arial" font-size="9.00" fill="#475569">HTTP asíncrono</text>
+<text text-anchor="middle" x="514.5" y="-63.8" font-family="Arial" font-size="9.00" fill="#475569">JSON + JWT</text>
+</g>
+<!-- db -->
+<g id="node4" class="node">
+<title>db</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M948,-84.48C948,-87.11 920.66,-89.25 887,-89.25 853.34,-89.25 826,-87.11 826,-84.48 826,-84.48 826,-41.52 826,-41.52 826,-38.89 853.34,-36.75 887,-36.75 920.66,-36.75 948,-38.89 948,-41.52 948,-41.52 948,-84.48 948,-84.48"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M948,-84.48C948,-81.84 920.66,-79.7 887,-79.7 853.34,-79.7 826,-81.84 826,-84.48"/>
+<text text-anchor="middle" x="887" y="-66.2" font-family="Arial" font-size="11.00" fill="#111827">MYSQL</text>
+<text text-anchor="middle" x="887" y="-54.2" font-family="Arial" font-size="11.00" fill="#111827">sistema_contable_db</text>
+</g>
+<!-- api&#45;&gt;db -->
+<g id="edge3" class="edge">
+<title>api&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M701.41,-50.39C709.34,-49.41 717.34,-48.57 725,-48 759.13,-45.48 767.91,-44.98 802,-48 807.28,-48.47 812.72,-49.1 818.17,-49.83"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="817.81,-52.43 825.61,-50.9 818.56,-47.24 817.81,-52.43"/>
+<text text-anchor="middle" x="763.5" y="-50.8" font-family="Arial" font-size="9.00" fill="#475569">SQLAlchemy ORM</text>
+</g>
+<!-- db&#45;&gt;api -->
+<g id="edge4" class="edge">
+<title>db&#45;&gt;api</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M818.26,-62.45C781.77,-62.16 737.02,-61.8 701.17,-61.51"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="818.39,-65.08 825.91,-62.52 818.44,-59.83 818.39,-65.08"/>
+<text text-anchor="middle" x="763.5" y="-64.8" font-family="Arial" font-size="9.00" fill="#475569">Datos persistidos</text>
+</g>
+</g>
+</svg></div><figcaption>Frontend SPA con HTML5, Tailwind CSS, JavaScript Vanilla y Vite; API Flask y base de datos MySQL.</figcaption></figure>
+
+  <h3>4.5 C4 — Componentes</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="485pt" height="713pt"
+ viewBox="0.00 0.00 485.40 713.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 688.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-688.2 460.2,-688.2 460.2,25.2 -25.2,25.2"/>
+<g id="clust1" class="cluster">
+<title>cluster_api</title>
+<path fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" d="M145,-77C145,-77 415,-77 415,-77 421,-77 427,-83 427,-89 427,-89 427,-643 427,-643 427,-649 421,-655 415,-655 415,-655 145,-655 145,-655 139,-655 133,-649 133,-643 133,-643 133,-89 133,-89 133,-83 139,-77 145,-77"/>
+<text text-anchor="middle" x="280" y="-640.6" font-family="Arial" font-size="13.00" fill="#1d1861">Backend Flask</text>
+</g>
+<!-- front -->
+<g id="node1" class="node">
+<title>front</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M96,-551.5C96,-551.5 12,-551.5 12,-551.5 6,-551.5 0,-545.5 0,-539.5 0,-539.5 0,-527.5 0,-527.5 0,-521.5 6,-515.5 12,-515.5 12,-515.5 96,-515.5 96,-515.5 102,-515.5 108,-521.5 108,-527.5 108,-527.5 108,-539.5 108,-539.5 108,-545.5 102,-551.5 96,-551.5"/>
+<text text-anchor="middle" x="54" y="-530.7" font-family="Arial" font-size="11.00" fill="#111827">FRONTEND SPA</text>
+</g>
+<!-- ctrl -->
+<g id="node4" class="node">
+<title>ctrl</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M271,-384C271,-384 169,-384 169,-384 163,-384 157,-378 157,-372 157,-372 157,-358 157,-358 157,-352 163,-346 169,-346 169,-346 271,-346 271,-346 277,-346 283,-352 283,-358 283,-358 283,-372 283,-372 283,-378 277,-384 271,-384"/>
+<text text-anchor="middle" x="220" y="-368.2" font-family="Arial" font-size="11.00" fill="#111827">CONTROLADORES</text>
+<text text-anchor="middle" x="220" y="-356.2" font-family="Arial" font-size="11.00" fill="#111827">Blueprints / Endpoints</text>
+</g>
+<!-- front&#45;&gt;ctrl -->
+<g id="edge1" class="edge">
+<title>front&#45;&gt;ctrl</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M54.12,-515.11C55.26,-488.48 61.34,-437.56 90,-408 105.8,-391.71 127.95,-381.72 149.49,-375.61"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="150.19,-378.14 156.77,-373.69 148.84,-373.07 150.19,-378.14"/>
+<text text-anchor="middle" x="151" y="-410.8" font-family="Arial" font-size="9.00" fill="#475569">HTTP + JSON + Bearer Token</text>
+</g>
+<!-- auth -->
+<g id="node2" class="node">
+<title>auth</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M406.5,-552.5C406.5,-552.5 343.5,-552.5 343.5,-552.5 337.5,-552.5 331.5,-546.5 331.5,-540.5 331.5,-540.5 331.5,-526.5 331.5,-526.5 331.5,-520.5 337.5,-514.5 343.5,-514.5 343.5,-514.5 406.5,-514.5 406.5,-514.5 412.5,-514.5 418.5,-520.5 418.5,-526.5 418.5,-526.5 418.5,-540.5 418.5,-540.5 418.5,-546.5 412.5,-552.5 406.5,-552.5"/>
+<text text-anchor="middle" x="375" y="-536.7" font-family="Arial" font-size="11.00" fill="#111827">SEGURIDAD</text>
+<text text-anchor="middle" x="375" y="-524.7" font-family="Arial" font-size="11.00" fill="#111827">JWT + Roles</text>
+</g>
+<!-- auth&#45;&gt;ctrl -->
+<g id="edge2" class="edge">
+<title>auth&#45;&gt;ctrl</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M365.45,-514.29C354.89,-495.1 336.6,-464.59 316,-442 297.52,-421.73 273.28,-402.59 253.78,-388.58"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="255.26,-386.42 247.63,-384.22 252.23,-390.7 255.26,-386.42"/>
+</g>
+<!-- domains -->
+<g id="node3" class="node">
+<title>domains</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M152.5,-442.5C152.5,-442.5 287.5,-442.5 287.5,-442.5 293.5,-442.5 299.5,-448.5 299.5,-454.5 299.5,-454.5 299.5,-612.5 299.5,-612.5 299.5,-618.5 293.5,-624.5 287.5,-624.5 287.5,-624.5 152.5,-624.5 152.5,-624.5 146.5,-624.5 140.5,-618.5 140.5,-612.5 140.5,-612.5 140.5,-454.5 140.5,-454.5 140.5,-448.5 146.5,-442.5 152.5,-442.5"/>
+<text text-anchor="middle" x="220" y="-608.7" font-family="Arial" font-size="11.00" fill="#111827">DOMINIOS FUNCIONALES</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-598.5 299.5,-598.5 "/>
+<text text-anchor="middle" x="220" y="-582.7" font-family="Arial" font-size="11.00" fill="#111827">Usuarios</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-572.5 299.5,-572.5 "/>
+<text text-anchor="middle" x="220" y="-556.7" font-family="Arial" font-size="11.00" fill="#111827">Ventas</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-546.5 299.5,-546.5 "/>
+<text text-anchor="middle" x="220" y="-530.7" font-family="Arial" font-size="11.00" fill="#111827">Gastos</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-520.5 299.5,-520.5 "/>
+<text text-anchor="middle" x="220" y="-504.7" font-family="Arial" font-size="11.00" fill="#111827">Inventario</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-494.5 299.5,-494.5 "/>
+<text text-anchor="middle" x="220" y="-478.7" font-family="Arial" font-size="11.00" fill="#111827">Cuentas</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="140.5,-468.5 299.5,-468.5 "/>
+<text text-anchor="middle" x="220" y="-452.7" font-family="Arial" font-size="11.00" fill="#111827">Reportes / Dashboard</text>
+</g>
+<!-- domains&#45;&gt;ctrl -->
+<g id="edge3" class="edge">
+<title>domains&#45;&gt;ctrl</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M220,-442.43C220,-423.85 220,-405.73 220,-391.8"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="222.63,-391.61 220,-384.11 217.38,-391.61 222.63,-391.61"/>
+</g>
+<!-- dto -->
+<g id="node5" class="node">
+<title>dto</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M258,-297C258,-297 158,-297 158,-297 152,-297 146,-291 146,-285 146,-285 146,-271 146,-271 146,-265 152,-259 158,-259 158,-259 258,-259 258,-259 264,-259 270,-265 270,-271 270,-271 270,-285 270,-285 270,-291 264,-297 258,-297"/>
+<text text-anchor="middle" x="208" y="-281.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+<text text-anchor="middle" x="208" y="-269.2" font-family="Arial" font-size="11.00" fill="#111827">Validación de entrada</text>
+</g>
+<!-- ctrl&#45;&gt;dto -->
+<g id="edge4" class="edge">
+<title>ctrl&#45;&gt;dto</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M217.46,-345.97C215.75,-333.92 213.49,-317.87 211.6,-304.51"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="214.19,-304.06 210.54,-297 208.99,-304.79 214.19,-304.06"/>
+</g>
+<!-- serv -->
+<g id="node6" class="node">
+<title>serv</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M400,-297C400,-297 314,-297 314,-297 308,-297 302,-291 302,-285 302,-285 302,-271 302,-271 302,-265 308,-259 314,-259 314,-259 400,-259 400,-259 406,-259 412,-265 412,-271 412,-271 412,-285 412,-285 412,-291 406,-297 400,-297"/>
+<text text-anchor="middle" x="357" y="-281.2" font-family="Arial" font-size="11.00" fill="#111827">SERVICIOS</text>
+<text text-anchor="middle" x="357" y="-269.2" font-family="Arial" font-size="11.00" fill="#111827">Reglas de negocio</text>
+</g>
+<!-- ctrl&#45;&gt;serv -->
+<g id="edge5" class="edge">
+<title>ctrl&#45;&gt;serv</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M249.05,-345.97C270.21,-332.84 298.99,-314.99 321.51,-301.02"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="323,-303.19 327.99,-297 320.23,-298.72 323,-303.19"/>
+</g>
+<!-- repo -->
+<g id="node7" class="node">
+<title>repo</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M397.5,-210C397.5,-210 316.5,-210 316.5,-210 310.5,-210 304.5,-204 304.5,-198 304.5,-198 304.5,-184 304.5,-184 304.5,-178 310.5,-172 316.5,-172 316.5,-172 397.5,-172 397.5,-172 403.5,-172 409.5,-178 409.5,-184 409.5,-184 409.5,-198 409.5,-198 409.5,-204 403.5,-210 397.5,-210"/>
+<text text-anchor="middle" x="357" y="-194.2" font-family="Arial" font-size="11.00" fill="#111827">REPOSITORIOS</text>
+<text text-anchor="middle" x="357" y="-182.2" font-family="Arial" font-size="11.00" fill="#111827">Acceso a datos</text>
+</g>
+<!-- serv&#45;&gt;repo -->
+<g id="edge6" class="edge">
+<title>serv&#45;&gt;repo</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M357,-258.97C357,-246.92 357,-230.87 357,-217.51"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="359.63,-217.5 357,-210 354.38,-217.5 359.63,-217.5"/>
+</g>
+<!-- model -->
+<g id="node8" class="node">
+<title>model</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M401,-123C401,-123 313,-123 313,-123 307,-123 301,-117 301,-111 301,-111 301,-97 301,-97 301,-91 307,-85 313,-85 313,-85 401,-85 401,-85 407,-85 413,-91 413,-97 413,-97 413,-111 413,-111 413,-117 407,-123 401,-123"/>
+<text text-anchor="middle" x="357" y="-107.2" font-family="Arial" font-size="11.00" fill="#111827">MODELOS</text>
+<text text-anchor="middle" x="357" y="-95.2" font-family="Arial" font-size="11.00" fill="#111827">SQLAlchemy ORM</text>
+</g>
+<!-- repo&#45;&gt;model -->
+<g id="edge7" class="edge">
+<title>repo&#45;&gt;model</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M357,-171.97C357,-159.92 357,-143.87 357,-130.51"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="359.63,-130.5 357,-123 354.38,-130.5 359.63,-130.5"/>
+</g>
+<!-- db -->
+<g id="node9" class="node">
+<title>db</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M386.5,-32.73C386.5,-34.53 373.28,-36 357,-36 340.72,-36 327.5,-34.53 327.5,-32.73 327.5,-32.73 327.5,-3.27 327.5,-3.27 327.5,-1.47 340.72,0 357,0 373.28,0 386.5,-1.47 386.5,-3.27 386.5,-3.27 386.5,-32.73 386.5,-32.73"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M386.5,-32.73C386.5,-30.92 373.28,-29.45 357,-29.45 340.72,-29.45 327.5,-30.92 327.5,-32.73"/>
+<text text-anchor="middle" x="357" y="-15.2" font-family="Arial" font-size="11.00" fill="#111827">MYSQL</text>
+</g>
+<!-- model&#45;&gt;db -->
+<g id="edge8" class="edge">
+<title>model&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M357,-84.77C357,-72.79 357,-56.95 357,-43.81"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="359.63,-43.55 357,-36.05 354.38,-43.55 359.63,-43.55"/>
+</g>
+</g>
+</svg></div><figcaption>Componentes internos del backend y relación entre seguridad, dominios, capas y persistencia.</figcaption></figure>
+
+  <h3>4.6 UML — Casos de uso</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="387pt" height="639pt"
+ viewBox="0.00 0.00 387.31 639.17" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 613.97)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-613.97 362.11,-613.97 362.11,25.2 -25.2,25.2"/>
+<!-- admin -->
+<g id="node1" class="node">
+<title>admin</title>
+<ellipse fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" cx="59.4" cy="-294.38" rx="40.11" ry="18.27"/>
+<text text-anchor="middle" x="59.4" y="-291.58" font-family="Arial" font-size="11.00" fill="#111827">ADMIN</text>
+</g>
+<!-- login -->
+<g id="node3" class="node">
+<title>login</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-501.38" rx="58.88" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-498.58" font-family="Arial" font-size="11.00" fill="#111827">Iniciar sesión</text>
+</g>
+<!-- admin&#45;&gt;login -->
+<g id="edge1" class="edge">
+<title>admin&#45;&gt;login</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M67.07,-312.53C80.59,-347.02 114.39,-422.49 165.79,-466.38 175.59,-474.75 187.67,-481.33 199.59,-486.41"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="198.64,-488.86 206.58,-489.23 200.61,-483.99 198.64,-488.86"/>
+</g>
+<!-- dash -->
+<g id="node4" class="node">
+<title>dash</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-432.38" rx="85.62" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-429.58" font-family="Arial" font-size="11.00" fill="#111827">Consultar dashboard</text>
+</g>
+<!-- admin&#45;&gt;dash -->
+<g id="edge2" class="edge">
+<title>admin&#45;&gt;dash</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M74.47,-311.77C93.3,-334.1 128.63,-372.87 165.79,-397.38 175.37,-403.7 186.27,-409.24 196.98,-413.93"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="196.05,-416.39 203.98,-416.9 198.1,-411.55 196.05,-416.39"/>
+</g>
+<!-- users -->
+<g id="node5" class="node">
+<title>users</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-156.38" rx="78.48" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-153.58" font-family="Arial" font-size="11.00" fill="#111827">Gestionar usuarios</text>
+</g>
+<!-- admin&#45;&gt;users -->
+<g id="edge3" class="edge">
+<title>admin&#45;&gt;users</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M74.47,-277C93.3,-254.67 128.63,-215.9 165.79,-191.38 175.69,-184.85 187.01,-179.16 198.08,-174.36"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="199.39,-176.66 205.29,-171.34 197.36,-171.81 199.39,-176.66"/>
+</g>
+<!-- ventas -->
+<g id="node6" class="node">
+<title>ventas</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-363.38" rx="72.25" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-360.58" font-family="Arial" font-size="11.00" fill="#111827">Gestionar ventas</text>
+</g>
+<!-- admin&#45;&gt;ventas -->
+<g id="edge4" class="edge">
+<title>admin&#45;&gt;ventas</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M91.34,-305.62C121.27,-316.5 167.1,-333.14 201.87,-345.78"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="201.17,-348.31 209.12,-348.41 202.97,-343.38 201.17,-348.31"/>
+</g>
+<!-- gastos -->
+<g id="node7" class="node">
+<title>gastos</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-87.38" rx="72.25" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-84.58" font-family="Arial" font-size="11.00" fill="#111827">Gestionar gastos</text>
+</g>
+<!-- admin&#45;&gt;gastos -->
+<g id="edge5" class="edge">
+<title>admin&#45;&gt;gastos</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M67.07,-276.24C80.59,-241.75 114.39,-166.28 165.79,-122.38 174.52,-114.94 185.04,-108.91 195.66,-104.09"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="196.78,-106.46 202.64,-101.09 194.71,-101.64 196.78,-106.46"/>
+</g>
+<!-- invq -->
+<g id="node8" class="node">
+<title>invq</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-570.38" rx="82.96" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-567.58" font-family="Arial" font-size="11.00" fill="#111827">Consultar inventario</text>
+</g>
+<!-- admin&#45;&gt;invq -->
+<g id="edge6" class="edge">
+<title>admin&#45;&gt;invq</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M68.12,-312.53C91.7,-367.89 161.46,-531.14 165.79,-535.38 173.1,-542.55 182.08,-548.32 191.42,-552.95"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="190.37,-555.35 198.28,-556.12 192.57,-550.59 190.37,-555.35"/>
+</g>
+<!-- inva -->
+<g id="node9" class="node">
+<title>inva</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-18.38" rx="82.96" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-15.58" font-family="Arial" font-size="11.00" fill="#111827">Gestionar inventario</text>
+</g>
+<!-- admin&#45;&gt;inva -->
+<g id="edge7" class="edge">
+<title>admin&#45;&gt;inva</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M63.57,-276.02C72.11,-231.8 99.6,-118.28 165.79,-53.38 173.1,-46.22 182.08,-40.45 191.42,-35.82"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="192.57,-38.18 198.28,-32.65 190.37,-33.42 192.57,-38.18"/>
+</g>
+<!-- cuentas -->
+<g id="node10" class="node">
+<title>cuentas</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-294.38" rx="76.24" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-291.58" font-family="Arial" font-size="11.00" fill="#111827">Gestionar cuentas</text>
+</g>
+<!-- admin&#45;&gt;cuentas -->
+<g id="edge8" class="edge">
+<title>admin&#45;&gt;cuentas</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M99.76,-294.38C119.37,-294.38 143.86,-294.38 167.37,-294.38"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="167.45,-297.01 174.95,-294.38 167.45,-291.76 167.45,-297.01"/>
+</g>
+<!-- reportes -->
+<g id="node11" class="node">
+<title>reportes</title>
+<ellipse fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" cx="251.35" cy="-225.38" rx="77.56" ry="18.27"/>
+<text text-anchor="middle" x="251.35" y="-222.58" font-family="Arial" font-size="11.00" fill="#111827">Consultar reportes</text>
+</g>
+<!-- admin&#45;&gt;reportes -->
+<g id="edge9" class="edge">
+<title>admin&#45;&gt;reportes</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M91.34,-283.15C120.98,-272.38 166.2,-255.95 200.85,-243.37"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="201.92,-245.77 208.07,-240.74 200.12,-240.84 201.92,-245.77"/>
+</g>
+<!-- vend -->
+<g id="node2" class="node">
+<title>vend</title>
+<ellipse fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" cx="59.4" cy="-466.38" rx="59.29" ry="18.27"/>
+<text text-anchor="middle" x="59.4" y="-463.58" font-family="Arial" font-size="11.00" fill="#111827">VENDEDOR</text>
+</g>
+<!-- vend&#45;&gt;login -->
+<g id="edge10" class="edge">
+<title>vend&#45;&gt;login</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M110.8,-475.67C136.01,-480.32 166.64,-485.96 192.77,-490.78"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="192.52,-493.4 200.37,-492.18 193.47,-488.23 192.52,-493.4"/>
+</g>
+<!-- vend&#45;&gt;dash -->
+<g id="edge11" class="edge">
+<title>vend&#45;&gt;dash</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M111.3,-457.27C131.64,-453.63 155.45,-449.37 177.55,-445.42"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="178.06,-447.99 184.98,-444.09 177.13,-442.82 178.06,-447.99"/>
+</g>
+<!-- vend&#45;&gt;ventas -->
+<g id="edge12" class="edge">
+<title>vend&#45;&gt;ventas</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M83.93,-449.44C104.82,-434.84 136.48,-413.75 165.79,-398.38 177.44,-392.28 190.39,-386.47 202.59,-381.39"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="203.73,-383.76 209.67,-378.49 201.74,-378.91 203.73,-383.76"/>
+</g>
+<!-- vend&#45;&gt;invq -->
+<g id="edge13" class="edge">
+<title>vend&#45;&gt;invq</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M83.48,-483.31C104.34,-498.16 136.21,-519.75 165.79,-535.38 176.85,-541.22 189.09,-546.78 200.75,-551.67"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="199.99,-554.2 207.92,-554.63 201.99,-549.35 199.99,-554.2"/>
+</g>
+</g>
+</svg></div><figcaption>Capacidades diferenciadas entre ADMIN y VENDEDOR.</figcaption></figure>
+
+  <h3>4.7 UML — Clases</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="732pt" height="584pt"
+ viewBox="0.00 0.00 732.40 584.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 559.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-559.2 707.2,-559.2 707.2,25.2 -25.2,25.2"/>
+<!-- usuario -->
+<g id="node1" class="node">
+<title>usuario</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="0,-113.5 0,-235.5 332,-235.5 332,-113.5 0,-113.5"/>
+<text text-anchor="middle" x="29" y="-171.7" font-family="Arial" font-size="11.00" fill="#111827">Usuario</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="58,-113.5 58,-235.5 "/>
+<text text-anchor="start" x="68" y="-219.7" font-family="Arial" font-size="11.00" fill="#111827">id : Integer</text>
+<text text-anchor="start" x="68" y="-207.7" font-family="Arial" font-size="11.00" fill="#111827">username : String</text>
+<text text-anchor="start" x="68" y="-195.7" font-family="Arial" font-size="11.00" fill="#111827">full_name : String</text>
+<text text-anchor="start" x="68" y="-183.7" font-family="Arial" font-size="11.00" fill="#111827">email : String</text>
+<text text-anchor="start" x="68" y="-171.7" font-family="Arial" font-size="11.00" fill="#111827">password_hash : String</text>
+<text text-anchor="start" x="68" y="-159.7" font-family="Arial" font-size="11.00" fill="#111827">role : String</text>
+<text text-anchor="start" x="68" y="-147.7" font-family="Arial" font-size="11.00" fill="#111827">activo : Boolean</text>
+<text text-anchor="start" x="68" y="-135.7" font-family="Arial" font-size="11.00" fill="#111827">ultimo_acceso : DateTime</text>
+<text text-anchor="start" x="68" y="-123.7" font-family="Arial" font-size="11.00" fill="#111827">creado_en : DateTime</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="202,-113.5 202,-235.5 "/>
+<text text-anchor="start" x="212" y="-183.7" font-family="Arial" font-size="11.00" fill="#111827">establecer_password()</text>
+<text text-anchor="start" x="212" y="-171.7" font-family="Arial" font-size="11.00" fill="#111827">verificar_password()</text>
+<text text-anchor="start" x="212" y="-159.7" font-family="Arial" font-size="11.00" fill="#111827">to_dict()</text>
+</g>
+<!-- venta -->
+<g id="node2" class="node">
+<title>venta</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="435,-191.5 435,-349.5 682,-349.5 682,-191.5 435,-191.5"/>
+<text text-anchor="middle" x="459" y="-267.7" font-family="Arial" font-size="11.00" fill="#111827">Venta</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="483,-191.5 483,-349.5 "/>
+<text text-anchor="start" x="493" y="-333.7" font-family="Arial" font-size="11.00" fill="#111827">id : Integer</text>
+<text text-anchor="start" x="493" y="-321.7" font-family="Arial" font-size="11.00" fill="#111827">numero : String</text>
+<text text-anchor="start" x="493" y="-309.7" font-family="Arial" font-size="11.00" fill="#111827">fecha : Date</text>
+<text text-anchor="start" x="493" y="-297.7" font-family="Arial" font-size="11.00" fill="#111827">cliente : String</text>
+<text text-anchor="start" x="493" y="-285.7" font-family="Arial" font-size="11.00" fill="#111827">producto : String</text>
+<text text-anchor="start" x="493" y="-273.7" font-family="Arial" font-size="11.00" fill="#111827">cantidad : Integer</text>
+<text text-anchor="start" x="493" y="-261.7" font-family="Arial" font-size="11.00" fill="#111827">precio_unitario : Decimal</text>
+<text text-anchor="start" x="493" y="-249.7" font-family="Arial" font-size="11.00" fill="#111827">total : Decimal</text>
+<text text-anchor="start" x="493" y="-237.7" font-family="Arial" font-size="11.00" fill="#111827">estado : String</text>
+<text text-anchor="start" x="493" y="-225.7" font-family="Arial" font-size="11.00" fill="#111827">metodo_pago : String</text>
+<text text-anchor="start" x="493" y="-213.7" font-family="Arial" font-size="11.00" fill="#111827">creado_por_id : Integer</text>
+<text text-anchor="start" x="493" y="-201.7" font-family="Arial" font-size="11.00" fill="#111827">activo : Boolean</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="622,-191.5 622,-349.5 "/>
+<text text-anchor="start" x="632" y="-267.7" font-family="Arial" font-size="11.00" fill="#111827">to_dict()</text>
+</g>
+<!-- usuario&#45;&gt;venta -->
+<g id="edge1" class="edge">
+<title>usuario&#45;&gt;venta</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M332.04,-215.07C363.93,-222.91 396.93,-231.03 427.51,-238.54"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="426.91,-241.1 434.82,-240.34 428.16,-236 426.91,-241.1"/>
+<text text-anchor="middle" x="383.5" y="-236.3" font-family="Arial" font-size="9.00" fill="#475569">1 crea 0..*</text>
+</g>
+<!-- gasto -->
+<g id="node3" class="node">
+<title>gasto</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="438,-0.5 438,-158.5 679,-158.5 679,-0.5 438,-0.5"/>
+<text text-anchor="middle" x="462.5" y="-76.7" font-family="Arial" font-size="11.00" fill="#111827">Gasto</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="487,-0.5 487,-158.5 "/>
+<text text-anchor="start" x="497" y="-142.7" font-family="Arial" font-size="11.00" fill="#111827">id : Integer</text>
+<text text-anchor="start" x="497" y="-130.7" font-family="Arial" font-size="11.00" fill="#111827">numero : String</text>
+<text text-anchor="start" x="497" y="-118.7" font-family="Arial" font-size="11.00" fill="#111827">fecha : Date</text>
+<text text-anchor="start" x="497" y="-106.7" font-family="Arial" font-size="11.00" fill="#111827">categoria : String</text>
+<text text-anchor="start" x="497" y="-94.7" font-family="Arial" font-size="11.00" fill="#111827">concepto : String</text>
+<text text-anchor="start" x="497" y="-82.7" font-family="Arial" font-size="11.00" fill="#111827">proveedor : String</text>
+<text text-anchor="start" x="497" y="-70.7" font-family="Arial" font-size="11.00" fill="#111827">monto : Decimal</text>
+<text text-anchor="start" x="497" y="-58.7" font-family="Arial" font-size="11.00" fill="#111827">metodo_pago : String</text>
+<text text-anchor="start" x="497" y="-46.7" font-family="Arial" font-size="11.00" fill="#111827">estado : String</text>
+<text text-anchor="start" x="497" y="-34.7" font-family="Arial" font-size="11.00" fill="#111827">comprobante : String</text>
+<text text-anchor="start" x="497" y="-22.7" font-family="Arial" font-size="11.00" fill="#111827">creado_por_id : Integer</text>
+<text text-anchor="start" x="497" y="-10.7" font-family="Arial" font-size="11.00" fill="#111827">activo : Boolean</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="619,-0.5 619,-158.5 "/>
+<text text-anchor="start" x="629" y="-76.7" font-family="Arial" font-size="11.00" fill="#111827">to_dict()</text>
+</g>
+<!-- usuario&#45;&gt;gasto -->
+<g id="edge2" class="edge">
+<title>usuario&#45;&gt;gasto</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M332.04,-134.35C364.9,-126.36 398.92,-118.08 430.28,-110.45"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="431.1,-112.95 437.76,-108.63 429.85,-107.85 431.1,-112.95"/>
+<text text-anchor="middle" x="383.5" y="-129.3" font-family="Arial" font-size="9.00" fill="#475569">1 registra 0..*</text>
+</g>
+<!-- producto -->
+<g id="node4" class="node">
+<title>producto</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="18,-268.5 18,-414.5 314,-414.5 314,-268.5 18,-268.5"/>
+<text text-anchor="middle" x="50" y="-338.7" font-family="Arial" font-size="11.00" fill="#111827">Producto</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="82,-268.5 82,-414.5 "/>
+<text text-anchor="start" x="92" y="-398.7" font-family="Arial" font-size="11.00" fill="#111827">id : Integer</text>
+<text text-anchor="start" x="92" y="-386.7" font-family="Arial" font-size="11.00" fill="#111827">codigo : String</text>
+<text text-anchor="start" x="92" y="-374.7" font-family="Arial" font-size="11.00" fill="#111827">nombre : String</text>
+<text text-anchor="start" x="92" y="-362.7" font-family="Arial" font-size="11.00" fill="#111827">categoria : String</text>
+<text text-anchor="start" x="92" y="-350.7" font-family="Arial" font-size="11.00" fill="#111827">precio : Decimal</text>
+<text text-anchor="start" x="92" y="-338.7" font-family="Arial" font-size="11.00" fill="#111827">costo : Decimal</text>
+<text text-anchor="start" x="92" y="-326.7" font-family="Arial" font-size="11.00" fill="#111827">stock : Integer</text>
+<text text-anchor="start" x="92" y="-314.7" font-family="Arial" font-size="11.00" fill="#111827">stock_minimo : Integer</text>
+<text text-anchor="start" x="92" y="-302.7" font-family="Arial" font-size="11.00" fill="#111827">proveedor : String</text>
+<text text-anchor="start" x="92" y="-290.7" font-family="Arial" font-size="11.00" fill="#111827">descripcion : String</text>
+<text text-anchor="start" x="92" y="-278.7" font-family="Arial" font-size="11.00" fill="#111827">activo : Boolean</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="211,-268.5 211,-414.5 "/>
+<text text-anchor="start" x="221" y="-344.7" font-family="Arial" font-size="11.00" fill="#111827">calcular_estado()</text>
+<text text-anchor="start" x="221" y="-332.7" font-family="Arial" font-size="11.00" fill="#111827">to_dict()</text>
+</g>
+<!-- cuenta -->
+<g id="node5" class="node">
+<title>cuenta</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="52,-447.5 52,-533.5 280,-533.5 280,-447.5 52,-447.5"/>
+<text text-anchor="middle" x="80" y="-487.7" font-family="Arial" font-size="11.00" fill="#111827">Cuenta</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="108,-447.5 108,-533.5 "/>
+<text text-anchor="start" x="118" y="-517.7" font-family="Arial" font-size="11.00" fill="#111827">id : Integer</text>
+<text text-anchor="start" x="118" y="-505.7" font-family="Arial" font-size="11.00" fill="#111827">codigo : String</text>
+<text text-anchor="start" x="118" y="-493.7" font-family="Arial" font-size="11.00" fill="#111827">nombre : String</text>
+<text text-anchor="start" x="118" y="-481.7" font-family="Arial" font-size="11.00" fill="#111827">tipo : String</text>
+<text text-anchor="start" x="118" y="-469.7" font-family="Arial" font-size="11.00" fill="#111827">descripcion : String</text>
+<text text-anchor="start" x="118" y="-457.7" font-family="Arial" font-size="11.00" fill="#111827">activo : Boolean</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="220,-447.5 220,-533.5 "/>
+<text text-anchor="start" x="230" y="-487.7" font-family="Arial" font-size="11.00" fill="#111827">to_dict()</text>
+</g>
+</g>
+</svg></div><figcaption>Modelos persistentes principales: Usuario, Venta, Gasto, Producto y Cuenta.</figcaption></figure>
+
+  <h3>4.8 UML — Secuencia de creación de venta</h3>
+  <figure><div class="diagram-inline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 820" width="1500" height="820">
+<style>
+text{font-family:Arial,sans-serif;fill:#111827}.t{font-size:18px;font-weight:700}.s{font-size:14px}.lifeline{stroke:#94a3b8;stroke-width:1.5;stroke-dasharray:6 5}.arrow{stroke:#1D1861;stroke-width:2;marker-end:url(#a)}.box{fill:#f8fafc;stroke:#1D1861;stroke-width:2;rx:10}.note{fill:#fff8d6;stroke:#C5A40F;stroke-width:1.5;rx:8}
+</style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#1D1861"/></marker></defs>
+<rect width="1500" height="820" fill="#fff"/>
+<rect class="box" x="15" y="35" width="130" height="55"/><text class="s" x="80" y="68" text-anchor="middle">Usuario</text><line class="lifeline" x1="80" y1="90" x2="80" y2="770"/><rect class="box" x="175" y="35" width="130" height="55"/><text class="s" x="240" y="68" text-anchor="middle">Frontend SPA</text><line class="lifeline" x1="240" y1="90" x2="240" y2="770"/><rect class="box" x="345" y="35" width="130" height="55"/><text class="s" x="410" y="68" text-anchor="middle">VentaController</text><line class="lifeline" x1="410" y1="90" x2="410" y2="770"/><rect class="box" x="515" y="35" width="130" height="55"/><text class="s" x="580" y="68" text-anchor="middle">Seguridad JWT</text><line class="lifeline" x1="580" y1="90" x2="580" y2="770"/><rect class="box" x="675" y="35" width="130" height="55"/><text class="s" x="740" y="68" text-anchor="middle">DTO Venta</text><line class="lifeline" x1="740" y1="90" x2="740" y2="770"/><rect class="box" x="835" y="35" width="130" height="55"/><text class="s" x="900" y="68" text-anchor="middle">VentaServicio</text><line class="lifeline" x1="900" y1="90" x2="900" y2="770"/><rect class="box" x="1005" y="35" width="130" height="55"/><text class="s" x="1070" y="68" text-anchor="middle">VentaRepositorio</text><line class="lifeline" x1="1070" y1="90" x2="1070" y2="770"/><rect class="box" x="1165" y="35" width="130" height="55"/><text class="s" x="1230" y="68" text-anchor="middle">Modelo Venta</text><line class="lifeline" x1="1230" y1="90" x2="1230" y2="770"/><rect class="box" x="1335" y="35" width="130" height="55"/><text class="s" x="1400" y="68" text-anchor="middle">MySQL</text><line class="lifeline" x1="1400" y1="90" x2="1400" y2="770"/><line class="arrow" x1="80" y1="140" x2="240" y2="140"/><text class="s" x="160.0" y="132" text-anchor="middle">Completa formulario</text><line class="arrow" x1="240" y1="200" x2="410" y2="200"/><text class="s" x="325.0" y="192" text-anchor="middle">POST /api/v1/ventas + JWT</text><line class="arrow" x1="410" y1="260" x2="580" y2="260"/><text class="s" x="495.0" y="252" text-anchor="middle">Validar token y rol</text><line class="arrow" x1="410" y1="320" x2="740" y2="320"/><text class="s" x="575.0" y="312" text-anchor="middle">validar_venta(data)</text><line class="arrow" x1="410" y1="380" x2="900" y2="380"/><text class="s" x="655.0" y="372" text-anchor="middle">crear(data, usuario)</text><line class="arrow" x1="900" y1="440" x2="1070" y2="440"/><text class="s" x="985.0" y="432" text-anchor="middle">siguiente_numero()</text><line class="arrow" x1="1070" y1="500" x2="1400" y2="500"/><text class="s" x="1235.0" y="492" text-anchor="middle">Consultar último ID</text><line class="arrow" x1="900" y1="560" x2="1230" y2="560"/><text class="s" x="1065.0" y="552" text-anchor="middle">Crear modelo Venta</text><line class="arrow" x1="900" y1="620" x2="1070" y2="620"/><text class="s" x="985.0" y="612" text-anchor="middle">guardar(venta)</text><line class="arrow" x1="1070" y1="680" x2="1400" y2="680"/><text class="s" x="1235.0" y="672" text-anchor="middle">INSERT</text><line class="arrow" x1="410" y1="740" x2="240" y2="740"/><text class="s" x="325.0" y="732" text-anchor="middle">HTTP 201 + JSON</text><rect class="note" x="310" y="105" width="280" height="46"/><text class="s" x="450" y="133" text-anchor="middle">Flujo representativo de creación de venta</text></svg></div><figcaption>Recorrido completo desde el formulario hasta la persistencia y respuesta HTTP 201.</figcaption></figure>
+
+  <h3>4.9 Arquitectura lógica</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="743pt" height="671pt"
+ viewBox="0.00 0.00 743.40 671.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 646.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-646.2 718.2,-646.2 718.2,25.2 -25.2,25.2"/>
+<g id="clust1" class="cluster">
+<title>cluster_d1</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M20,-75C20,-75 109,-75 109,-75 115,-75 121,-81 121,-87 121,-87 121,-468 121,-468 121,-474 115,-480 109,-480 109,-480 20,-480 20,-480 14,-480 8,-474 8,-468 8,-468 8,-87 8,-87 8,-81 14,-75 20,-75"/>
+<text text-anchor="middle" x="64.5" y="-466.4" font-family="Arial" font-size="12.00" fill="#1d1861">Dominio Usuarios</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_d2</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M141,-75C141,-75 218,-75 218,-75 224,-75 230,-81 230,-87 230,-87 230,-468 230,-468 230,-474 224,-480 218,-480 218,-480 141,-480 141,-480 135,-480 129,-474 129,-468 129,-468 129,-87 129,-87 129,-81 135,-75 141,-75"/>
+<text text-anchor="middle" x="179.5" y="-466.4" font-family="Arial" font-size="12.00" fill="#1d1861">Dominio Ventas</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_d3</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M250,-75C250,-75 328,-75 328,-75 334,-75 340,-81 340,-87 340,-87 340,-468 340,-468 340,-474 334,-480 328,-480 328,-480 250,-480 250,-480 244,-480 238,-474 238,-468 238,-468 238,-87 238,-87 238,-81 244,-75 250,-75"/>
+<text text-anchor="middle" x="289" y="-466.4" font-family="Arial" font-size="12.00" fill="#1d1861">Dominio Gastos</text>
+</g>
+<g id="clust4" class="cluster">
+<title>cluster_d4</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M462,-75C462,-75 555,-75 555,-75 561,-75 567,-81 567,-87 567,-87 567,-468 567,-468 567,-474 561,-480 555,-480 555,-480 462,-480 462,-480 456,-480 450,-474 450,-468 450,-468 450,-87 450,-87 450,-81 456,-75 462,-75"/>
+<text text-anchor="middle" x="508.5" y="-466.4" font-family="Arial" font-size="12.00" fill="#1d1861">Dominio Inventario</text>
+</g>
+<g id="clust5" class="cluster">
+<title>cluster_d5</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M587,-75C587,-75 673,-75 673,-75 679,-75 685,-81 685,-87 685,-87 685,-468 685,-468 685,-474 679,-480 673,-480 673,-480 587,-480 587,-480 581,-480 575,-474 575,-468 575,-468 575,-87 575,-87 575,-81 581,-75 587,-75"/>
+<text text-anchor="middle" x="630" y="-466.4" font-family="Arial" font-size="12.00" fill="#1d1861">Dominio Cuentas</text>
+</g>
+<g id="clust6" class="cluster">
+<title>cluster_r</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M360,-158C360,-158 430,-158 430,-158 436,-158 442,-164 442,-170 442,-170 442,-385 442,-385 442,-391 436,-397 430,-397 430,-397 360,-397 360,-397 354,-397 348,-391 348,-385 348,-385 348,-170 348,-170 348,-164 354,-158 360,-158"/>
+<text text-anchor="middle" x="395" y="-383.4" font-family="Arial" font-size="12.00" fill="#1d1861">Reportes</text>
+</g>
+<!-- ui -->
+<g id="node1" class="node">
+<title>ui</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M431,-621C431,-621 249,-621 249,-621 243,-621 237,-615 237,-609 237,-609 237,-595 237,-595 237,-589 243,-583 249,-583 249,-583 431,-583 431,-583 437,-583 443,-589 443,-595 443,-595 443,-609 443,-609 443,-615 437,-621 431,-621"/>
+<text text-anchor="middle" x="340" y="-605.2" font-family="Arial" font-size="11.00" fill="#111827">FRONTEND SPA</text>
+<text text-anchor="middle" x="340" y="-593.2" font-family="Arial" font-size="11.00" fill="#111827">Páginas + DOM + Eventos + Servicios</text>
+</g>
+<!-- seg -->
+<g id="node2" class="node">
+<title>seg</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M371.5,-536C371.5,-536 308.5,-536 308.5,-536 302.5,-536 296.5,-530 296.5,-524 296.5,-524 296.5,-510 296.5,-510 296.5,-504 302.5,-498 308.5,-498 308.5,-498 371.5,-498 371.5,-498 377.5,-498 383.5,-504 383.5,-510 383.5,-510 383.5,-524 383.5,-524 383.5,-530 377.5,-536 371.5,-536"/>
+<text text-anchor="middle" x="340" y="-520.2" font-family="Arial" font-size="11.00" fill="#111827">SEGURIDAD</text>
+<text text-anchor="middle" x="340" y="-508.2" font-family="Arial" font-size="11.00" fill="#111827">JWT / Roles</text>
+</g>
+<!-- ui&#45;&gt;seg -->
+<g id="edge23" class="edge">
+<title>ui&#45;&gt;seg</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M340,-582.99C340,-571.54 340,-556.53 340,-543.82"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="342.63,-543.76 340,-536.26 337.38,-543.76 342.63,-543.76"/>
+</g>
+<!-- d1c -->
+<g id="node3" class="node">
+<title>d1c</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M100,-451C100,-451 46,-451 46,-451 40,-451 34,-445 34,-439 34,-439 34,-427 34,-427 34,-421 40,-415 46,-415 46,-415 100,-415 100,-415 106,-415 112,-421 112,-427 112,-427 112,-439 112,-439 112,-445 106,-451 100,-451"/>
+<text text-anchor="middle" x="73" y="-430.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;d1c -->
+<g id="edge24" class="edge">
+<title>seg&#45;&gt;d1c</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M296.11,-516.3C250.15,-514.95 177.01,-507.99 121,-480 109.93,-474.47 99.71,-465.49 91.57,-456.94"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="93.27,-454.91 86.28,-451.13 89.39,-458.44 93.27,-454.91"/>
+</g>
+<!-- d2c -->
+<g id="node8" class="node">
+<title>d2c</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M210,-451C210,-451 156,-451 156,-451 150,-451 144,-445 144,-439 144,-439 144,-427 144,-427 144,-421 150,-415 156,-415 156,-415 210,-415 210,-415 216,-415 222,-421 222,-427 222,-427 222,-439 222,-439 222,-445 216,-451 210,-451"/>
+<text text-anchor="middle" x="183" y="-430.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;d2c -->
+<g id="edge25" class="edge">
+<title>seg&#45;&gt;d2c</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M296.24,-506.62C275.22,-500.91 250.27,-492.3 230,-480 219.85,-473.84 210.19,-465.09 202.3,-456.88"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="204.16,-455.02 197.13,-451.31 200.31,-458.6 204.16,-455.02"/>
+</g>
+<!-- d3c -->
+<g id="node13" class="node">
+<title>d3c</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M320,-451C320,-451 266,-451 266,-451 260,-451 254,-445 254,-439 254,-439 254,-427 254,-427 254,-421 260,-415 266,-415 266,-415 320,-415 320,-415 326,-415 332,-421 332,-427 332,-427 332,-439 332,-439 332,-445 326,-451 320,-451"/>
+<text text-anchor="middle" x="293" y="-430.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;d3c -->
+<g id="edge26" class="edge">
+<title>seg&#45;&gt;d3c</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M329.57,-497.8C322.81,-486.02 313.95,-470.55 306.64,-457.79"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="308.77,-456.23 302.76,-451.03 304.21,-458.84 308.77,-456.23"/>
+</g>
+<!-- d4c -->
+<g id="node18" class="node">
+<title>d4c</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M527,-451C527,-451 473,-451 473,-451 467,-451 461,-445 461,-439 461,-439 461,-427 461,-427 461,-421 467,-415 473,-415 473,-415 527,-415 527,-415 533,-415 539,-421 539,-427 539,-427 539,-439 539,-439 539,-445 533,-451 527,-451"/>
+<text text-anchor="middle" x="500" y="-430.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;d4c -->
+<g id="edge27" class="edge">
+<title>seg&#45;&gt;d4c</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M377.24,-497.89C388.74,-492.23 401.42,-485.91 413,-480 428.97,-471.84 446.46,-462.65 461.55,-454.63"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="462.91,-456.88 468.29,-451.04 460.44,-452.25 462.91,-456.88"/>
+</g>
+<!-- d5c -->
+<g id="node23" class="node">
+<title>d5c</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M649,-451C649,-451 595,-451 595,-451 589,-451 583,-445 583,-439 583,-439 583,-427 583,-427 583,-421 589,-415 595,-415 595,-415 649,-415 649,-415 655,-415 661,-421 661,-427 661,-427 661,-439 661,-439 661,-445 655,-451 649,-451"/>
+<text text-anchor="middle" x="622" y="-430.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;d5c -->
+<g id="edge28" class="edge">
+<title>seg&#45;&gt;d5c</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M383.99,-512.5C442.49,-507.29 542.32,-496.33 575,-480 585.95,-474.53 595.98,-465.57 603.93,-457"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="606.08,-458.53 609.09,-451.18 602.15,-455.05 606.08,-458.53"/>
+</g>
+<!-- rc -->
+<g id="node28" class="node">
+<title>rc</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M422,-368C422,-368 368,-368 368,-368 362,-368 356,-362 356,-356 356,-356 356,-344 356,-344 356,-338 362,-332 368,-332 368,-332 422,-332 422,-332 428,-332 434,-338 434,-344 434,-344 434,-356 434,-356 434,-362 428,-368 422,-368"/>
+<text text-anchor="middle" x="395" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">Controlador</text>
+</g>
+<!-- seg&#45;&gt;rc -->
+<g id="edge29" class="edge">
+<title>seg&#45;&gt;rc</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M346.1,-497.71C355.99,-468.04 375.55,-409.36 386.7,-375.91"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="389.33,-376.32 389.21,-368.37 384.35,-374.66 389.33,-376.32"/>
+</g>
+<!-- d1d -->
+<g id="node4" class="node">
+<title>d1d</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M89,-368C89,-368 59,-368 59,-368 53,-368 47,-362 47,-356 47,-356 47,-344 47,-344 47,-338 53,-332 59,-332 59,-332 89,-332 89,-332 95,-332 101,-338 101,-344 101,-344 101,-356 101,-356 101,-362 95,-368 89,-368"/>
+<text text-anchor="middle" x="74" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+</g>
+<!-- d1c&#45;&gt;d1d -->
+<g id="edge1" class="edge">
+<title>d1c&#45;&gt;d1d</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M73.21,-414.82C73.35,-403.44 73.54,-388.33 73.7,-375.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="76.32,-375.69 73.79,-368.15 71.07,-375.62 76.32,-375.69"/>
+</g>
+<!-- d1s -->
+<g id="node5" class="node">
+<title>d1s</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M92.5,-285C92.5,-285 57.5,-285 57.5,-285 51.5,-285 45.5,-279 45.5,-273 45.5,-273 45.5,-261 45.5,-261 45.5,-255 51.5,-249 57.5,-249 57.5,-249 92.5,-249 92.5,-249 98.5,-249 104.5,-255 104.5,-261 104.5,-261 104.5,-273 104.5,-273 104.5,-279 98.5,-285 92.5,-285"/>
+<text text-anchor="middle" x="75" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- d1d&#45;&gt;d1s -->
+<g id="edge2" class="edge">
+<title>d1d&#45;&gt;d1s</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M74.21,-331.82C74.35,-320.44 74.54,-305.33 74.7,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="77.32,-292.69 74.79,-285.15 72.07,-292.62 77.32,-292.69"/>
+</g>
+<!-- d1r -->
+<g id="node6" class="node">
+<title>d1r</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M100.5,-202C100.5,-202 49.5,-202 49.5,-202 43.5,-202 37.5,-196 37.5,-190 37.5,-190 37.5,-178 37.5,-178 37.5,-172 43.5,-166 49.5,-166 49.5,-166 100.5,-166 100.5,-166 106.5,-166 112.5,-172 112.5,-178 112.5,-178 112.5,-190 112.5,-190 112.5,-196 106.5,-202 100.5,-202"/>
+<text text-anchor="middle" x="75" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- d1s&#45;&gt;d1r -->
+<g id="edge3" class="edge">
+<title>d1s&#45;&gt;d1r</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M75,-248.82C75,-237.44 75,-222.33 75,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="77.63,-209.65 75,-202.15 72.38,-209.65 77.63,-209.65"/>
+</g>
+<!-- d1m -->
+<g id="node7" class="node">
+<title>d1m</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M96,-119C96,-119 64,-119 64,-119 58,-119 52,-113 52,-107 52,-107 52,-95 52,-95 52,-89 58,-83 64,-83 64,-83 96,-83 96,-83 102,-83 108,-89 108,-95 108,-95 108,-107 108,-107 108,-113 102,-119 96,-119"/>
+<text text-anchor="middle" x="80" y="-98.2" font-family="Arial" font-size="11.00" fill="#111827">Modelo</text>
+</g>
+<!-- d1r&#45;&gt;d1m -->
+<g id="edge4" class="edge">
+<title>d1r&#45;&gt;d1m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M76.06,-165.82C76.76,-154.44 77.7,-139.33 78.48,-126.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="81.1,-126.8 78.94,-119.15 75.86,-126.48 81.1,-126.8"/>
+</g>
+<!-- db -->
+<g id="node31" class="node">
+<title>db</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M325.5,-32.73C325.5,-34.53 312.28,-36 296,-36 279.72,-36 266.5,-34.53 266.5,-32.73 266.5,-32.73 266.5,-3.27 266.5,-3.27 266.5,-1.47 279.72,0 296,0 312.28,0 325.5,-1.47 325.5,-3.27 325.5,-3.27 325.5,-32.73 325.5,-32.73"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M325.5,-32.73C325.5,-30.92 312.28,-29.45 296,-29.45 279.72,-29.45 266.5,-30.92 266.5,-32.73"/>
+<text text-anchor="middle" x="296" y="-15.2" font-family="Arial" font-size="11.00" fill="#111827">MYSQL</text>
+</g>
+<!-- d1m&#45;&gt;db -->
+<g id="edge30" class="edge">
+<title>d1m&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M105.96,-82.91C110.85,-80.06 116,-77.29 121,-75 166.91,-54.02 222.93,-37.58 259.02,-28.08"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="259.81,-30.59 266.41,-26.16 258.49,-25.51 259.81,-30.59"/>
+</g>
+<!-- d2d -->
+<g id="node9" class="node">
+<title>d2d</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M197,-368C197,-368 167,-368 167,-368 161,-368 155,-362 155,-356 155,-356 155,-344 155,-344 155,-338 161,-332 167,-332 167,-332 197,-332 197,-332 203,-332 209,-338 209,-344 209,-344 209,-356 209,-356 209,-362 203,-368 197,-368"/>
+<text text-anchor="middle" x="182" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+</g>
+<!-- d2c&#45;&gt;d2d -->
+<g id="edge5" class="edge">
+<title>d2c&#45;&gt;d2d</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M182.79,-414.82C182.65,-403.44 182.46,-388.33 182.3,-375.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="184.93,-375.62 182.21,-368.15 179.68,-375.69 184.93,-375.62"/>
+</g>
+<!-- d2s -->
+<g id="node10" class="node">
+<title>d2s</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M199.5,-285C199.5,-285 164.5,-285 164.5,-285 158.5,-285 152.5,-279 152.5,-273 152.5,-273 152.5,-261 152.5,-261 152.5,-255 158.5,-249 164.5,-249 164.5,-249 199.5,-249 199.5,-249 205.5,-249 211.5,-255 211.5,-261 211.5,-261 211.5,-273 211.5,-273 211.5,-279 205.5,-285 199.5,-285"/>
+<text text-anchor="middle" x="182" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- d2d&#45;&gt;d2s -->
+<g id="edge6" class="edge">
+<title>d2d&#45;&gt;d2s</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M182,-331.82C182,-320.44 182,-305.33 182,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="184.63,-292.65 182,-285.15 179.38,-292.65 184.63,-292.65"/>
+</g>
+<!-- d2r -->
+<g id="node11" class="node">
+<title>d2r</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M207.5,-202C207.5,-202 156.5,-202 156.5,-202 150.5,-202 144.5,-196 144.5,-190 144.5,-190 144.5,-178 144.5,-178 144.5,-172 150.5,-166 156.5,-166 156.5,-166 207.5,-166 207.5,-166 213.5,-166 219.5,-172 219.5,-178 219.5,-178 219.5,-190 219.5,-190 219.5,-196 213.5,-202 207.5,-202"/>
+<text text-anchor="middle" x="182" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- d2s&#45;&gt;d2r -->
+<g id="edge7" class="edge">
+<title>d2s&#45;&gt;d2r</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M182,-248.82C182,-237.44 182,-222.33 182,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="184.63,-209.65 182,-202.15 179.38,-209.65 184.63,-209.65"/>
+</g>
+<!-- d2m -->
+<g id="node12" class="node">
+<title>d2m</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M210,-119C210,-119 178,-119 178,-119 172,-119 166,-113 166,-107 166,-107 166,-95 166,-95 166,-89 172,-83 178,-83 178,-83 210,-83 210,-83 216,-83 222,-89 222,-95 222,-95 222,-107 222,-107 222,-113 216,-119 210,-119"/>
+<text text-anchor="middle" x="194" y="-98.2" font-family="Arial" font-size="11.00" fill="#111827">Modelo</text>
+</g>
+<!-- d2r&#45;&gt;d2m -->
+<g id="edge8" class="edge">
+<title>d2r&#45;&gt;d2m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M184.54,-165.82C186.23,-154.44 188.47,-139.33 190.35,-126.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="192.96,-126.96 191.46,-119.15 187.76,-126.19 192.96,-126.96"/>
+</g>
+<!-- d2m&#45;&gt;db -->
+<g id="edge31" class="edge">
+<title>d2m&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M215.63,-82.82C231.26,-70.41 252.46,-53.58 269.17,-40.31"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="270.86,-42.32 275.1,-35.6 267.59,-38.21 270.86,-42.32"/>
+</g>
+<!-- d3d -->
+<g id="node14" class="node">
+<title>d3d</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M307,-368C307,-368 277,-368 277,-368 271,-368 265,-362 265,-356 265,-356 265,-344 265,-344 265,-338 271,-332 277,-332 277,-332 307,-332 307,-332 313,-332 319,-338 319,-344 319,-344 319,-356 319,-356 319,-362 313,-368 307,-368"/>
+<text text-anchor="middle" x="292" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+</g>
+<!-- d3c&#45;&gt;d3d -->
+<g id="edge9" class="edge">
+<title>d3c&#45;&gt;d3d</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M292.79,-414.82C292.65,-403.44 292.46,-388.33 292.3,-375.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="294.93,-375.62 292.21,-368.15 289.68,-375.69 294.93,-375.62"/>
+</g>
+<!-- d3s -->
+<g id="node15" class="node">
+<title>d3s</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M308.5,-285C308.5,-285 273.5,-285 273.5,-285 267.5,-285 261.5,-279 261.5,-273 261.5,-273 261.5,-261 261.5,-261 261.5,-255 267.5,-249 273.5,-249 273.5,-249 308.5,-249 308.5,-249 314.5,-249 320.5,-255 320.5,-261 320.5,-261 320.5,-273 320.5,-273 320.5,-279 314.5,-285 308.5,-285"/>
+<text text-anchor="middle" x="291" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- d3d&#45;&gt;d3s -->
+<g id="edge10" class="edge">
+<title>d3d&#45;&gt;d3s</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M291.79,-331.82C291.65,-320.44 291.46,-305.33 291.3,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="293.93,-292.62 291.21,-285.15 288.68,-292.69 293.93,-292.62"/>
+</g>
+<!-- d3r -->
+<g id="node16" class="node">
+<title>d3r</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M314.5,-202C314.5,-202 263.5,-202 263.5,-202 257.5,-202 251.5,-196 251.5,-190 251.5,-190 251.5,-178 251.5,-178 251.5,-172 257.5,-166 263.5,-166 263.5,-166 314.5,-166 314.5,-166 320.5,-166 326.5,-172 326.5,-178 326.5,-178 326.5,-190 326.5,-190 326.5,-196 320.5,-202 314.5,-202"/>
+<text text-anchor="middle" x="289" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- d3s&#45;&gt;d3r -->
+<g id="edge11" class="edge">
+<title>d3s&#45;&gt;d3r</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M290.58,-248.82C290.29,-237.44 289.92,-222.33 289.61,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="292.23,-209.59 289.42,-202.15 286.98,-209.72 292.23,-209.59"/>
+</g>
+<!-- d3m -->
+<g id="node17" class="node">
+<title>d3m</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M312,-119C312,-119 280,-119 280,-119 274,-119 268,-113 268,-107 268,-107 268,-95 268,-95 268,-89 274,-83 280,-83 280,-83 312,-83 312,-83 318,-83 324,-89 324,-95 324,-95 324,-107 324,-107 324,-113 318,-119 312,-119"/>
+<text text-anchor="middle" x="296" y="-98.2" font-family="Arial" font-size="11.00" fill="#111827">Modelo</text>
+</g>
+<!-- d3r&#45;&gt;d3m -->
+<g id="edge12" class="edge">
+<title>d3r&#45;&gt;d3m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M290.48,-165.82C291.47,-154.44 292.77,-139.33 293.87,-126.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="296.49,-126.85 294.52,-119.15 291.26,-126.4 296.49,-126.85"/>
+</g>
+<!-- d3m&#45;&gt;db -->
+<g id="edge32" class="edge">
+<title>d3m&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M296,-82.82C296,-71.44 296,-56.33 296,-43.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="298.63,-43.65 296,-36.15 293.38,-43.65 298.63,-43.65"/>
+</g>
+<!-- d4d -->
+<g id="node19" class="node">
+<title>d4d</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M516,-368C516,-368 486,-368 486,-368 480,-368 474,-362 474,-356 474,-356 474,-344 474,-344 474,-338 480,-332 486,-332 486,-332 516,-332 516,-332 522,-332 528,-338 528,-344 528,-344 528,-356 528,-356 528,-362 522,-368 516,-368"/>
+<text text-anchor="middle" x="501" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+</g>
+<!-- d4c&#45;&gt;d4d -->
+<g id="edge13" class="edge">
+<title>d4c&#45;&gt;d4d</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M500.21,-414.82C500.35,-403.44 500.54,-388.33 500.7,-375.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="503.32,-375.69 500.79,-368.15 498.07,-375.62 503.32,-375.69"/>
+</g>
+<!-- d4s -->
+<g id="node20" class="node">
+<title>d4s</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M519.5,-285C519.5,-285 484.5,-285 484.5,-285 478.5,-285 472.5,-279 472.5,-273 472.5,-273 472.5,-261 472.5,-261 472.5,-255 478.5,-249 484.5,-249 484.5,-249 519.5,-249 519.5,-249 525.5,-249 531.5,-255 531.5,-261 531.5,-261 531.5,-273 531.5,-273 531.5,-279 525.5,-285 519.5,-285"/>
+<text text-anchor="middle" x="502" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- d4d&#45;&gt;d4s -->
+<g id="edge14" class="edge">
+<title>d4d&#45;&gt;d4s</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M501.21,-331.82C501.35,-320.44 501.54,-305.33 501.7,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="504.32,-292.69 501.79,-285.15 499.07,-292.62 504.32,-292.69"/>
+</g>
+<!-- d4r -->
+<g id="node21" class="node">
+<title>d4r</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M528.5,-202C528.5,-202 477.5,-202 477.5,-202 471.5,-202 465.5,-196 465.5,-190 465.5,-190 465.5,-178 465.5,-178 465.5,-172 471.5,-166 477.5,-166 477.5,-166 528.5,-166 528.5,-166 534.5,-166 540.5,-172 540.5,-178 540.5,-178 540.5,-190 540.5,-190 540.5,-196 534.5,-202 528.5,-202"/>
+<text text-anchor="middle" x="503" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- d4s&#45;&gt;d4r -->
+<g id="edge15" class="edge">
+<title>d4s&#45;&gt;d4r</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M502.21,-248.82C502.35,-237.44 502.54,-222.33 502.7,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="505.32,-209.69 502.79,-202.15 500.07,-209.62 505.32,-209.69"/>
+</g>
+<!-- d4m -->
+<g id="node22" class="node">
+<title>d4m</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M502,-119C502,-119 470,-119 470,-119 464,-119 458,-113 458,-107 458,-107 458,-95 458,-95 458,-89 464,-83 470,-83 470,-83 502,-83 502,-83 508,-83 514,-89 514,-95 514,-95 514,-107 514,-107 514,-113 508,-119 502,-119"/>
+<text text-anchor="middle" x="486" y="-98.2" font-family="Arial" font-size="11.00" fill="#111827">Modelo</text>
+</g>
+<!-- d4r&#45;&gt;d4m -->
+<g id="edge16" class="edge">
+<title>d4r&#45;&gt;d4m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M499.39,-165.82C497.01,-154.44 493.83,-139.33 491.18,-126.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="493.71,-125.95 489.6,-119.15 488.57,-127.03 493.71,-125.95"/>
+</g>
+<!-- d4m&#45;&gt;db -->
+<g id="edge33" class="edge">
+<title>d4m&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M457.96,-88.05C424.77,-73.9 369.39,-50.29 332.78,-34.68"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="333.65,-32.2 325.72,-31.67 331.59,-37.02 333.65,-32.2"/>
+</g>
+<!-- d5d -->
+<g id="node24" class="node">
+<title>d5d</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M636,-368C636,-368 606,-368 606,-368 600,-368 594,-362 594,-356 594,-356 594,-344 594,-344 594,-338 600,-332 606,-332 606,-332 636,-332 636,-332 642,-332 648,-338 648,-344 648,-344 648,-356 648,-356 648,-362 642,-368 636,-368"/>
+<text text-anchor="middle" x="621" y="-347.2" font-family="Arial" font-size="11.00" fill="#111827">DTO</text>
+</g>
+<!-- d5c&#45;&gt;d5d -->
+<g id="edge17" class="edge">
+<title>d5c&#45;&gt;d5d</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M621.79,-414.82C621.65,-403.44 621.46,-388.33 621.3,-375.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="623.93,-375.62 621.21,-368.15 618.68,-375.69 623.93,-375.62"/>
+</g>
+<!-- d5s -->
+<g id="node25" class="node">
+<title>d5s</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M638.5,-285C638.5,-285 603.5,-285 603.5,-285 597.5,-285 591.5,-279 591.5,-273 591.5,-273 591.5,-261 591.5,-261 591.5,-255 597.5,-249 603.5,-249 603.5,-249 638.5,-249 638.5,-249 644.5,-249 650.5,-255 650.5,-261 650.5,-261 650.5,-273 650.5,-273 650.5,-279 644.5,-285 638.5,-285"/>
+<text text-anchor="middle" x="621" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- d5d&#45;&gt;d5s -->
+<g id="edge18" class="edge">
+<title>d5d&#45;&gt;d5s</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M621,-331.82C621,-320.44 621,-305.33 621,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="623.63,-292.65 621,-285.15 618.38,-292.65 623.63,-292.65"/>
+</g>
+<!-- d5r -->
+<g id="node26" class="node">
+<title>d5r</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M646.5,-202C646.5,-202 595.5,-202 595.5,-202 589.5,-202 583.5,-196 583.5,-190 583.5,-190 583.5,-178 583.5,-178 583.5,-172 589.5,-166 595.5,-166 595.5,-166 646.5,-166 646.5,-166 652.5,-166 658.5,-172 658.5,-178 658.5,-178 658.5,-190 658.5,-190 658.5,-196 652.5,-202 646.5,-202"/>
+<text text-anchor="middle" x="621" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- d5s&#45;&gt;d5r -->
+<g id="edge19" class="edge">
+<title>d5s&#45;&gt;d5r</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M621,-248.82C621,-237.44 621,-222.33 621,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="623.63,-209.65 621,-202.15 618.38,-209.65 623.63,-209.65"/>
+</g>
+<!-- d5m -->
+<g id="node27" class="node">
+<title>d5m</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M632,-119C632,-119 600,-119 600,-119 594,-119 588,-113 588,-107 588,-107 588,-95 588,-95 588,-89 594,-83 600,-83 600,-83 632,-83 632,-83 638,-83 644,-89 644,-95 644,-95 644,-107 644,-107 644,-113 638,-119 632,-119"/>
+<text text-anchor="middle" x="616" y="-98.2" font-family="Arial" font-size="11.00" fill="#111827">Modelo</text>
+</g>
+<!-- d5r&#45;&gt;d5m -->
+<g id="edge20" class="edge">
+<title>d5r&#45;&gt;d5m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M619.94,-165.82C619.24,-154.44 618.3,-139.33 617.52,-126.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="620.14,-126.48 617.06,-119.15 614.9,-126.8 620.14,-126.48"/>
+</g>
+<!-- d5m&#45;&gt;db -->
+<g id="edge34" class="edge">
+<title>d5m&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M591.13,-82.95C585.96,-79.96 580.43,-77.13 575,-75 492.34,-42.67 388.28,-28.14 333.58,-22.34"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="333.6,-19.71 325.87,-21.55 333.07,-24.93 333.6,-19.71"/>
+</g>
+<!-- rs -->
+<g id="node29" class="node">
+<title>rs</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M412.5,-285C412.5,-285 377.5,-285 377.5,-285 371.5,-285 365.5,-279 365.5,-273 365.5,-273 365.5,-261 365.5,-261 365.5,-255 371.5,-249 377.5,-249 377.5,-249 412.5,-249 412.5,-249 418.5,-249 424.5,-255 424.5,-261 424.5,-261 424.5,-273 424.5,-273 424.5,-279 418.5,-285 412.5,-285"/>
+<text text-anchor="middle" x="395" y="-264.2" font-family="Arial" font-size="11.00" fill="#111827">Servicio</text>
+</g>
+<!-- rc&#45;&gt;rs -->
+<g id="edge21" class="edge">
+<title>rc&#45;&gt;rs</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M395,-331.82C395,-320.44 395,-305.33 395,-292.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="397.63,-292.65 395,-285.15 392.38,-292.65 397.63,-292.65"/>
+</g>
+<!-- rr -->
+<g id="node30" class="node">
+<title>rr</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M421.5,-202C421.5,-202 370.5,-202 370.5,-202 364.5,-202 358.5,-196 358.5,-190 358.5,-190 358.5,-178 358.5,-178 358.5,-172 364.5,-166 370.5,-166 370.5,-166 421.5,-166 421.5,-166 427.5,-166 433.5,-172 433.5,-178 433.5,-178 433.5,-190 433.5,-190 433.5,-196 427.5,-202 421.5,-202"/>
+<text text-anchor="middle" x="396" y="-181.2" font-family="Arial" font-size="11.00" fill="#111827">Repositorio</text>
+</g>
+<!-- rs&#45;&gt;rr -->
+<g id="edge22" class="edge">
+<title>rs&#45;&gt;rr</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M395.21,-248.82C395.35,-237.44 395.54,-222.33 395.7,-209.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="398.32,-209.69 395.79,-202.15 393.07,-209.62 398.32,-209.69"/>
+</g>
+<!-- rr&#45;&gt;d2m -->
+<g id="edge35" class="edge">
+<title>rr&#45;&gt;d2m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" stroke-dasharray="5,2" d="M365.11,-165.99C359.49,-163.16 353.63,-160.38 348,-158 297.12,-136.51 281.29,-139.5 230,-119 229.84,-118.94 229.68,-118.87 229.52,-118.81"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="230.09,-116.2 222.15,-115.69 228.04,-121.03 230.09,-116.2"/>
+</g>
+<!-- rr&#45;&gt;d3m -->
+<g id="edge36" class="edge">
+<title>rr&#45;&gt;d3m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" stroke-dasharray="5,2" d="M374.79,-165.82C359.81,-153.69 339.6,-137.31 323.4,-124.19"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="324.66,-121.83 317.18,-119.15 321.35,-125.91 324.66,-121.83"/>
+</g>
+<!-- rr&#45;&gt;d4m -->
+<g id="edge37" class="edge">
+<title>rr&#45;&gt;d4m</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" stroke-dasharray="5,2" d="M415.09,-165.82C428.57,-153.69 446.76,-137.31 461.34,-124.19"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="463.12,-126.12 466.94,-119.15 459.61,-122.22 463.12,-126.12"/>
+</g>
+</g>
+</svg></div><figcaption>Monolito modular por dominios con capas Controlador → DTO → Servicio → Repositorio → Modelo.</figcaption></figure>
+
+  <h3>4.10 Arquitectura computacional y despliegue</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="943pt" height="172pt"
+ viewBox="0.00 0.00 943.40 172.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 147.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-147.2 918.2,-147.2 918.2,25.2 -25.2,25.2"/>
+<g id="clust1" class="cluster">
+<title>cluster_client</title>
+<path fill="#ffffff" stroke="#c5a40f" d="M20,-11C20,-11 297,-11 297,-11 303,-11 309,-17 309,-23 309,-23 309,-99 309,-99 309,-105 303,-111 297,-111 297,-111 20,-111 20,-111 14,-111 8,-105 8,-99 8,-99 8,-23 8,-23 8,-17 14,-11 20,-11"/>
+<text text-anchor="middle" x="158.5" y="-96.6" font-family="Arial" font-size="13.00" fill="#1d1861">Equipo Cliente</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_app</title>
+<path fill="#ffffff" stroke="#1d1861" d="M408,-11C408,-11 652,-11 652,-11 658,-11 664,-17 664,-23 664,-23 664,-99 664,-99 664,-105 658,-111 652,-111 652,-111 408,-111 408,-111 402,-111 396,-105 396,-99 396,-99 396,-23 396,-23 396,-17 402,-11 408,-11"/>
+<text text-anchor="middle" x="530" y="-96.6" font-family="Arial" font-size="13.00" fill="#1d1861">Servidor de Aplicación</text>
+</g>
+<g id="clust3" class="cluster">
+<title>cluster_db</title>
+<path fill="#ffffff" stroke="#047857" d="M727,-8C727,-8 881,-8 881,-8 887,-8 893,-14 893,-20 893,-20 893,-102 893,-102 893,-108 887,-114 881,-114 881,-114 727,-114 727,-114 721,-114 715,-108 715,-102 715,-102 715,-20 715,-20 715,-14 721,-8 727,-8"/>
+<text text-anchor="middle" x="804" y="-99.6" font-family="Arial" font-size="13.00" fill="#1d1861">Servidor de Base de Datos</text>
+</g>
+<!-- browser -->
+<g id="node1" class="node">
+<title>browser</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M103,-68C103,-68 28,-68 28,-68 22,-68 16,-62 16,-56 16,-56 16,-44 16,-44 16,-38 22,-32 28,-32 28,-32 103,-32 103,-32 109,-32 115,-38 115,-44 115,-44 115,-56 115,-56 115,-62 109,-68 103,-68"/>
+<text text-anchor="middle" x="65.5" y="-47.2" font-family="Arial" font-size="11.00" fill="#111827">Navegador Web</text>
+</g>
+<!-- spa -->
+<g id="node2" class="node">
+<title>spa</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M289,-81C289,-81 176,-81 176,-81 170,-81 164,-75 164,-69 164,-69 164,-31 164,-31 164,-25 170,-19 176,-19 176,-19 289,-19 289,-19 295,-19 301,-25 301,-31 301,-31 301,-69 301,-69 301,-75 295,-81 289,-81"/>
+<text text-anchor="middle" x="232.5" y="-65.2" font-family="Arial" font-size="11.00" fill="#111827">Frontend SPA</text>
+<text text-anchor="middle" x="232.5" y="-53.2" font-family="Arial" font-size="11.00" fill="#111827">HTML5 + Tailwind CSS</text>
+<text text-anchor="middle" x="232.5" y="-41.2" font-family="Arial" font-size="11.00" fill="#111827">JavaScript Vanilla + Vite</text>
+<text text-anchor="middle" x="232.5" y="-29.2" font-family="Arial" font-size="11.00" fill="#111827">localhost:5173</text>
+</g>
+<!-- browser&#45;&gt;spa -->
+<g id="edge1" class="edge">
+<title>browser&#45;&gt;spa</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M115.11,-50C128.03,-50 142.28,-50 156.25,-50"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="156.48,-52.63 163.98,-50 156.48,-47.38 156.48,-52.63"/>
+</g>
+<!-- flask -->
+<g id="node3" class="node">
+<title>flask</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M483,-81C483,-81 416,-81 416,-81 410,-81 404,-75 404,-69 404,-69 404,-31 404,-31 404,-25 410,-19 416,-19 416,-19 483,-19 483,-19 489,-19 495,-25 495,-31 495,-31 495,-69 495,-69 495,-75 489,-81 483,-81"/>
+<text text-anchor="middle" x="449.5" y="-65.2" font-family="Arial" font-size="11.00" fill="#111827">Backend Flask</text>
+<text text-anchor="middle" x="449.5" y="-53.2" font-family="Arial" font-size="11.00" fill="#111827">API REST</text>
+<text text-anchor="middle" x="449.5" y="-41.2" font-family="Arial" font-size="11.00" fill="#111827">JWT + Roles</text>
+<text text-anchor="middle" x="449.5" y="-29.2" font-family="Arial" font-size="11.00" fill="#111827">localhost:5000</text>
+</g>
+<!-- spa&#45;&gt;flask -->
+<g id="edge3" class="edge">
+<title>spa&#45;&gt;flask</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M301.23,-50C331.83,-50 367.44,-50 395.98,-50"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="396.33,-52.63 403.83,-50 396.33,-47.38 396.33,-52.63"/>
+<text text-anchor="middle" x="352.5" y="-62.8" font-family="Arial" font-size="9.00" fill="#475569">HTTP / JSON</text>
+<text text-anchor="middle" x="352.5" y="-52.8" font-family="Arial" font-size="9.00" fill="#475569">JWT Bearer</text>
+</g>
+<!-- orm -->
+<g id="node4" class="node">
+<title>orm</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M644,-68C644,-68 556,-68 556,-68 550,-68 544,-62 544,-56 544,-56 544,-44 544,-44 544,-38 550,-32 556,-32 556,-32 644,-32 644,-32 650,-32 656,-38 656,-44 656,-44 656,-56 656,-56 656,-62 650,-68 644,-68"/>
+<text text-anchor="middle" x="600" y="-47.2" font-family="Arial" font-size="11.00" fill="#111827">SQLAlchemy ORM</text>
+</g>
+<!-- flask&#45;&gt;orm -->
+<g id="edge2" class="edge">
+<title>flask&#45;&gt;orm</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M495.05,-50C508.03,-50 522.45,-50 536.32,-50"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="536.46,-52.63 543.96,-50 536.46,-47.38 536.46,-52.63"/>
+</g>
+<!-- mysql -->
+<g id="node5" class="node">
+<title>mysql</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M865,-78.02C865,-81.46 837.66,-84.25 804,-84.25 770.34,-84.25 743,-81.46 743,-78.02 743,-78.02 743,-21.98 743,-21.98 743,-18.54 770.34,-15.75 804,-15.75 837.66,-15.75 865,-18.54 865,-21.98 865,-21.98 865,-78.02 865,-78.02"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M865,-78.02C865,-74.59 837.66,-71.8 804,-71.8 770.34,-71.8 743,-74.59 743,-78.02"/>
+<text text-anchor="middle" x="804" y="-59.2" font-family="Arial" font-size="11.00" fill="#111827">MySQL</text>
+<text text-anchor="middle" x="804" y="-47.2" font-family="Arial" font-size="11.00" fill="#111827">Puerto 3306</text>
+<text text-anchor="middle" x="804" y="-35.2" font-family="Arial" font-size="11.00" fill="#111827">sistema_contable_db</text>
+</g>
+<!-- orm&#45;&gt;mysql -->
+<g id="edge4" class="edge">
+<title>orm&#45;&gt;mysql</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M656.2,-50C680.65,-50 709.65,-50 735.39,-50"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="735.41,-52.63 742.91,-50 735.41,-47.38 735.41,-52.63"/>
+<text text-anchor="middle" x="689.5" y="-52.8" font-family="Arial" font-size="9.00" fill="#475569">SQL</text>
+</g>
+</g>
+</svg></div><figcaption>Topología actual de demostración local: Vite, Flask y MySQL en servicios separados lógicamente.</figcaption></figure>
+
+  <h3>4.11 Modelo lógico y físico de datos</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="435pt" height="503pt"
+ viewBox="0.00 0.00 435.40 503.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 478.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-478.2 410.2,-478.2 410.2,25.2 -25.2,25.2"/>
+<!-- u -->
+<g id="node1" class="node">
+<title>u</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="1,-92.5 1,-190.5 169,-190.5 169,-92.5 1,-92.5"/>
+<text text-anchor="middle" x="37" y="-138.7" font-family="Arial" font-size="11.00" fill="#111827">USUARIO</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="73,-92.5 73,-190.5 "/>
+<text text-anchor="start" x="83" y="-174.7" font-family="Arial" font-size="11.00" fill="#111827">id</text>
+<text text-anchor="start" x="83" y="-162.7" font-family="Arial" font-size="11.00" fill="#111827">username</text>
+<text text-anchor="start" x="83" y="-150.7" font-family="Arial" font-size="11.00" fill="#111827">full_name</text>
+<text text-anchor="start" x="83" y="-138.7" font-family="Arial" font-size="11.00" fill="#111827">email</text>
+<text text-anchor="start" x="83" y="-126.7" font-family="Arial" font-size="11.00" fill="#111827">password_hash</text>
+<text text-anchor="start" x="83" y="-114.7" font-family="Arial" font-size="11.00" fill="#111827">role</text>
+<text text-anchor="start" x="83" y="-102.7" font-family="Arial" font-size="11.00" fill="#111827">activo</text>
+</g>
+<!-- v -->
+<g id="node2" class="node">
+<title>v</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="237,-155.5 237,-289.5 385,-289.5 385,-155.5 237,-155.5"/>
+<text text-anchor="middle" x="265.5" y="-219.7" font-family="Arial" font-size="11.00" fill="#111827">VENTA</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="294,-155.5 294,-289.5 "/>
+<text text-anchor="start" x="304" y="-273.7" font-family="Arial" font-size="11.00" fill="#111827">id</text>
+<text text-anchor="start" x="304" y="-261.7" font-family="Arial" font-size="11.00" fill="#111827">numero</text>
+<text text-anchor="start" x="304" y="-249.7" font-family="Arial" font-size="11.00" fill="#111827">fecha</text>
+<text text-anchor="start" x="304" y="-237.7" font-family="Arial" font-size="11.00" fill="#111827">cliente</text>
+<text text-anchor="start" x="304" y="-225.7" font-family="Arial" font-size="11.00" fill="#111827">producto</text>
+<text text-anchor="start" x="304" y="-213.7" font-family="Arial" font-size="11.00" fill="#111827">cantidad</text>
+<text text-anchor="start" x="304" y="-201.7" font-family="Arial" font-size="11.00" fill="#111827">precio_unitario</text>
+<text text-anchor="start" x="304" y="-189.7" font-family="Arial" font-size="11.00" fill="#111827">total</text>
+<text text-anchor="start" x="304" y="-177.7" font-family="Arial" font-size="11.00" fill="#111827">estado</text>
+<text text-anchor="start" x="304" y="-165.7" font-family="Arial" font-size="11.00" fill="#111827">metodo_pago</text>
+</g>
+<!-- u&#45;&gt;v -->
+<g id="edge1" class="edge">
+<title>u&#45;&gt;v</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M169.09,-171.55C188.94,-178.72 210.09,-186.37 229.81,-193.5"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="229.05,-196.02 237,-196.1 230.84,-191.08 229.05,-196.02"/>
+<text text-anchor="middle" x="203.5" y="-189.3" font-family="Arial" font-size="9.00" fill="#475569">1 : N</text>
+</g>
+<!-- g -->
+<g id="node3" class="node">
+<title>g</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="238,-0.5 238,-122.5 384,-122.5 384,-0.5 238,-0.5"/>
+<text text-anchor="middle" x="267.5" y="-58.7" font-family="Arial" font-size="11.00" fill="#111827">GASTO</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="297,-0.5 297,-122.5 "/>
+<text text-anchor="start" x="307" y="-106.7" font-family="Arial" font-size="11.00" fill="#111827">id</text>
+<text text-anchor="start" x="307" y="-94.7" font-family="Arial" font-size="11.00" fill="#111827">numero</text>
+<text text-anchor="start" x="307" y="-82.7" font-family="Arial" font-size="11.00" fill="#111827">fecha</text>
+<text text-anchor="start" x="307" y="-70.7" font-family="Arial" font-size="11.00" fill="#111827">categoria</text>
+<text text-anchor="start" x="307" y="-58.7" font-family="Arial" font-size="11.00" fill="#111827">concepto</text>
+<text text-anchor="start" x="307" y="-46.7" font-family="Arial" font-size="11.00" fill="#111827">proveedor</text>
+<text text-anchor="start" x="307" y="-34.7" font-family="Arial" font-size="11.00" fill="#111827">monto</text>
+<text text-anchor="start" x="307" y="-22.7" font-family="Arial" font-size="11.00" fill="#111827">metodo_pago</text>
+<text text-anchor="start" x="307" y="-10.7" font-family="Arial" font-size="11.00" fill="#111827">estado</text>
+</g>
+<!-- u&#45;&gt;g -->
+<g id="edge2" class="edge">
+<title>u&#45;&gt;g</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M169.09,-111.82C189.16,-104.66 210.56,-97.01 230.47,-89.9"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="231.55,-92.31 237.73,-87.31 229.78,-87.36 231.55,-92.31"/>
+<text text-anchor="middle" x="203.5" y="-104.3" font-family="Arial" font-size="9.00" fill="#475569">1 : N</text>
+</g>
+<!-- p -->
+<g id="node4" class="node">
+<title>p</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="0,-223.5 0,-345.5 170,-345.5 170,-223.5 0,-223.5"/>
+<text text-anchor="middle" x="42" y="-281.7" font-family="Arial" font-size="11.00" fill="#111827">PRODUCTO</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="84,-223.5 84,-345.5 "/>
+<text text-anchor="start" x="94" y="-329.7" font-family="Arial" font-size="11.00" fill="#111827">id</text>
+<text text-anchor="start" x="94" y="-317.7" font-family="Arial" font-size="11.00" fill="#111827">codigo</text>
+<text text-anchor="start" x="94" y="-305.7" font-family="Arial" font-size="11.00" fill="#111827">nombre</text>
+<text text-anchor="start" x="94" y="-293.7" font-family="Arial" font-size="11.00" fill="#111827">categoria</text>
+<text text-anchor="start" x="94" y="-281.7" font-family="Arial" font-size="11.00" fill="#111827">precio</text>
+<text text-anchor="start" x="94" y="-269.7" font-family="Arial" font-size="11.00" fill="#111827">costo</text>
+<text text-anchor="start" x="94" y="-257.7" font-family="Arial" font-size="11.00" fill="#111827">stock</text>
+<text text-anchor="start" x="94" y="-245.7" font-family="Arial" font-size="11.00" fill="#111827">stock_minimo</text>
+<text text-anchor="start" x="94" y="-233.7" font-family="Arial" font-size="11.00" fill="#111827">proveedor</text>
+</g>
+<!-- c -->
+<g id="node5" class="node">
+<title>c</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="14.5,-378.5 14.5,-452.5 155.5,-452.5 155.5,-378.5 14.5,-378.5"/>
+<text text-anchor="middle" x="47.5" y="-412.7" font-family="Arial" font-size="11.00" fill="#111827">CUENTA</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="80.5,-378.5 80.5,-452.5 "/>
+<text text-anchor="start" x="90.5" y="-436.7" font-family="Arial" font-size="11.00" fill="#111827">id</text>
+<text text-anchor="start" x="90.5" y="-424.7" font-family="Arial" font-size="11.00" fill="#111827">codigo</text>
+<text text-anchor="start" x="90.5" y="-412.7" font-family="Arial" font-size="11.00" fill="#111827">nombre</text>
+<text text-anchor="start" x="90.5" y="-400.7" font-family="Arial" font-size="11.00" fill="#111827">tipo</text>
+<text text-anchor="start" x="90.5" y="-388.7" font-family="Arial" font-size="11.00" fill="#111827">descripcion</text>
+</g>
+</g>
+</svg></div><figcaption>Modelo lógico de entidades y relaciones.</figcaption></figure>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="598pt" height="551pt"
+ viewBox="0.00 0.00 598.40 551.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 526.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-526.2 573.2,-526.2 573.2,25.2 -25.2,25.2"/>
+<!-- u -->
+<g id="node1" class="node">
+<title>u</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="0,-106 0,-219 220,-219 220,-106 0,-106"/>
+<text text-anchor="middle" x="28.5" y="-160" font-family="Arial" font-size="10.00" fill="#111827">usuarios</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="57,-106 57,-219 "/>
+<text text-anchor="start" x="67" y="-204" font-family="Arial" font-size="10.00" fill="#111827">id INT PK</text>
+<text text-anchor="start" x="67" y="-193" font-family="Arial" font-size="10.00" fill="#111827">username VARCHAR(80) UK</text>
+<text text-anchor="start" x="67" y="-182" font-family="Arial" font-size="10.00" fill="#111827">full_name VARCHAR(120)</text>
+<text text-anchor="start" x="67" y="-171" font-family="Arial" font-size="10.00" fill="#111827">email VARCHAR(120) UK</text>
+<text text-anchor="start" x="67" y="-160" font-family="Arial" font-size="10.00" fill="#111827">password_hash VARCHAR(255)</text>
+<text text-anchor="start" x="67" y="-149" font-family="Arial" font-size="10.00" fill="#111827">role VARCHAR(20)</text>
+<text text-anchor="start" x="67" y="-138" font-family="Arial" font-size="10.00" fill="#111827">activo BOOLEAN</text>
+<text text-anchor="start" x="67" y="-127" font-family="Arial" font-size="10.00" fill="#111827">ultimo_acceso DATETIME</text>
+<text text-anchor="start" x="67" y="-116" font-family="Arial" font-size="10.00" fill="#111827">creado_en DATETIME</text>
+</g>
+<!-- v -->
+<g id="node2" class="node">
+<title>v</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="342,-179.5 342,-325.5 548,-325.5 548,-179.5 342,-179.5"/>
+<text text-anchor="middle" x="367" y="-250" font-family="Arial" font-size="10.00" fill="#111827">ventas</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="392,-179.5 392,-325.5 "/>
+<text text-anchor="start" x="402" y="-310.5" font-family="Arial" font-size="10.00" fill="#111827">id INT PK</text>
+<text text-anchor="start" x="402" y="-299.5" font-family="Arial" font-size="10.00" fill="#111827">numero VARCHAR(20) UK</text>
+<text text-anchor="start" x="402" y="-288.5" font-family="Arial" font-size="10.00" fill="#111827">fecha DATE</text>
+<text text-anchor="start" x="402" y="-277.5" font-family="Arial" font-size="10.00" fill="#111827">cliente VARCHAR(120)</text>
+<text text-anchor="start" x="402" y="-266.5" font-family="Arial" font-size="10.00" fill="#111827">producto VARCHAR(120)</text>
+<text text-anchor="start" x="402" y="-255.5" font-family="Arial" font-size="10.00" fill="#111827">cantidad INT</text>
+<text text-anchor="start" x="402" y="-244.5" font-family="Arial" font-size="10.00" fill="#111827">precio_unitario DECIMAL(12,2)</text>
+<text text-anchor="start" x="402" y="-233.5" font-family="Arial" font-size="10.00" fill="#111827">total DECIMAL(12,2)</text>
+<text text-anchor="start" x="402" y="-222.5" font-family="Arial" font-size="10.00" fill="#111827">estado VARCHAR(20)</text>
+<text text-anchor="start" x="402" y="-211.5" font-family="Arial" font-size="10.00" fill="#111827">metodo_pago VARCHAR(50)</text>
+<text text-anchor="start" x="402" y="-200.5" font-family="Arial" font-size="10.00" fill="#111827">creado_por_id INT FK</text>
+<text text-anchor="start" x="402" y="-189.5" font-family="Arial" font-size="10.00" fill="#111827">activo BOOLEAN</text>
+</g>
+<!-- u&#45;&gt;v -->
+<g id="edge1" class="edge">
+<title>u&#45;&gt;v</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M220.04,-191.97C256.76,-201.89 297.73,-212.97 334.49,-222.9"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="333.85,-225.45 341.78,-224.87 335.22,-220.38 333.85,-225.45"/>
+<text text-anchor="middle" x="281" y="-220.3" font-family="Arial" font-size="9.00" fill="#475569">FK creado_por_id</text>
+</g>
+<!-- g -->
+<g id="node3" class="node">
+<title>g</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="344.5,-0.5 344.5,-146.5 545.5,-146.5 545.5,-0.5 344.5,-0.5"/>
+<text text-anchor="middle" x="369.5" y="-71" font-family="Arial" font-size="10.00" fill="#111827">gastos</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="394.5,-0.5 394.5,-146.5 "/>
+<text text-anchor="start" x="404.5" y="-131.5" font-family="Arial" font-size="10.00" fill="#111827">id INT PK</text>
+<text text-anchor="start" x="404.5" y="-120.5" font-family="Arial" font-size="10.00" fill="#111827">numero VARCHAR(20) UK</text>
+<text text-anchor="start" x="404.5" y="-109.5" font-family="Arial" font-size="10.00" fill="#111827">fecha DATE</text>
+<text text-anchor="start" x="404.5" y="-98.5" font-family="Arial" font-size="10.00" fill="#111827">categoria VARCHAR(80)</text>
+<text text-anchor="start" x="404.5" y="-87.5" font-family="Arial" font-size="10.00" fill="#111827">concepto VARCHAR(200)</text>
+<text text-anchor="start" x="404.5" y="-76.5" font-family="Arial" font-size="10.00" fill="#111827">proveedor VARCHAR(120)</text>
+<text text-anchor="start" x="404.5" y="-65.5" font-family="Arial" font-size="10.00" fill="#111827">monto DECIMAL(12,2)</text>
+<text text-anchor="start" x="404.5" y="-54.5" font-family="Arial" font-size="10.00" fill="#111827">metodo_pago VARCHAR(50)</text>
+<text text-anchor="start" x="404.5" y="-43.5" font-family="Arial" font-size="10.00" fill="#111827">estado VARCHAR(20)</text>
+<text text-anchor="start" x="404.5" y="-32.5" font-family="Arial" font-size="10.00" fill="#111827">comprobante VARCHAR(255)</text>
+<text text-anchor="start" x="404.5" y="-21.5" font-family="Arial" font-size="10.00" fill="#111827">creado_por_id INT FK</text>
+<text text-anchor="start" x="404.5" y="-10.5" font-family="Arial" font-size="10.00" fill="#111827">activo BOOLEAN</text>
+</g>
+<!-- u&#45;&gt;g -->
+<g id="edge2" class="edge">
+<title>u&#45;&gt;g</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M220.04,-133.36C257.56,-123.33 299.52,-112.12 336.88,-102.13"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="337.73,-104.62 344.29,-100.15 336.37,-99.55 337.73,-104.62"/>
+<text text-anchor="middle" x="281" y="-128.3" font-family="Arial" font-size="9.00" fill="#475569">FK creado_por_id</text>
+</g>
+<!-- p -->
+<g id="node4" class="node">
+<title>p</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="6.5,-252 6.5,-387 213.5,-387 213.5,-252 6.5,-252"/>
+<text text-anchor="middle" x="38" y="-317" font-family="Arial" font-size="10.00" fill="#111827">productos</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="69.5,-252 69.5,-387 "/>
+<text text-anchor="start" x="79.5" y="-372" font-family="Arial" font-size="10.00" fill="#111827">id INT PK</text>
+<text text-anchor="start" x="79.5" y="-361" font-family="Arial" font-size="10.00" fill="#111827">codigo VARCHAR(30) UK</text>
+<text text-anchor="start" x="79.5" y="-350" font-family="Arial" font-size="10.00" fill="#111827">nombre VARCHAR(120)</text>
+<text text-anchor="start" x="79.5" y="-339" font-family="Arial" font-size="10.00" fill="#111827">categoria VARCHAR(80)</text>
+<text text-anchor="start" x="79.5" y="-328" font-family="Arial" font-size="10.00" fill="#111827">precio DECIMAL(12,2)</text>
+<text text-anchor="start" x="79.5" y="-317" font-family="Arial" font-size="10.00" fill="#111827">costo DECIMAL(12,2)</text>
+<text text-anchor="start" x="79.5" y="-306" font-family="Arial" font-size="10.00" fill="#111827">stock INT</text>
+<text text-anchor="start" x="79.5" y="-295" font-family="Arial" font-size="10.00" fill="#111827">stock_minimo INT</text>
+<text text-anchor="start" x="79.5" y="-284" font-family="Arial" font-size="10.00" fill="#111827">proveedor VARCHAR(120)</text>
+<text text-anchor="start" x="79.5" y="-273" font-family="Arial" font-size="10.00" fill="#111827">descripcion VARCHAR(255)</text>
+<text text-anchor="start" x="79.5" y="-262" font-family="Arial" font-size="10.00" fill="#111827">activo BOOLEAN</text>
+</g>
+<!-- c -->
+<g id="node5" class="node">
+<title>c</title>
+<polygon fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" points="10.5,-420.5 10.5,-500.5 209.5,-500.5 209.5,-420.5 10.5,-420.5"/>
+<text text-anchor="middle" x="38" y="-458" font-family="Arial" font-size="10.00" fill="#111827">cuentas</text>
+<polyline fill="none" stroke="#1d1861" stroke-width="1.8" points="65.5,-420.5 65.5,-500.5 "/>
+<text text-anchor="start" x="75.5" y="-485.5" font-family="Arial" font-size="10.00" fill="#111827">id INT PK</text>
+<text text-anchor="start" x="75.5" y="-474.5" font-family="Arial" font-size="10.00" fill="#111827">codigo VARCHAR(20) UK</text>
+<text text-anchor="start" x="75.5" y="-463.5" font-family="Arial" font-size="10.00" fill="#111827">nombre VARCHAR(120)</text>
+<text text-anchor="start" x="75.5" y="-452.5" font-family="Arial" font-size="10.00" fill="#111827">tipo VARCHAR(30)</text>
+<text text-anchor="start" x="75.5" y="-441.5" font-family="Arial" font-size="10.00" fill="#111827">descripcion VARCHAR(255)</text>
+<text text-anchor="start" x="75.5" y="-430.5" font-family="Arial" font-size="10.00" fill="#111827">activo BOOLEAN</text>
+</g>
+</g>
+</svg></div><figcaption>Tablas, claves, tipos de datos y relaciones implementadas.</figcaption></figure>
+
+  <div class="note"><strong>Decisión relevante:</strong> una venta almacena el producto como texto y no mediante una clave foránea hacia inventario. Esta decisión corresponde al modelo implementado y evita documentar una relación que el sistema real no posee.</div>
+
+  <h3>4.12 Diseño de API REST</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="902pt" height="548pt"
+ viewBox="0.00 0.00 902.40 548.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 523.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-523.2 877.2,-523.2 877.2,25.2 -25.2,25.2"/>
+<g id="clust1" class="cluster">
+<title>cluster_api</title>
+<path fill="#ffffff" stroke="#cbd5e1" d="M609,-8C609,-8 742,-8 742,-8 748,-8 754,-14 754,-20 754,-20 754,-478 754,-478 754,-484 748,-490 742,-490 742,-490 609,-490 609,-490 603,-490 597,-484 597,-478 597,-478 597,-20 597,-20 597,-14 603,-8 609,-8"/>
+<text text-anchor="middle" x="675.5" y="-475.6" font-family="Arial" font-size="13.00" fill="#1d1861">API REST Flask /api/v1</text>
+</g>
+<!-- user -->
+<g id="node1" class="node">
+<title>user</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M60,-256C60,-256 12,-256 12,-256 6,-256 0,-250 0,-244 0,-244 0,-232 0,-232 0,-226 6,-220 12,-220 12,-220 60,-220 60,-220 66,-220 72,-226 72,-232 72,-232 72,-244 72,-244 72,-250 66,-256 60,-256"/>
+<text text-anchor="middle" x="36" y="-235.2" font-family="Arial" font-size="11.00" fill="#111827">USUARIO</text>
+</g>
+<!-- page -->
+<g id="node2" class="node">
+<title>page</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M260,-257C260,-257 131,-257 131,-257 125,-257 119,-251 119,-245 119,-245 119,-231 119,-231 119,-225 125,-219 131,-219 131,-219 260,-219 260,-219 266,-219 272,-225 272,-231 272,-231 272,-245 272,-245 272,-251 266,-257 260,-257"/>
+<text text-anchor="middle" x="195.5" y="-241.2" font-family="Arial" font-size="11.00" fill="#111827">SPA</text>
+<text text-anchor="middle" x="195.5" y="-229.2" font-family="Arial" font-size="11.00" fill="#111827">Ventas / Gastos / Inventario</text>
+</g>
+<!-- user&#45;&gt;page -->
+<g id="edge1" class="edge">
+<title>user&#45;&gt;page</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M72.35,-238C83.98,-238 97.45,-238 111.1,-238"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="111.2,-240.63 118.7,-238 111.2,-235.38 111.2,-240.63"/>
+</g>
+<!-- http -->
+<g id="node3" class="node">
+<title>http</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M415,-257C415,-257 331,-257 331,-257 325,-257 319,-251 319,-245 319,-245 319,-231 319,-231 319,-225 325,-219 331,-219 331,-219 415,-219 415,-219 421,-219 427,-225 427,-231 427,-231 427,-245 427,-245 427,-251 421,-257 415,-257"/>
+<text text-anchor="middle" x="373" y="-241.2" font-family="Arial" font-size="11.00" fill="#111827">fetch / apiRequest</text>
+<text text-anchor="middle" x="373" y="-229.2" font-family="Arial" font-size="11.00" fill="#111827">async / await</text>
+</g>
+<!-- page&#45;&gt;http -->
+<g id="edge2" class="edge">
+<title>page&#45;&gt;http</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M272.2,-238C285.18,-238 298.53,-238 311.06,-238"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="311.25,-240.63 318.75,-238 311.25,-235.38 311.25,-240.63"/>
+</g>
+<!-- jwt -->
+<g id="node4" class="node">
+<title>jwt</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M546,-257C546,-257 486,-257 486,-257 480,-257 474,-251 474,-245 474,-245 474,-231 474,-231 474,-225 480,-219 486,-219 486,-219 546,-219 546,-219 552,-219 558,-225 558,-231 558,-231 558,-245 558,-245 558,-251 552,-257 546,-257"/>
+<text text-anchor="middle" x="516" y="-241.2" font-family="Arial" font-size="11.00" fill="#111827">Authorization</text>
+<text text-anchor="middle" x="516" y="-229.2" font-family="Arial" font-size="11.00" fill="#111827">Bearer JWT</text>
+</g>
+<!-- http&#45;&gt;jwt -->
+<g id="edge3" class="edge">
+<title>http&#45;&gt;jwt</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M427.31,-238C440.09,-238 453.68,-238 466.25,-238"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="466.43,-240.63 473.93,-238 466.43,-235.38 466.43,-240.63"/>
+</g>
+<!-- auth -->
+<g id="node5" class="node">
+<title>auth</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M690.5,-460C690.5,-460 660.5,-460 660.5,-460 654.5,-460 648.5,-454 648.5,-448 648.5,-448 648.5,-436 648.5,-436 648.5,-430 654.5,-424 660.5,-424 660.5,-424 690.5,-424 690.5,-424 696.5,-424 702.5,-430 702.5,-436 702.5,-436 702.5,-448 702.5,-448 702.5,-454 696.5,-460 690.5,-460"/>
+<text text-anchor="middle" x="675.5" y="-439.2" font-family="Arial" font-size="11.00" fill="#111827">/auth</text>
+</g>
+<!-- jwt&#45;&gt;auth -->
+<g id="edge4" class="edge">
+<title>jwt&#45;&gt;auth</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M521.29,-257.18C529.92,-291.68 552.49,-364.65 597,-408 609.21,-419.89 626.27,-427.99 641.28,-433.29"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="640.5,-435.8 648.45,-435.67 642.16,-430.81 640.5,-435.8"/>
+</g>
+<!-- ven -->
+<g id="node6" class="node">
+<title>ven</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M691,-392C691,-392 660,-392 660,-392 654,-392 648,-386 648,-380 648,-380 648,-368 648,-368 648,-362 654,-356 660,-356 660,-356 691,-356 691,-356 697,-356 703,-362 703,-368 703,-368 703,-380 703,-380 703,-386 697,-392 691,-392"/>
+<text text-anchor="middle" x="675.5" y="-371.2" font-family="Arial" font-size="11.00" fill="#111827">/ventas</text>
+</g>
+<!-- jwt&#45;&gt;ven -->
+<g id="edge5" class="edge">
+<title>jwt&#45;&gt;ven</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M528.02,-257.26C541.71,-279.71 566.94,-316.69 597,-340 609.95,-350.04 626.33,-357.79 640.69,-363.33"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="640.05,-365.89 647.99,-366.03 641.87,-360.97 640.05,-365.89"/>
+</g>
+<!-- gas -->
+<g id="node7" class="node">
+<title>gas</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M691,-324C691,-324 660,-324 660,-324 654,-324 648,-318 648,-312 648,-312 648,-300 648,-300 648,-294 654,-288 660,-288 660,-288 691,-288 691,-288 697,-288 703,-294 703,-300 703,-300 703,-312 703,-312 703,-318 697,-324 691,-324"/>
+<text text-anchor="middle" x="675.5" y="-303.2" font-family="Arial" font-size="11.00" fill="#111827">/gastos</text>
+</g>
+<!-- jwt&#45;&gt;gas -->
+<g id="edge6" class="edge">
+<title>jwt&#45;&gt;gas</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M558.38,-255.87C583.99,-266.92 616.45,-280.94 640.54,-291.34"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="639.81,-293.88 647.73,-294.44 641.89,-289.06 639.81,-293.88"/>
+</g>
+<!-- inv -->
+<g id="node8" class="node">
+<title>inv</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M698.5,-256C698.5,-256 652.5,-256 652.5,-256 646.5,-256 640.5,-250 640.5,-244 640.5,-244 640.5,-232 640.5,-232 640.5,-226 646.5,-220 652.5,-220 652.5,-220 698.5,-220 698.5,-220 704.5,-220 710.5,-226 710.5,-232 710.5,-232 710.5,-244 710.5,-244 710.5,-250 704.5,-256 698.5,-256"/>
+<text text-anchor="middle" x="675.5" y="-235.2" font-family="Arial" font-size="11.00" fill="#111827">/inventario</text>
+</g>
+<!-- jwt&#45;&gt;inv -->
+<g id="edge7" class="edge">
+<title>jwt&#45;&gt;inv</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M558.38,-238C581.31,-238 609.74,-238 632.73,-238"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="632.8,-240.63 640.3,-238 632.8,-235.38 632.8,-240.63"/>
+</g>
+<!-- cue -->
+<g id="node9" class="node">
+<title>cue</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M694,-188C694,-188 657,-188 657,-188 651,-188 645,-182 645,-176 645,-176 645,-164 645,-164 645,-158 651,-152 657,-152 657,-152 694,-152 694,-152 700,-152 706,-158 706,-164 706,-164 706,-176 706,-176 706,-182 700,-188 694,-188"/>
+<text text-anchor="middle" x="675.5" y="-167.2" font-family="Arial" font-size="11.00" fill="#111827">/cuentas</text>
+</g>
+<!-- jwt&#45;&gt;cue -->
+<g id="edge8" class="edge">
+<title>jwt&#45;&gt;cue</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M558.38,-220.13C583,-209.51 613.95,-196.14 637.71,-185.88"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="638.99,-188.19 644.83,-182.81 636.91,-183.37 638.99,-188.19"/>
+</g>
+<!-- dash -->
+<g id="node10" class="node">
+<title>dash</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M701,-120C701,-120 650,-120 650,-120 644,-120 638,-114 638,-108 638,-108 638,-96 638,-96 638,-90 644,-84 650,-84 650,-84 701,-84 701,-84 707,-84 713,-90 713,-96 713,-96 713,-108 713,-108 713,-114 707,-120 701,-120"/>
+<text text-anchor="middle" x="675.5" y="-99.2" font-family="Arial" font-size="11.00" fill="#111827">/dashboard</text>
+</g>
+<!-- jwt&#45;&gt;dash -->
+<g id="edge9" class="edge">
+<title>jwt&#45;&gt;dash</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M528.02,-218.74C541.71,-196.29 566.94,-159.31 597,-136 607,-128.25 619.04,-121.86 630.62,-116.8"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="631.84,-119.14 637.75,-113.82 629.82,-114.29 631.84,-119.14"/>
+</g>
+<!-- rep -->
+<g id="node11" class="node">
+<title>rep</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M695,-52C695,-52 656,-52 656,-52 650,-52 644,-46 644,-40 644,-40 644,-28 644,-28 644,-22 650,-16 656,-16 656,-16 695,-16 695,-16 701,-16 707,-22 707,-28 707,-28 707,-40 707,-40 707,-46 701,-52 695,-52"/>
+<text text-anchor="middle" x="675.5" y="-31.2" font-family="Arial" font-size="11.00" fill="#111827">/reportes</text>
+</g>
+<!-- jwt&#45;&gt;rep -->
+<g id="edge10" class="edge">
+<title>jwt&#45;&gt;rep</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M521.29,-218.82C529.92,-184.32 552.49,-111.35 597,-68 608.02,-57.26 623,-49.62 636.85,-44.34"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="637.79,-46.79 643.96,-41.79 636.02,-41.85 637.79,-46.79"/>
+</g>
+<!-- db -->
+<g id="node12" class="node">
+<title>db</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M852,-252.73C852,-254.53 838.78,-256 822.5,-256 806.22,-256 793,-254.53 793,-252.73 793,-252.73 793,-223.27 793,-223.27 793,-221.47 806.22,-220 822.5,-220 838.78,-220 852,-221.47 852,-223.27 852,-223.27 852,-252.73 852,-252.73"/>
+<path fill="none" stroke="#047857" stroke-width="1.8" d="M852,-252.73C852,-250.92 838.78,-249.45 822.5,-249.45 806.22,-249.45 793,-250.92 793,-252.73"/>
+<text text-anchor="middle" x="822.5" y="-235.2" font-family="Arial" font-size="11.00" fill="#111827">MYSQL</text>
+</g>
+<!-- auth&#45;&gt;db -->
+<g id="edge11" class="edge">
+<title>auth&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M702.84,-435.96C719.43,-430.95 740.23,-422.27 754,-408 793.47,-367.11 810.74,-300.31 817.56,-263.81"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="820.21,-263.91 818.94,-256.07 815.04,-263 820.21,-263.91"/>
+</g>
+<!-- ven&#45;&gt;db -->
+<g id="edge12" class="edge">
+<title>ven&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M703.36,-366.46C719.33,-361.01 739.28,-352.4 754,-340 779.21,-318.77 798.66,-285.79 810.07,-263.11"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="812.55,-264.03 813.49,-256.14 807.83,-261.72 812.55,-264.03"/>
+</g>
+<!-- gas&#45;&gt;db -->
+<g id="edge13" class="edge">
+<title>gas&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M703.2,-294.7C718.21,-288.25 737.25,-279.89 754,-272 764.42,-267.1 775.62,-261.56 785.85,-256.4"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="787.26,-258.63 792.76,-252.9 784.88,-253.95 787.26,-258.63"/>
+</g>
+<!-- inv&#45;&gt;db -->
+<g id="edge14" class="edge">
+<title>inv&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M710.86,-238C733.19,-238 762.26,-238 784.99,-238"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="785.25,-240.63 792.75,-238 785.25,-235.38 785.25,-240.63"/>
+</g>
+<!-- cue&#45;&gt;db -->
+<g id="edge15" class="edge">
+<title>cue&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M706.11,-182.55C720.62,-188.81 738.31,-196.62 754,-204 764.42,-208.9 775.62,-214.44 785.85,-219.6"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="784.88,-222.05 792.76,-223.1 787.26,-217.37 784.88,-222.05"/>
+</g>
+<!-- dash&#45;&gt;db -->
+<g id="edge16" class="edge">
+<title>dash&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M713.26,-113.16C727.04,-118.56 742.2,-126.06 754,-136 779.21,-157.23 798.66,-190.21 810.07,-212.89"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="807.83,-214.28 813.49,-219.86 812.55,-211.97 807.83,-214.28"/>
+</g>
+<!-- rep&#45;&gt;db -->
+<g id="edge17" class="edge">
+<title>rep&#45;&gt;db</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M707.36,-41.47C723.07,-46.64 741.45,-55 754,-68 793.47,-108.89 810.74,-175.69 817.56,-212.19"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="815.04,-213 818.94,-219.93 820.21,-212.09 815.04,-213"/>
+</g>
+</g>
+</svg></div><figcaption>Comunicación asíncrona mediante JSON, JWT Bearer y métodos HTTP.</figcaption></figure>
+
+  <table>
+    <tr><th>Recurso</th><th>Endpoints principales</th></tr>
+    <tr><td>Autenticación</td><td>POST /auth/login · POST /auth/logout · GET /auth/me · POST /auth/register</td></tr>
+    <tr><td>Ventas</td><td>GET/POST /ventas · GET/PATCH/DELETE /ventas/&lt;id&gt;</td></tr>
+    <tr><td>Gastos</td><td>GET/POST /gastos · GET/PATCH/DELETE /gastos/&lt;id&gt;</td></tr>
+    <tr><td>Inventario</td><td>GET/POST /inventario · GET/PATCH/DELETE /inventario/&lt;id&gt;</td></tr>
+    <tr><td>Cuentas</td><td>GET/POST /cuentas · PATCH/DELETE /cuentas/&lt;id&gt;</td></tr>
+    <tr><td>Dashboard</td><td>GET /dashboard</td></tr>
+    <tr><td>Reportes</td><td>/reportes/resumen y endpoints de agrupación de ventas, gastos e inventario</td></tr>
+  </table>
+
+  <h3 id="seguridad">4.13 Diseño de seguridad</h3>
+  <figure><div class="diagram-inline"><!-- Generated by graphviz version 2.42.4 (0)
+ -->
+<!-- Title: G Pages: 1 -->
+<svg width="453pt" height="1274pt"
+ viewBox="0.00 0.00 452.90 1274.40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(25.2 1249.2)">
+<title>G</title>
+<polygon fill="#ffffff" stroke="transparent" points="-25.2,25.2 -25.2,-1249.2 427.7,-1249.2 427.7,25.2 -25.2,25.2"/>
+<!-- user -->
+<g id="node1" class="node">
+<title>user</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M294.5,-1224C294.5,-1224 246.5,-1224 246.5,-1224 240.5,-1224 234.5,-1218 234.5,-1212 234.5,-1212 234.5,-1200 234.5,-1200 234.5,-1194 240.5,-1188 246.5,-1188 246.5,-1188 294.5,-1188 294.5,-1188 300.5,-1188 306.5,-1194 306.5,-1200 306.5,-1200 306.5,-1212 306.5,-1212 306.5,-1218 300.5,-1224 294.5,-1224"/>
+<text text-anchor="middle" x="270.5" y="-1203.2" font-family="Arial" font-size="11.00" fill="#111827">USUARIO</text>
+</g>
+<!-- login -->
+<g id="node2" class="node">
+<title>login</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M340,-1139C340,-1139 201,-1139 201,-1139 195,-1139 189,-1133 189,-1127 189,-1127 189,-1115 189,-1115 189,-1109 195,-1103 201,-1103 201,-1103 340,-1103 340,-1103 346,-1103 352,-1109 352,-1115 352,-1115 352,-1127 352,-1127 352,-1133 346,-1139 340,-1139"/>
+<text text-anchor="middle" x="270.5" y="-1118.2" font-family="Arial" font-size="11.00" fill="#111827">Formulario de inicio de sesión</text>
+</g>
+<!-- user&#45;&gt;login -->
+<g id="edge1" class="edge">
+<title>user&#45;&gt;login</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M270.5,-1187.8C270.5,-1176.01 270.5,-1160.16 270.5,-1146.98"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.13,-1146.68 270.5,-1139.18 267.88,-1146.68 273.13,-1146.68"/>
+</g>
+<!-- auth -->
+<g id="node3" class="node">
+<title>auth</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M326,-1054C326,-1054 215,-1054 215,-1054 209,-1054 203,-1048 203,-1042 203,-1042 203,-1030 203,-1030 203,-1024 209,-1018 215,-1018 215,-1018 326,-1018 326,-1018 332,-1018 338,-1024 338,-1030 338,-1030 338,-1042 338,-1042 338,-1048 332,-1054 326,-1054"/>
+<text text-anchor="middle" x="270.5" y="-1033.2" font-family="Arial" font-size="11.00" fill="#111827">POST /api/v1/auth/login</text>
+</g>
+<!-- login&#45;&gt;auth -->
+<g id="edge2" class="edge">
+<title>login&#45;&gt;auth</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M270.5,-1102.8C270.5,-1091.01 270.5,-1075.16 270.5,-1061.98"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.13,-1061.68 270.5,-1054.18 267.88,-1061.68 273.13,-1061.68"/>
+</g>
+<!-- find -->
+<g id="node4" class="node">
+<title>find</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M332,-969C332,-969 209,-969 209,-969 203,-969 197,-963 197,-957 197,-957 197,-945 197,-945 197,-939 203,-933 209,-933 209,-933 332,-933 332,-933 338,-933 344,-939 344,-945 344,-945 344,-957 344,-957 344,-963 338,-969 332,-969"/>
+<text text-anchor="middle" x="270.5" y="-948.2" font-family="Arial" font-size="11.00" fill="#111827">Buscar usuario en MySQL</text>
+</g>
+<!-- auth&#45;&gt;find -->
+<g id="edge3" class="edge">
+<title>auth&#45;&gt;find</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M270.5,-1017.8C270.5,-1006.01 270.5,-990.16 270.5,-976.98"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.13,-976.68 270.5,-969.18 267.88,-976.68 273.13,-976.68"/>
+</g>
+<!-- hash -->
+<g id="node5" class="node">
+<title>hash</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M327.5,-884C327.5,-884 213.5,-884 213.5,-884 207.5,-884 201.5,-878 201.5,-872 201.5,-872 201.5,-860 201.5,-860 201.5,-854 207.5,-848 213.5,-848 213.5,-848 327.5,-848 327.5,-848 333.5,-848 339.5,-854 339.5,-860 339.5,-860 339.5,-872 339.5,-872 339.5,-878 333.5,-884 327.5,-884"/>
+<text text-anchor="middle" x="270.5" y="-863.2" font-family="Arial" font-size="11.00" fill="#111827">Verificar password_hash</text>
+</g>
+<!-- find&#45;&gt;hash -->
+<g id="edge4" class="edge">
+<title>find&#45;&gt;hash</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M270.5,-932.8C270.5,-921.01 270.5,-905.16 270.5,-891.98"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.13,-891.68 270.5,-884.18 267.88,-891.68 273.13,-891.68"/>
+</g>
+<!-- valid -->
+<g id="node6" class="node">
+<title>valid</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M258.73,-796.68C258.73,-796.68 150.27,-775.32 150.27,-775.32 144.39,-774.16 144.39,-771.84 150.27,-770.68 150.27,-770.68 258.73,-749.32 258.73,-749.32 264.61,-748.16 276.39,-748.16 282.27,-749.32 282.27,-749.32 390.73,-770.68 390.73,-770.68 396.61,-771.84 396.61,-774.16 390.73,-775.32 390.73,-775.32 282.27,-796.68 282.27,-796.68 276.39,-797.84 264.61,-797.84 258.73,-796.68"/>
+<text text-anchor="middle" x="270.5" y="-770.2" font-family="Arial" font-size="11.00" fill="#111827">¿Credenciales válidas?</text>
+</g>
+<!-- hash&#45;&gt;valid -->
+<g id="edge5" class="edge">
+<title>hash&#45;&gt;valid</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M270.5,-847.88C270.5,-836.33 270.5,-820.71 270.5,-806.8"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="273.13,-806.79 270.5,-799.29 267.88,-806.79 273.13,-806.79"/>
+</g>
+<!-- token -->
+<g id="node7" class="node">
+<title>token</title>
+<path fill="#eef2ff" stroke="#1d1861" stroke-width="1.8" d="M270.5,-689C270.5,-689 144.5,-689 144.5,-689 138.5,-689 132.5,-683 132.5,-677 132.5,-677 132.5,-663 132.5,-663 132.5,-657 138.5,-651 144.5,-651 144.5,-651 270.5,-651 270.5,-651 276.5,-651 282.5,-657 282.5,-663 282.5,-663 282.5,-677 282.5,-677 282.5,-683 276.5,-689 270.5,-689"/>
+<text text-anchor="middle" x="207.5" y="-673.2" font-family="Arial" font-size="11.00" fill="#111827">Generar JWT</text>
+<text text-anchor="middle" x="207.5" y="-661.2" font-family="Arial" font-size="11.00" fill="#111827">id + username + role + exp</text>
+</g>
+<!-- valid&#45;&gt;token -->
+<g id="edge7" class="edge">
+<title>valid&#45;&gt;token</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M256.52,-749.58C246.62,-733.72 233.34,-712.43 223.1,-696.01"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="225.11,-694.28 218.92,-689.3 220.66,-697.06 225.11,-694.28"/>
+<text text-anchor="middle" x="244" y="-715.8" font-family="Arial" font-size="9.00" fill="#475569">Sí</text>
+</g>
+<!-- r401 -->
+<g id="node15" class="node">
+<title>r401</title>
+<path fill="#fef2f2" stroke="#b91c1c" stroke-width="1.8" d="M337,-235C337,-235 268,-235 268,-235 262,-235 256,-229 256,-223 256,-223 256,-209 256,-209 256,-203 262,-197 268,-197 268,-197 337,-197 337,-197 343,-197 349,-203 349,-209 349,-209 349,-223 349,-223 349,-229 343,-235 337,-235"/>
+<text text-anchor="middle" x="302.5" y="-219.2" font-family="Arial" font-size="11.00" fill="#111827">HTTP 401</text>
+<text text-anchor="middle" x="302.5" y="-207.2" font-family="Arial" font-size="11.00" fill="#111827">No autenticado</text>
+</g>
+<!-- valid&#45;&gt;r401 -->
+<g id="edge6" class="edge">
+<title>valid&#45;&gt;r401</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M292.88,-751.02C310.64,-732.02 332.5,-702.27 332.5,-671 332.5,-671 332.5,-671 332.5,-318 332.5,-291.28 322.73,-262.17 314.35,-242.1"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="316.72,-240.98 311.34,-235.13 311.9,-243.06 316.72,-240.98"/>
+<text text-anchor="middle" x="339" y="-495.8" font-family="Arial" font-size="9.00" fill="#475569">No</text>
+</g>
+<!-- store -->
+<g id="node8" class="node">
+<title>store</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M262,-602C262,-602 143,-602 143,-602 137,-602 131,-596 131,-590 131,-590 131,-578 131,-578 131,-572 137,-566 143,-566 143,-566 262,-566 262,-566 268,-566 274,-572 274,-578 274,-578 274,-590 274,-590 274,-596 268,-602 262,-602"/>
+<text text-anchor="middle" x="202.5" y="-581.2" font-family="Arial" font-size="11.00" fill="#111827">Frontend almacena token</text>
+</g>
+<!-- token&#45;&gt;store -->
+<g id="edge8" class="edge">
+<title>token&#45;&gt;store</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M206.42,-650.77C205.7,-638.79 204.76,-622.95 203.98,-609.81"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="206.58,-609.38 203.51,-602.05 201.34,-609.69 206.58,-609.38"/>
+</g>
+<!-- req -->
+<g id="node9" class="node">
+<title>req</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M253.5,-517C253.5,-517 129.5,-517 129.5,-517 123.5,-517 117.5,-511 117.5,-505 117.5,-505 117.5,-491 117.5,-491 117.5,-485 123.5,-479 129.5,-479 129.5,-479 253.5,-479 253.5,-479 259.5,-479 265.5,-485 265.5,-491 265.5,-491 265.5,-505 265.5,-505 265.5,-511 259.5,-517 253.5,-517"/>
+<text text-anchor="middle" x="191.5" y="-501.2" font-family="Arial" font-size="11.00" fill="#111827">Solicitud protegida</text>
+<text text-anchor="middle" x="191.5" y="-489.2" font-family="Arial" font-size="11.00" fill="#111827">Authorization: Bearer JWT</text>
+</g>
+<!-- store&#45;&gt;req -->
+<g id="edge9" class="edge">
+<title>store&#45;&gt;req</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M200.22,-565.6C198.67,-553.78 196.6,-537.97 194.87,-524.71"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="197.47,-524.35 193.89,-517.25 192.26,-525.03 197.47,-524.35"/>
+</g>
+<!-- tokreq -->
+<g id="node10" class="node">
+<title>tokreq</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M213,-430C213,-430 138,-430 138,-430 132,-430 126,-424 126,-418 126,-418 126,-406 126,-406 126,-400 132,-394 138,-394 138,-394 213,-394 213,-394 219,-394 225,-400 225,-406 225,-406 225,-418 225,-418 225,-424 219,-430 213,-430"/>
+<text text-anchor="middle" x="175.5" y="-409.2" font-family="Arial" font-size="11.00" fill="#111827">token_requerido</text>
+</g>
+<!-- req&#45;&gt;tokreq -->
+<g id="edge10" class="edge">
+<title>req&#45;&gt;tokreq</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M188.03,-478.77C185.72,-466.67 182.67,-450.65 180.16,-437.44"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="182.73,-436.92 178.75,-430.05 177.57,-437.9 182.73,-436.92"/>
+</g>
+<!-- tokvalid -->
+<g id="node11" class="node">
+<title>tokvalid</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M139.73,-342.68C139.73,-342.68 31.27,-321.32 31.27,-321.32 25.39,-320.16 25.39,-317.84 31.27,-316.68 31.27,-316.68 139.73,-295.32 139.73,-295.32 145.61,-294.16 157.39,-294.16 163.27,-295.32 163.27,-295.32 271.73,-316.68 271.73,-316.68 277.61,-317.84 277.61,-320.16 271.73,-321.32 271.73,-321.32 163.27,-342.68 163.27,-342.68 157.39,-343.84 145.61,-343.84 139.73,-342.68"/>
+<text text-anchor="middle" x="151.5" y="-316.2" font-family="Arial" font-size="11.00" fill="#111827">¿JWT válido y vigente?</text>
+</g>
+<!-- tokreq&#45;&gt;tokvalid -->
+<g id="edge11" class="edge">
+<title>tokreq&#45;&gt;tokvalid</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M170.99,-393.88C167.82,-381.87 163.49,-365.46 159.72,-351.16"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="162.26,-350.49 157.81,-343.91 157.18,-351.83 162.26,-350.49"/>
+</g>
+<!-- role -->
+<g id="node12" class="node">
+<title>role</title>
+<path fill="#f8fafc" stroke="#1d1861" stroke-width="1.8" d="M181.5,-234C181.5,-234 121.5,-234 121.5,-234 115.5,-234 109.5,-228 109.5,-222 109.5,-222 109.5,-210 109.5,-210 109.5,-204 115.5,-198 121.5,-198 121.5,-198 181.5,-198 181.5,-198 187.5,-198 193.5,-204 193.5,-210 193.5,-210 193.5,-222 193.5,-222 193.5,-228 187.5,-234 181.5,-234"/>
+<text text-anchor="middle" x="151.5" y="-213.2" font-family="Arial" font-size="11.00" fill="#111827">rol_requerido</text>
+</g>
+<!-- tokvalid&#45;&gt;role -->
+<g id="edge13" class="edge">
+<title>tokvalid&#45;&gt;role</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M151.5,-292.77C151.5,-277.15 151.5,-257.18 151.5,-241.66"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="154.13,-241.5 151.5,-234 148.88,-241.5 154.13,-241.5"/>
+<text text-anchor="middle" x="156" y="-261.8" font-family="Arial" font-size="9.00" fill="#475569">Sí</text>
+</g>
+<!-- tokvalid&#45;&gt;r401 -->
+<g id="edge12" class="edge">
+<title>tokvalid&#45;&gt;r401</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M180.61,-298.53C205.9,-281.62 242.51,-257.13 269,-239.41"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="270.73,-241.41 275.5,-235.06 267.81,-237.04 270.73,-241.41"/>
+<text text-anchor="middle" x="243" y="-261.8" font-family="Arial" font-size="9.00" fill="#475569">No</text>
+</g>
+<!-- roleok -->
+<g id="node13" class="node">
+<title>roleok</title>
+<path fill="#fff8d6" stroke="#c5a40f" stroke-width="1.8" d="M139.86,-145.06C139.86,-145.06 60.14,-124.94 60.14,-124.94 54.32,-123.47 54.32,-120.53 60.14,-119.06 60.14,-119.06 139.86,-98.94 139.86,-98.94 145.68,-97.47 157.32,-97.47 163.14,-98.94 163.14,-98.94 242.86,-119.06 242.86,-119.06 248.68,-120.53 248.68,-123.47 242.86,-124.94 242.86,-124.94 163.14,-145.06 163.14,-145.06 157.32,-146.53 145.68,-146.53 139.86,-145.06"/>
+<text text-anchor="middle" x="151.5" y="-119.2" font-family="Arial" font-size="11.00" fill="#111827">¿Rol autorizado?</text>
+</g>
+<!-- role&#45;&gt;roleok -->
+<g id="edge14" class="edge">
+<title>role&#45;&gt;roleok</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M151.5,-197.7C151.5,-185.93 151.5,-169.98 151.5,-155.85"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="154.13,-155.72 151.5,-148.22 148.88,-155.72 154.13,-155.72"/>
+</g>
+<!-- endpoint -->
+<g id="node14" class="node">
+<title>endpoint</title>
+<path fill="#ecfdf5" stroke="#047857" stroke-width="1.8" d="M141,-37C141,-37 12,-37 12,-37 6,-37 0,-31 0,-25 0,-25 0,-13 0,-13 0,-7 6,-1 12,-1 12,-1 141,-1 141,-1 147,-1 153,-7 153,-13 153,-13 153,-25 153,-25 153,-31 147,-37 141,-37"/>
+<text text-anchor="middle" x="76.5" y="-16.2" font-family="Arial" font-size="11.00" fill="#111827">Ejecutar endpoint protegido</text>
+</g>
+<!-- roleok&#45;&gt;endpoint -->
+<g id="edge16" class="edge">
+<title>roleok&#45;&gt;endpoint</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M135.59,-99.58C123.37,-83.12 106.5,-60.41 93.92,-43.46"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="95.73,-41.5 89.15,-37.04 91.52,-44.63 95.73,-41.5"/>
+<text text-anchor="middle" x="119" y="-64.8" font-family="Arial" font-size="9.00" fill="#475569">Sí</text>
+</g>
+<!-- r403 -->
+<g id="node16" class="node">
+<title>r403</title>
+<path fill="#fef2f2" stroke="#b91c1c" stroke-width="1.8" d="M256,-38C256,-38 197,-38 197,-38 191,-38 185,-32 185,-26 185,-26 185,-12 185,-12 185,-6 191,0 197,0 197,0 256,0 256,0 262,0 268,-6 268,-12 268,-12 268,-26 268,-26 268,-32 262,-38 256,-38"/>
+<text text-anchor="middle" x="226.5" y="-22.2" font-family="Arial" font-size="11.00" fill="#111827">HTTP 403</text>
+<text text-anchor="middle" x="226.5" y="-10.2" font-family="Arial" font-size="11.00" fill="#111827">Sin permisos</text>
+</g>
+<!-- roleok&#45;&gt;r403 -->
+<g id="edge15" class="edge">
+<title>roleok&#45;&gt;r403</title>
+<path fill="none" stroke="#1d1861" stroke-width="1.6" d="M167.41,-99.58C179.4,-83.43 195.87,-61.25 208.37,-44.41"/>
+<polygon fill="#1d1861" stroke="#1d1861" stroke-width="1.6" points="210.76,-45.6 213.12,-38.01 206.55,-42.47 210.76,-45.6"/>
+<text text-anchor="middle" x="200" y="-64.8" font-family="Arial" font-size="9.00" fill="#475569">No</text>
+</g>
+</g>
+</svg></div><figcaption>Autenticación, verificación de hash, emisión de JWT y autorización por roles.</figcaption></figure>
+
+  <ul>
+    <li>Las contraseñas se almacenan mediante hash.</li>
+    <li>El JWT contiene identidad, rol y expiración.</li>
+    <li>Los endpoints protegidos validan el token.</li>
+    <li>La autorización se aplica en backend; el frontend complementa la experiencia ocultando o bloqueando acciones.</li>
+    <li>CORS limita los orígenes permitidos para la SPA.</li>
+    <li>Las variables sensibles se separan del código mediante <code>.env</code>.</li>
+  </ul>
+</section>
+
+<section id="adr">
+  <div class="k">Decisiones arquitectónicas</div>
+  <h2>5. ADR, alternativas y justificación</h2>
+
+  <table>
+    <tr><th>Decisión</th><th>Alternativas consideradas</th><th>Elección y razón</th></tr>
+    <tr><td>ADR-01 · Arquitectura del backend</td><td>Monolito simple, microservicios, monolito modular.</td><td><strong>Monolito modular</strong>: menor complejidad operativa que microservicios y mejor separación que un monolito sin dominios.</td></tr>
+    <tr><td>ADR-02 · Persistencia</td><td>SQL manual, ORM, NoSQL.</td><td><strong>SQLAlchemy + MySQL</strong>: modelo relacional coherente con el dominio, ORM y migraciones.</td></tr>
+    <tr><td>ADR-03 · Autenticación</td><td>Sesiones de servidor, JWT, autenticación simulada en cliente.</td><td><strong>JWT</strong>: apropiado para SPA/API y permite transportar el rol en solicitudes protegidas.</td></tr>
+    <tr><td>ADR-04 · Frontend</td><td>React/Vue, Bootstrap SPA, HTML/Tailwind/JS Vanilla.</td><td><strong>HTML + Tailwind + JavaScript Vanilla</strong>: cumple la restricción académica y conserva control directo del DOM.</td></tr>
+    <tr><td>ADR-05 · Integración</td><td>Frontend accediendo a BD, lógica en cliente, API REST.</td><td><strong>API REST</strong>: desacopla presentación, lógica y datos; evita exponer MySQL al navegador.</td></tr>
+    <tr><td>ADR-06 · Configuración</td><td>Credenciales embebidas, archivo local fijo, variables de entorno.</td><td><strong>.env</strong>: evita incluir secretos reales en el código fuente y facilita distintos entornos.</td></tr>
+  </table>
+</section>
+
+<section id="fase4">
+  <div class="k">Fase 04</div>
+  <h2>6. Preparación técnica</h2>
+
+  <h3>6.1 Entorno de desarrollo</h3>
+  <div class="grid">
+    <div class="card"><strong>Frontend</strong><br><code>npm install</code> y <code>npm run dev</code>. Vite sirve la SPA normalmente en localhost:5173.</div>
+    <div class="card"><strong>Backend</strong><br>Entorno virtual Python, instalación desde <code>requirements.txt</code> y ejecución de Flask en 127.0.0.1:5000.</div>
+    <div class="card"><strong>Base de datos</strong><br>MySQL con base <code>sistema_contable_db</code>.</div>
+    <div class="card"><strong>Configuración</strong><br>Variables DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, SECRET_KEY y CORS.</div>
+  </div>
+
+  <h3>6.2 Migraciones y datos de demostración</h3>
+  <p>Flask-Migrate versiona la estructura de usuarios, ventas/gastos, inventario y catálogo de cuentas. El proyecto incluye un script de seed para preparar dos usuarios de demostración: ADMIN y VENDEDOR.</p>
+
+  <h3>6.3 Estrategia de repositorio</h3>
+  <p>El repositorio unificado separa claramente <code>frontend/</code>, <code>backend/</code> y <code>documentacion/</code>. La integración final se consolidó en la rama <code>backend-integracion</code> antes de su incorporación a <code>main</code>.</p>
+</section>
+
+<section id="fase5">
+  <div class="k">Fase 05</div>
+  <h2>7. Desarrollo incremental</h2>
+
+  <h3>7.1 Incrementos implementados</h3>
+  <table>
+    <tr><th>Incremento</th><th>Resultado</th></tr>
+    <tr><td>Base técnica</td><td>App Factory Flask, configuración, CORS, conexión ORM, health check y migraciones.</td></tr>
+    <tr><td>Usuarios y seguridad</td><td>Modelo Usuario, login real, hash de contraseña, JWT y roles.</td></tr>
+    <tr><td>Ventas y gastos</td><td>Endpoints CRUD, DTO, servicios, repositorios y persistencia.</td></tr>
+    <tr><td>Inventario</td><td>CRUD de productos, estado y stock mínimo.</td></tr>
+    <tr><td>Cuentas</td><td>Catálogo de cuentas editable por ADMIN.</td></tr>
+    <tr><td>Dashboard y reportes</td><td>KPIs, movimientos y reportes construidos con información real.</td></tr>
+    <tr><td>Integración final</td><td>SPA original conectada a Flask/MySQL sin mantener credenciales ni datos demo como fuente principal.</td></tr>
+  </table>
+
+  <h3>7.2 Flujo representativo: crear una venta</h3>
+  <ol>
+    <li>El usuario autenticado diligencia el formulario en la SPA.</li>
+    <li>JavaScript envía <code>POST /api/v1/ventas</code> con JSON y JWT.</li>
+    <li>El controlador valida autenticación y recibe la solicitud.</li>
+    <li>El DTO verifica los campos obligatorios.</li>
+    <li>El servicio aplica reglas de negocio y calcula el total.</li>
+    <li>El repositorio persiste el modelo mediante SQLAlchemy.</li>
+    <li>MySQL almacena el registro.</li>
+    <li>La API responde con HTTP 201 y JSON.</li>
+    <li>El frontend actualiza la tabla y el dashboard.</li>
+  </ol>
+
+  <h3>7.3 Integración real</h3>
+  <div class="note ok"><strong>Resultado:</strong> la aplicación final fue validada de punta a punta. Los registros creados desde el navegador aparecen en MySQL Workbench y las solicitudes pueden observarse en DevTools → Network y en la terminal de Flask.</div>
+</section>
+
+<section id="calidad">
+  <div class="k">Evaluación arquitectónica</div>
+  <h2>8. Rendimiento, escalabilidad, disponibilidad, costos y riesgos</h2>
+
+  <h3>8.1 Rendimiento</h3>
+  <p>Para el alcance académico y volumen esperado, Flask y MySQL ofrecen capacidad suficiente. Las operaciones son CRUD sencillas y los reportes se apoyan en consultas de base de datos. Para volúmenes mayores sería recomendable incorporar paginación, índices adicionales, caching y análisis de consultas.</p>
+
+  <h3>8.2 Escalabilidad</h3>
+  <p>El monolito modular permite escalar verticalmente y, posteriormente, ejecutar varias instancias del backend detrás de un balanceador. La separación por dominios reduce el costo de extraer un módulo a servicio independiente si el crecimiento lo justificara.</p>
+
+  <h3>8.3 Disponibilidad</h3>
+  <p>La versión actual es local y no implementa alta disponibilidad. En producción se requerirían servicios administrados o redundantes, reinicio automático, copias de seguridad, monitoreo y health checks.</p>
+
+  <h3>8.4 Costos</h3>
+  <p>La arquitectura evita costos innecesarios de microservicios para el alcance actual. Flask, MySQL, Tailwind, Git y las principales librerías empleadas son de uso abierto. El costo productivo dependería del hosting, base de datos, dominios, copias de seguridad y observabilidad.</p>
+
+  <h3>8.5 Riesgos principales</h3>
+  <table>
+    <tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr>
+    <tr><td>Exposición de secretos</td><td>Alto</td><td>Uso de .env, .env.example y exclusión de credenciales reales.</td></tr>
+    <tr><td>Acceso no autorizado</td><td>Alto</td><td>JWT, roles y validación en backend.</td></tr>
+    <tr><td>Pérdida de datos</td><td>Alto</td><td>Migraciones; en producción se deben añadir backups automáticos.</td></tr>
+    <tr><td>Inconsistencia entre diseño y código</td><td>Medio</td><td>Actualización de diagramas conforme a la versión final Tailwind/JS Vanilla.</td></tr>
+    <tr><td>Crecimiento de consultas/reportes</td><td>Medio</td><td>Paginación, índices, caching y optimización futura.</td></tr>
+    <tr><td>Dependencia de servicios locales</td><td>Medio</td><td>Documentación de arranque; futura automatización/despliegue permanente.</td></tr>
+  </table>
+</section>
+
+<section id="evidencias">
+  <div class="k">Evidencias</div>
+  <h2>9. Verificación del funcionamiento</h2>
+  <p>Las evidencias se almacenan en <code>documentacion/evidencias/</code>. Las siguientes rutas corresponden a las capturas previstas para demostrar la integración completa.</p>
+
+  <h3>9.1 Frontend</h3>
+  <div class="evidence-grid">
+    <figure><img src="documentacion/evidencias/frontend/01-login.png" alt="Login" onerror="this.style.display='none'"><figcaption>Login de la aplicación.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/02-dashboard-admin.png" alt="Dashboard admin" onerror="this.style.display='none'"><figcaption>Dashboard del ADMIN.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/03-ventas.png" alt="Ventas" onerror="this.style.display='none'"><figcaption>Módulo de ventas.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/04-gastos.png" alt="Gastos" onerror="this.style.display='none'"><figcaption>Módulo de gastos.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/05-inventario.png" alt="Inventario" onerror="this.style.display='none'"><figcaption>Módulo de inventario.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/06-reportes.png" alt="Reportes" onerror="this.style.display='none'"><figcaption>Módulo de reportes.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/07-configuracion.png" alt="Configuración" onerror="this.style.display='none'"><figcaption>Configuración y catálogo de cuentas.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/08-dashboard-vendedor.png" alt="Dashboard vendedor" onerror="this.style.display='none'"><figcaption>Vista correspondiente al VENDEDOR.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/frontend/10-network-api.png" alt="Network API" onerror="this.style.display='none'"><figcaption>DevTools Network mostrando consumo real de /api/v1.</figcaption></figure>
+  </div>
+
+  <h3>9.2 Backend</h3>
+  <div class="evidence-grid">
+    <figure><img src="documentacion/evidencias/backend/01-flask-activo.png" alt="Flask activo" onerror="this.style.display='none'"><figcaption>Servidor Flask activo.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/backend/02-peticiones-api.png" alt="Peticiones API" onerror="this.style.display='none'"><figcaption>GET/POST/PATCH y códigos HTTP observados en terminal.</figcaption></figure>
+  </div>
+
+  <h3>9.3 Base de datos</h3>
+  <div class="evidence-grid">
+    <figure><img src="documentacion/evidencias/base-datos/01-usuarios.png" alt="Usuarios" onerror="this.style.display='none'"><figcaption>Usuarios y roles en MySQL.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/base-datos/02-ventas.png" alt="Ventas MySQL" onerror="this.style.display='none'"><figcaption>Ventas persistidas.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/base-datos/03-gastos.png" alt="Gastos MySQL" onerror="this.style.display='none'"><figcaption>Gastos persistidos.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/base-datos/04-productos.png" alt="Productos MySQL" onerror="this.style.display='none'"><figcaption>Productos persistidos.</figcaption></figure>
+    <figure><img src="documentacion/evidencias/base-datos/05-cuentas.png" alt="Cuentas MySQL" onerror="this.style.display='none'"><figcaption>Catálogo de cuentas persistido.</figcaption></figure>
+  </div>
+
+  <div class="note risk"><strong>Nota:</strong> si una captura fue guardada con un nombre diferente, se debe ajustar únicamente la ruta <code>src</code> de esa imagen antes de la entrega. El informe oculta automáticamente una imagen inexistente para evitar romper el diseño.</div>
+</section>
+
+<section>
+  <div class="k">Trazabilidad</div>
+  <h2>10. Repositorio y reproducibilidad</h2>
+  <p><strong>Repositorio:</strong> <a href="https://github.com/jeinzanderson-lang/proyecto-finanzas">github.com/jeinzanderson-lang/proyecto-finanzas</a></p>
+  <p>El repositorio contiene frontend, backend, dependencias, migraciones, documentación, diagramas y guía de ejecución. La configuración sensible se suministra mediante variables de entorno y no debe incluir secretos reales.</p>
+
+  <h3>10.1 Ejecución resumida</h3>
+  <pre>1. Iniciar MySQL
+2. Backend:
+   cd backend
+   source venv/Scripts/activate
+   pip install -r requirements.txt
+   flask --app "app:crear_app()" db upgrade
+   python seed_usuarios.py
+   flask --app "app:crear_app()" run
+
+3. Frontend:
+   cd frontend
+   npm install
+   npm run dev
+
+4. Abrir:
+   http://localhost:5173/</pre>
+
+  <p class="small">Las credenciales de demostración están documentadas en el README del repositorio para el entorno académico. No deben utilizarse en producción ni exponerse durante el video como si fueran secretos reales.</p>
+</section>
+
+<section id="conclusiones">
+  <div class="k">Cierre</div>
+  <h2>11. Conclusiones</h2>
+  <p>El Sistema Contable AG Services cumple el objetivo de integrar una interfaz SPA, una API REST modular y una base de datos relacional dentro de una arquitectura coherente y demostrable. El proyecto permite recorrer una funcionalidad desde la interacción del usuario hasta la persistencia en MySQL, manteniendo separación de responsabilidades, validación, autorización y trazabilidad.</p>
+  <p>La elección de un monolito modular fue adecuada para el alcance: preserva simplicidad de despliegue sin renunciar a dominios y capas bien definidos. La autenticación JWT y la autorización por roles fortalecen la seguridad, mientras que SQLAlchemy y Flask-Migrate proporcionan una base consistente para la evolución del modelo de datos.</p>
+  <p>Como evolución futura se recomienda desplegar los servicios en infraestructura permanente, introducir pruebas automatizadas más amplias, paginación, observabilidad, copias de seguridad y mecanismos de alta disponibilidad según el crecimiento del sistema.</p>
+
+  <div class="note ok"><strong>Estado de la versión documentada:</strong> integración Frontend–Backend–MySQL funcional, roles ADMIN/VENDEDOR, CRUD principales, dashboard, reportes, documentación arquitectónica y evidencias de ejecución.</div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">Sistema Contable AG Services · Proyecto Final de Arquitectura de Software · Jeinz Anderson Diaz Ortega · Diego Alejandro Fuentes Ortiz · 2026</div>
+</footer>
+
+</body>
+</html>

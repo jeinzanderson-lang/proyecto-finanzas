@@ -2,7 +2,7 @@ flowchart LR
 
     subgraph CLIENTE["Equipo Cliente"]
         BROWSER["Navegador Web"]
-        SPA["Frontend SPA<br/>HTML + CSS + Bootstrap + JavaScript"]
+        SPA["Frontend SPA<br/>HTML5 + Tailwind CSS<br/>JavaScript Vanilla + Vite<br/>Puerto 5173"]
     end
 
     subgraph APP["Servidor de Aplicación"]
@@ -15,9 +15,6 @@ flowchart LR
     end
 
     BROWSER --> SPA
-
     SPA -->|"HTTP / JSON<br/>JWT Bearer"| FLASK
-
     FLASK --> ORM
-
     ORM -->|"SQL"| MYSQL
