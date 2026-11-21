@@ -1,0 +1,1 @@
+# Los reportes actuales no reciben datos de entrada

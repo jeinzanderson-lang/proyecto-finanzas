@@ -56,7 +56,7 @@ const postRenderInitializers = {
 };
 
 export function initRouter() {
-  function handleRouteChange() {
+  async function handleRouteChange() {  
     const currentRoute = getCurrentRoute();
     const app = document.querySelector('#app');
 
@@ -96,15 +96,16 @@ export function initRouter() {
     }
 
     const renderer = moduleRenderers[currentRoute] || moduleRenderers.dashboard;
-    
-    app.innerHTML = `
-      <div class="app-container">
-        ${renderNavbar()}
-        <main class="main-content">
-          ${renderer()}
-        </main>
-      </div>
-    `;
+const renderedPage = await renderer();
+
+app.innerHTML = `
+  <div class="app-container">
+    ${renderNavbar()}
+    <main class="main-content">
+      ${renderedPage}
+    </main>
+  </div>
+`;
 
     initNavbarEvents();
 

@@ -1,161 +1,515 @@
 // src/js/pages/DashboardPage.js
 import { httpClient } from '../api/http.js';
-import { chartsService } from '../services/charts.service.js';
 import { renderKPICards } from '../components/dashboard/KPICard.js';
 import { showToast } from '../utils/toast.js';
-import { ventasService } from '../services/ventas.service.js'; // Para transacciones recientes
+
+
+// ======================================================
+// RENDER INICIAL
+// ======================================================
 
 export function renderDashboardPage() {
-  // Renderizamos un estado de carga inicial
   return `
-    <div class="page-header d-flex justify-content-between align-items-start">
-      <div>
-        <div class="page-subtitle">RESUMEN FINANCIERO</div>
-        <h2>Dashboard</h2>
-        <p class="page-description">Cargando datos del sistema...</p>
+    <div class="container-fluid">
+
+      <div class="page-header d-flex justify-content-between align-items-start">
+        <div>
+          <div class="page-subtitle">
+            RESUMEN FINANCIERO
+          </div>
+
+          <h2>Dashboard</h2>
+
+          <p class="page-description">
+            Cargando datos del sistema...
+          </p>
+        </div>
       </div>
-    </div>
-    <div class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Cargando...</span>
+
+      <div class="text-center py-5">
+        <div
+          class="spinner-border text-primary"
+          role="status"
+        >
+          <span class="visually-hidden">
+            Cargando...
+          </span>
+        </div>
       </div>
+
     </div>
   `;
 }
 
+
+// ======================================================
+// CARGAR DASHBOARD REAL
+// ======================================================
+
 export async function initDashboardCharts() {
   try {
-    // 1. Obtener datos del dashboard
-    const dashboardData = await httpClient.get('/dashboard');
-    const data = dashboardData.data || dashboardData;
-    
-    // 2. Obtener transacciones recientes (últimas 5 ventas)
-    const ventas = await ventasService.getAll();
-    const transacciones = ventas.slice(0, 5).map(v => ({
-      fecha: v.fecha,
-      tipo: 'Venta',
-      cliente: v.cliente,
-      estado: v.estado,
-      monto: v.total,
-    }));
+    const data =
+      await httpClient.get('/dashboard');
 
-    // 3. Renderizar KPIs (Asumiendo que el backend devuelve kpis: { ingresos, gastos, saldo, alertas })
-    // Si tu backend devuelve nombres diferentes, ajústalos aquí.
+    const kpisBackend =
+      data.kpis || {};
+
+    const transacciones =
+      data.ultimasTransacciones || [];
+
+
+    // --------------------------------------------------
+    // KPIs
+    // --------------------------------------------------
+
+    const ventasMes =
+      kpisBackend.ventasMes || {
+        valor: 0,
+        cambio: 0,
+        tendencia: 'up',
+        label: 'Ventas del mes'
+      };
+
+    const gastosMes =
+      kpisBackend.gastosMes || {
+        valor: 0,
+        cambio: 0,
+        tendencia: 'down',
+        label: 'Gastos del mes'
+      };
+
+    const utilidad =
+      kpisBackend.utilidad || {
+        valor: 0,
+        cambio: 0,
+        tendencia: 'up',
+        label: 'Utilidad neta'
+      };
+
+    const inventarioBajo =
+      kpisBackend.inventarioBajo || {
+        valor: 0,
+        cambio: 0,
+        tendencia: 'down',
+        label: 'Productos con stock bajo'
+      };
+
+
     const kpis = [
-      { label: 'Ingresos', valor: data.ingresos || 0, valorFormateado: `$${(data.ingresos || 0).toLocaleString('es-CO')}`, tendencia: 'up', cambio: 0 },
-      { label: 'Gastos', valor: data.gastos || 0, valorFormateado: `$${(data.gastos || 0).toLocaleString('es-CO')}`, tendencia: 'down', cambio: 0 },
-      { label: 'Saldo', valor: data.saldo || 0, valorFormateado: `$${(data.saldo || 0).toLocaleString('es-CO')}`, tendencia: 'up', cambio: 0 },
-      { label: 'Alertas', valor: data.alertas || 0, valorFormateado: data.alertas || 0, tendencia: 'down', cambio: 0 },
+      {
+        ...ventasMes,
+        valorFormateado:
+          '$' +
+          Number(
+            ventasMes.valor || 0
+          ).toLocaleString('es-CO')
+      },
+
+      {
+        ...gastosMes,
+        valorFormateado:
+          '$' +
+          Number(
+            gastosMes.valor || 0
+          ).toLocaleString('es-CO')
+      },
+
+      {
+        ...utilidad,
+        valorFormateado:
+          '$' +
+          Number(
+            utilidad.valor || 0
+          ).toLocaleString('es-CO')
+      },
+
+      {
+        ...inventarioBajo,
+        valorFormateado:
+          Number(
+            inventarioBajo.valor || 0
+          ).toLocaleString('es-CO')
+      }
     ];
 
-    // Re-renderizar el contenido con los datos reales
-    const app = document.querySelector('#app main.main-content') || document.querySelector('#app');
-    
-    const transaccionesRows = transacciones.map(t => {
-      const estadoColor = t.estado === 'Completada' || t.estado === 'Pagado' ? 'success' : t.estado === 'Pendiente' ? 'warning' : 'danger';
-      return `
-        <tr>
-          <td>${t.fecha}</td>
-          <td><span class="badge bg-success-subtle"><i class="bi bi-arrow-down-circle me-1"></i>Ingreso</span></td>
-          <td>${t.cliente}</td>
-          <td><span class="badge bg-${estadoColor}-subtle">${t.estado}</span></td>
-          <td class="fw-bold text-success">+$${t.monto.toLocaleString('es-CO', { minimumFractionDigits: 0 })}</td>
-        </tr>
-      `;
-    }).join('') || '<tr><td colspan="5" class="text-center text-muted py-4">No hay movimientos recientes</td></tr>';
+
+    // --------------------------------------------------
+    // TABLA DE MOVIMIENTOS
+    // --------------------------------------------------
+
+    const transaccionesRows =
+      transacciones.length > 0
+        ? transacciones
+            .map(transaccion => {
+
+              const esVenta =
+                transaccion.tipo === 'Venta';
+
+              const tipoColor =
+                esVenta
+                  ? 'success'
+                  : 'danger';
+
+              const tipoIcono =
+                esVenta
+                  ? 'bi-arrow-down-circle'
+                  : 'bi-arrow-up-circle';
+
+              const signo =
+                esVenta ? '+' : '-';
+
+              const concepto =
+                esVenta
+                  ? transaccion.cliente
+                  : transaccion.concepto;
+
+              const estadoColor =
+                transaccion.estado === 'Completada' ||
+                transaccion.estado === 'Pagado'
+                  ? 'success'
+                  : transaccion.estado === 'Pendiente'
+                    ? 'warning'
+                    : 'danger';
+
+              return `
+                <tr>
+
+                  <td>
+                    ${transaccion.fecha}
+                  </td>
+
+                  <td>
+                    <span
+                      class="badge bg-${tipoColor}-subtle text-${tipoColor}"
+                    >
+                      <i
+                        class="bi ${tipoIcono} me-1"
+                      ></i>
+
+                      ${transaccion.tipo}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${concepto || '-'}
+                  </td>
+
+                  <td>
+                    <span
+                      class="badge bg-${estadoColor}-subtle text-${estadoColor}"
+                    >
+                      ${transaccion.estado}
+                    </span>
+                  </td>
+
+                  <td
+                    class="fw-bold text-end text-${tipoColor}"
+                  >
+                    ${signo}$${Number(
+                      transaccion.monto || 0
+                    ).toLocaleString(
+                      'es-CO',
+                      {
+                        minimumFractionDigits: 0
+                      }
+                    )}
+                  </td>
+
+                </tr>
+              `;
+            })
+            .join('')
+        : `
+            <tr>
+              <td
+                colspan="5"
+                class="text-center text-muted py-4"
+              >
+                No hay movimientos recientes
+              </td>
+            </tr>
+          `;
+
+
+    // --------------------------------------------------
+    // FLUJO DEL PERÍODO
+    // --------------------------------------------------
+
+    const totalVentas =
+      Number(ventasMes.valor || 0);
+
+    const totalGastos =
+      Number(gastosMes.valor || 0);
+
+    const porcentajeGastos =
+      totalVentas > 0
+        ? Math.min(
+            Math.round(
+              (totalGastos / totalVentas) *
+              100
+            ),
+            100
+          )
+        : 0;
+
+
+    // --------------------------------------------------
+    // RENDER FINAL
+    // --------------------------------------------------
+
+    const app =
+      document.querySelector(
+        '#app main.main-content'
+      );
+
+    if (!app) {
+      return;
+    }
+
 
     app.innerHTML = `
-      <div class="page-header d-flex justify-content-between align-items-start">
-        <div>
-          <div class="page-subtitle">RESUMEN FINANCIERO</div>
-          <h2>Dashboard</h2>
-          <p class="page-description">Vista general del movimiento contable del negocio.</p>
-        </div>
-        <div class="badge bg-success-subtle text-success px-3 py-2">
-          <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-          Datos en tiempo real
-        </div>
-      </div>
+      <div class="container-fluid">
 
-      <div class="row g-4 mb-4">
-        ${renderKPICards(kpis)}
-      </div>
+        <div
+          class="page-header d-flex justify-content-between align-items-start"
+        >
 
-      <div class="row g-4">
-        <div class="col-12 col-lg-8">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <div>
-                <h5 class="fw-bold mb-1">Últimos movimientos</h5>
-                <small class="text-muted">Ingresos y egresos recientes.</small>
-              </div>
+          <div>
+            <div class="page-subtitle">
+              RESUMEN FINANCIERO
             </div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover mb-0 align-middle">
-                  <thead>
-                    <tr>
-                      <th>Fecha</th>
-                      <th>Tipo</th>
-                      <th>Concepto</th>
-                      <th>Estado</th>
-                      <th class="text-end">Valor</th>
-                    </tr>
-                  </thead>
-                  <tbody>${transaccionesRows}</tbody>
-                </table>
-              </div>
-            </div>
+
+            <h2>Dashboard</h2>
+
+            <p class="page-description">
+              Vista general del movimiento contable del negocio.
+            </p>
           </div>
+
+
+          <div
+            class="badge bg-success-subtle text-success px-3 py-2"
+          >
+            <i
+              class="bi bi-circle-fill me-1"
+              style="font-size: 0.5rem;"
+            ></i>
+
+            Datos en tiempo real
+          </div>
+
         </div>
 
-        <div class="col-12 col-lg-4">
-          <div class="card">
-            <div class="card-header">
-              <h5 class="fw-bold mb-1">Flujo del período</h5>
-              <small class="text-muted">Comparación visual.</small>
-            </div>
-            <div class="card-body">
-              <div class="mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="fw-semibold">Ingresos</span>
-                  <span class="fw-bold">100%</span>
-                </div>
-                <div class="progress" style="height: 8px; border-radius: 4px;">
-                  <div class="progress-bar" style="width: 100%; background: var(--primary);"></div>
-                </div>
-              </div>
-              <div class="mb-4">
-                <div class="d-flex justify-content-between mb-2">
-                  <span class="fw-semibold">Gastos</span>
-                  <span class="fw-bold">${data.gastos > 0 ? Math.round((data.gastos / data.ingresos) * 100) : 0}%</span>
-                </div>
-                <div class="progress" style="height: 8px; border-radius: 4px;">
-                  <div class="progress-bar" style="width: ${data.gastos > 0 ? (data.gastos / data.ingresos) * 100 : 0}%; background: var(--accent);"></div>
-                </div>
-              </div>
-              <div class="alert bg-info-subtle border-0 d-flex align-items-start">
-                <i class="bi bi-info-circle-fill me-2 mt-1"></i>
+
+        <!-- KPIs -->
+        <div class="row g-4 mb-4">
+          ${renderKPICards(kpis)}
+        </div>
+
+
+        <div class="row g-4">
+
+
+          <!-- ÚLTIMOS MOVIMIENTOS -->
+          <div class="col-12 col-lg-8">
+
+            <div class="card">
+
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+
                 <div>
-                  <strong>Lectura rápida</strong>
-                  <div class="small text-muted">El saldo visible es de $${(data.saldo || 0).toLocaleString('es-CO')}.</div>
+                  <h5 class="fw-bold mb-1">
+                    Últimos movimientos
+                  </h5>
+
+                  <small class="text-muted">
+                    Ingresos y egresos recientes.
+                  </small>
                 </div>
+
               </div>
+
+
+              <div class="card-body p-0">
+
+                <div class="table-responsive">
+
+                  <table
+                    class="table table-hover mb-0 align-middle"
+                  >
+
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Concepto</th>
+                        <th>Estado</th>
+                        <th class="text-end">
+                          Valor
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      ${transaccionesRows}
+                    </tbody>
+
+                  </table>
+
+                </div>
+
+              </div>
+
             </div>
+
           </div>
+
+
+          <!-- FLUJO -->
+          <div class="col-12 col-lg-4">
+
+            <div class="card">
+
+              <div class="card-header">
+
+                <h5 class="fw-bold mb-1">
+                  Flujo del período
+                </h5>
+
+                <small class="text-muted">
+                  Comparación del mes actual.
+                </small>
+
+              </div>
+
+
+              <div class="card-body">
+
+                <div class="mb-4">
+
+                  <div
+                    class="d-flex justify-content-between mb-2"
+                  >
+                    <span class="fw-semibold">
+                      Ventas
+                    </span>
+
+                    <span class="fw-bold">
+                      100%
+                    </span>
+                  </div>
+
+                  <div
+                    class="progress"
+                    style="height: 8px; border-radius: 4px;"
+                  >
+                    <div
+                      class="progress-bar"
+                      style="
+                        width: 100%;
+                        background: var(--primary);
+                      "
+                    ></div>
+                  </div>
+
+                </div>
+
+
+                <div class="mb-4">
+
+                  <div
+                    class="d-flex justify-content-between mb-2"
+                  >
+                    <span class="fw-semibold">
+                      Gastos
+                    </span>
+
+                    <span class="fw-bold">
+                      ${porcentajeGastos}%
+                    </span>
+                  </div>
+
+                  <div
+                    class="progress"
+                    style="height: 8px; border-radius: 4px;"
+                  >
+                    <div
+                      class="progress-bar"
+                      style="
+                        width: ${porcentajeGastos}%;
+                        background: var(--accent);
+                      "
+                    ></div>
+                  </div>
+
+                </div>
+
+
+                <div
+                  class="alert bg-info-subtle border-0 d-flex align-items-start"
+                >
+
+                  <i
+                    class="bi bi-info-circle-fill me-2 mt-1"
+                  ></i>
+
+                  <div>
+
+                    <strong>
+                      Lectura rápida
+                    </strong>
+
+                    <div class="small text-muted">
+                      La utilidad del mes es
+                      $${Number(
+                        utilidad.valor || 0
+                      ).toLocaleString(
+                        'es-CO'
+                      )}.
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
     `;
 
-    // Inicializar eventos del dashboard después de renderizar
+
     initDashboardEvents();
 
   } catch (error) {
-    console.error('Error cargando dashboard:', error);
-    showToast('❌ Error al cargar los datos del dashboard', 'error');
+
+    console.error(
+      'Error cargando dashboard:',
+      error
+    );
+
+    showToast(
+      '❌ Error al cargar el dashboard: ' +
+      error.message,
+      'error'
+    );
   }
 }
 
+
+// ======================================================
+// EVENTOS
+// ======================================================
+
 export function initDashboardEvents() {
-  console.log('✅ Dashboard inicializado con datos reales');
+  console.log(
+    '✅ Dashboard conectado con API real'
+  );
 }

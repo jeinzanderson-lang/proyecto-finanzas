@@ -1,5 +1,6 @@
 // src/js/pages/LoginPage.js
 import { sessionService } from '../auth/session.service.js';
+import { authApi } from '../api/auth.api.js';
 import { navigateTo } from '../router/routes.js';
 import { showToast } from '../utils/toast.js';
 
@@ -98,7 +99,7 @@ export function initLoginEvents() {
   // Formulario de login
   const loginForm = document.getElementById('loginForm');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const username = document.getElementById('loginUsername').value.trim();
@@ -119,25 +120,25 @@ export function initLoginEvents() {
       }
 
       // Validación de credenciales
-      const credencialesValidas = 
-        (username === 'admin' && password === 'AgS2026!') ||
-        (username === 'vendedor' && password === 'Ven2026!');
+      try {
+  const resultado = await authApi.login(username, password);
 
-      if (!credencialesValidas) {
-        showToast('❌ Usuario o contraseña incorrectos', 'error');
-        return;
-      }
+  const { token, user } = resultado;
 
-      // Crear usuario
-      const user = {
-        username: username,
-        full_name: selectedRole === 'ADMIN' ? 'Administrador Principal' : 'Vendedor',
-        role: selectedRole,
-      };
+  sessionService.login(token, user);
 
-      // Guardar sesión
-      sessionService.login(user);
-      showToast('✅ Bienvenido, ' + user.full_name, 'success');
+  showToast(
+    '✅ Bienvenido, ' + (user.full_name || user.username),
+    'success'
+  );
+
+} catch (error) {
+  showToast(
+    '❌ ' + (error.message || 'Usuario o contraseña incorrectos'),
+    'error'
+  );
+  return;
+}
 
       // Navegar al dashboard
       navigateTo('dashboard');

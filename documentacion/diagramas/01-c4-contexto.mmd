@@ -1,0 +1,11 @@
+flowchart LR
+    ADMIN["Administrador<br/>Gestiona todo el sistema"]
+    VEND["Vendedor<br/>Gestiona ventas y consulta información"]
+
+    SISTEMA["Sistema Contable AG Services<br/>Aplicación web para gestionar ventas,<br/>gastos, inventario, cuentas y reportes"]
+
+    DB[("Base de datos MySQL<br/>Persistencia de información")]
+
+    ADMIN -->|"Usa"| SISTEMA
+    VEND -->|"Usa"| SISTEMA
+    SISTEMA -->|"Lee y almacena información"| DB

@@ -1,0 +1,41 @@
+flowchart LR
+
+    USER["Usuario"]
+
+    PAGE["Página SPA<br/>Ventas / Gastos / Inventario"]
+
+    HTTP["httpClient.js"]
+
+    JWT["JWT<br/>Authorization: Bearer"]
+
+    subgraph API["API REST Flask /api/v1"]
+        AUTH["/auth"]
+        VEN["/ventas"]
+        GAS["/gastos"]
+        INV["/inventario"]
+        CUE["/cuentas"]
+        DASH["/dashboard"]
+        REP["/reportes"]
+    end
+
+    DB[("MySQL")]
+
+    USER --> PAGE
+
+    PAGE -->|"async / await"| HTTP
+
+    HTTP --> JWT
+
+    JWT -->|"GET / POST / PATCH / DELETE<br/>JSON"| API
+
+    AUTH --> DB
+    VEN --> DB
+    GAS --> DB
+    INV --> DB
+    CUE --> DB
+    DASH --> DB
+    REP --> DB
+
+    API -->|"JSON + HTTP status"| HTTP
+
+    HTTP -->|"Actualizar DOM"| PAGE
