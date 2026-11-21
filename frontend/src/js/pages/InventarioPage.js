@@ -1,1169 +1,652 @@
-// src/js/pages/InventarioPage.js
 import { inventarioService } from '../services/inventario.service.js';
 import { sessionService } from '../auth/session.service.js';
-import * as bootstrap from 'bootstrap';
-import { showToast, showConfirm } from '../utils/toast.js';
+import { showToast, showConfirm } from '../components/ui/toast.js';
+import {
+  modalTemplate,
+  openModal,
+  closeModal,
+  initModalCloseEvents
+} from '../components/ui/modal.js';
+import {
+  sideDetailTemplate,
+  openSideDetail,
+  closeSideDetail,
+  initSideDetailEvents
+} from '../components/ui/sideDetail.js';
+import {
+  money,
+  escapeHtml
+} from '../utils/format.js';
 
-let modalProductoInstance = null;
+let productos = [];
+let selectedId = null;
+let editingId = null;
 
-const categorias = [
-  'Computadores',
-  'Accesorios',
-  'Monitores',
-  'Impresoras',
-  'Almacenamiento',
-  'Mobiliario',
-  'Otros'
-];
+function renderProductoDetail() {
+  return sideDetailTemplate({
+    id: 'productoDetail',
+    eyebrow: 'Detalle del producto',
+    titleId: 'productoDetailTitle',
+    descriptionId: 'productoDetailDescription',
 
+    fields: [
+      {
+        id: 'productoDetailCodigo',
+        label: 'ID / SKU'
+      },
+      {
+        id: 'productoDetailCosto',
+        label: 'Costo'
+      },
+      {
+        id: 'productoDetailStock',
+        label: 'Stock'
+      }
+    ],
 
-// ======================================================
-// RENDER PRINCIPAL
-// ======================================================
+    actions: `
+      <div
+        id="productoAdminActions"
+        class="grid grid-cols-[1fr_auto] gap-2 mt-5"
+      >
+        <button
+          id="editarProductoBtn"
+          type="button"
+          class="btn-ag rounded-xl py-2.5 px-4 font-bold text-sm"
+        >
+          <i class="fa-solid fa-pen-to-square mr-2"></i>
+          Editar
+        </button>
 
-export async function renderInventarioPage() {
-  const productos = await inventarioService.getAll();
-  const estadisticas = calcularEstadisticas(productos);
+        <button
+          id="eliminarProductoBtn"
+          type="button"
+          class="h-11 w-11 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition"
+          aria-label="Eliminar producto"
+          title="Eliminar producto"
+        >
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    `
+  });
+}
 
-  const usuario = sessionService.getUser();
-  const esAdmin = usuario?.role === 'ADMIN';
+function renderProductoModal() {
+  return modalTemplate({
+    id: 'productoModal',
+    titleId: 'productoModalTitle',
+    subtitleId: 'productoModalSubtitle',
 
-  const categoriasOptions = categorias
-    .map(
-      categoria =>
-        `<option value="${categoria}">${categoria}</option>`
-    )
-    .join('');
+    body: `
+      <form
+        id="productoForm"
+        class="p-5 space-y-4"
+      >
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Descripción breve
+          </label>
 
-  return `
-    <div class="container-fluid">
-
-      <div class="page-header d-flex justify-content-between align-items-start mb-4">
+          <input
+            id="productoDescripcion"
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
 
         <div>
-          <div class="page-subtitle">CONTROL DE STOCK</div>
-          <h2>Inventario</h2>
-          <p class="page-description">
-            Administra los productos y el stock del sistema.
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            SKU / ID
+          </label>
+
+          <input
+            id="productoCodigo"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Producto
+          </label>
+
+          <input
+            id="productoNombre"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Stock
+          </label>
+
+          <input
+            id="productoStock"
+            type="number"
+            min="0"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Costo
+          </label>
+
+          <input
+            id="productoCosto"
+            type="number"
+            min="0"
+            step="any"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Precio
+          </label>
+
+          <input
+            id="productoPrecio"
+            type="number"
+            min="0"
+            step="any"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 gap-2 pt-1">
+          <button
+            type="button"
+            data-close-modal="productoModal"
+            class="w-full rounded-xl border border-slate-200 py-3 font-bold text-slate-600 hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-ag w-full rounded-xl py-3 font-bold"
+          >
+            Guardar producto
+          </button>
+        </div>
+      </form>
+    `
+  });
+}
+
+export async function renderInventarioPage() {
+  productos =
+    (await inventarioService.getAll()) || [];
+
+  const admin =
+    sessionService.isAdmin();
+
+  return `
+    <section>
+
+      <div
+        class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6"
+      >
+        <div>
+          <p
+            class="text-xs font-bold uppercase tracking-[0.18em] text-agg"
+          >
+            Control operativo
+          </p>
+
+          <h2
+            class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1"
+          >
+            Inventario
+          </h2>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Consulta productos, precios y disponibilidad.
           </p>
         </div>
 
         ${
-          esAdmin
+          admin
             ? `
               <button
-                class="btn btn-success"
-                id="btnNuevoProducto"
+                id="nuevoProductoBtn"
+                type="button"
+                class="btn-ag rounded-xl px-4 py-2.5 text-sm font-bold self-start"
               >
-                <i class="bi bi-plus-circle me-2"></i>
-                Nuevo Producto
+                <i class="fa-solid fa-plus mr-2"></i>
+                Nuevo producto
               </button>
             `
             : ''
         }
-
       </div>
 
 
-      <!-- KPIs -->
-      <div class="row g-3 mb-4">
+      <div
+        id="inventarioWorkspace"
+        class="detail-workspace"
+      >
 
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">
-              Total Productos
-            </div>
-            <div class="kpi-value">
-              ${estadisticas.total}
-            </div>
-            <div class="kpi-trend up">
-              Registrados
-            </div>
-          </div>
-        </div>
+        <article
+          class="relative bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        >
+          <div
+            class="px-5 py-4 border-b border-slate-100"
+          >
+            <h3 class="font-bold text-slate-900">
+              Catálogo de inventario
+            </h3>
 
-
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">
-              Disponibles
-            </div>
-            <div class="kpi-value">
-              ${estadisticas.disponibles}
-            </div>
-            <div class="kpi-trend up">
-              En stock
-            </div>
-          </div>
-        </div>
-
-
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">
-              Stock Bajo
-            </div>
-            <div class="kpi-value">
-              ${estadisticas.stockBajo}
-            </div>
-            <div class="kpi-trend down">
-              Por reponer
-            </div>
-          </div>
-        </div>
-
-
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">
-              Valor Inventario
-            </div>
-            <div class="kpi-value">
-              $${estadisticas.valorInventario.toLocaleString(
-                'es-CO',
-                { minimumFractionDigits: 0 }
-              )}
-            </div>
-            <div class="kpi-trend up">
-              Valor total
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-
-      <!-- FILTROS -->
-      <div class="card mb-4">
-
-        <div class="card-body">
-
-          <div class="row g-3">
-
-            <div class="col-12 col-md-4">
-              <input
-                type="text"
-                class="form-control"
-                id="buscarProducto"
-                placeholder="🔍 Buscar por nombre, código o proveedor..."
-              >
-            </div>
-
-
-            <div class="col-12 col-md-3">
-
-              <select
-                class="form-select"
-                id="filtroEstado"
-              >
-                <option value="">
-                  Todos los estados
-                </option>
-                <option value="Disponible">
-                  Disponible
-                </option>
-                <option value="Stock Bajo">
-                  Stock Bajo
-                </option>
-                <option value="Agotado">
-                  Agotado
-                </option>
-              </select>
-
-            </div>
-
-
-            <div class="col-12 col-md-3">
-
-              <select
-                class="form-select"
-                id="filtroCategoria"
-              >
-                <option value="">
-                  Todas las categorías
-                </option>
-
-                ${categoriasOptions}
-
-              </select>
-
-            </div>
-
-
-            <div class="col-12 col-md-2">
-
-              <button
-                class="btn btn-outline-secondary w-100"
-                id="btnLimpiar"
-              >
-                <i class="bi bi-x-circle"></i>
-                Limpiar
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <!-- TABLA -->
-      <div class="card">
-
-        <div class="card-body p-0">
-
-          <div class="table-responsive">
-
-            <table
-              class="table table-hover mb-0 align-middle"
+            <p
+              class="text-xs text-slate-500 mt-0.5"
             >
+              Selecciona el nombre de un producto para ver sus detalles.
+            </p>
+          </div>
 
-              <thead>
+          <div class="table-wrap">
+            <table
+              class="w-full text-sm"
+              style="min-width: 560px;"
+            >
+              <thead
+                class="bg-slate-50 text-slate-500"
+              >
                 <tr>
-                  <th>Código</th>
-                  <th>Nombre</th>
-                  <th>Categoría</th>
-                  <th>Precio</th>
-                  <th class="text-center">
-                    Stock
+                  <th
+                    class="text-left px-5 py-3 font-semibold"
+                  >
+                    Producto
                   </th>
-                  <th class="text-center">
-                    Mín.
+
+                  <th
+                    class="text-right px-5 py-3 font-semibold"
+                  >
+                    Precio
                   </th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+
+                  <th
+                    class="text-left px-5 py-3 font-semibold"
+                  >
+                    Estado
+                  </th>
                 </tr>
               </thead>
 
-              <tbody id="tablaProductosBody">
-                ${renderTablaProductos(
-                  productos,
-                  esAdmin
-                )}
+              <tbody
+                class="divide-y divide-slate-100"
+              >
+                ${
+                  productos.length
+                    ? productos
+                        .map(
+                          producto => `
+                            <tr
+                              data-producto-id="${producto.id}"
+                              class="producto-row hover:bg-slate-50/70 cursor-pointer"
+                            >
+                              <td class="px-5 py-4">
+                                <button
+                                  type="button"
+                                  class="font-bold text-agnavy hover:underline text-left"
+                                >
+                                  ${escapeHtml(producto.nombre)}
+                                </button>
+                              </td>
+
+                              <td
+                                class="px-5 py-4 text-right font-bold text-slate-800"
+                              >
+                                ${money(producto.precio)}
+                              </td>
+
+                              <td
+                                class="px-5 py-4"
+                              >
+                                ${escapeHtml(producto.estado)}
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')
+                    : `
+                      <tr>
+                        <td
+                          colspan="3"
+                          class="px-5 py-8 text-center text-slate-500"
+                        >
+                          No hay productos registrados en el inventario.
+                        </td>
+                      </tr>
+                    `
+                }
               </tbody>
-
             </table>
-
           </div>
+        </article>
 
-        </div>
+        ${renderProductoDetail()}
 
       </div>
 
+      ${renderProductoModal()}
 
-      <!-- MODAL -->
-      <div
-        id="modalProducto"
-        class="modal fade"
-        tabindex="-1"
-      >
-
-        <div class="modal-dialog modal-lg">
-
-          <div class="modal-content">
-
-            <div class="modal-header">
-
-              <h5
-                class="modal-title fw-bold"
-                id="modalTitulo"
-              >
-                Nuevo Producto
-              </h5>
-
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-              <form id="formProducto">
-
-                <input
-                  type="hidden"
-                  id="productoId"
-                >
-
-                <div class="row g-3">
-
-
-                  <div class="col-12 col-md-8">
-
-                    <label class="form-label">
-                      Nombre del Producto
-                    </label>
-
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="productoNombre"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Categoría
-                    </label>
-
-                    <select
-                      class="form-select"
-                      id="productoCategoria"
-                      required
-                    >
-                      ${categoriasOptions}
-                    </select>
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Precio
-                    </label>
-
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="productoPrecio"
-                      min="0"
-                      step="0.01"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Stock Actual
-                    </label>
-
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="productoStock"
-                      min="0"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Stock Mínimo
-                    </label>
-
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="productoStockMinimo"
-                      min="0"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12">
-
-                    <label class="form-label">
-                      Proveedor
-                    </label>
-
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="productoProveedor"
-                    >
-
-                  </div>
-
-                </div>
-
-              </form>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-success"
-                id="btnGuardarProducto"
-              >
-                <i class="bi bi-check-circle me-2"></i>
-                Guardar
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
+    </section>
   `;
 }
 
-
-// ======================================================
-// TABLA
-// ======================================================
-
-function renderTablaProductos(
-  productos,
-  esAdmin
-) {
-  if (!productos || productos.length === 0) {
-    return `
-      <tr>
-        <td
-          colspan="8"
-          class="text-center text-muted py-4"
-        >
-          No hay productos registrados
-        </td>
-      </tr>
-    `;
-  }
-
-  return productos
-    .map(producto => {
-
-      const estadoColor =
-        producto.estado === 'Disponible'
-          ? 'success'
-          : producto.estado === 'Stock Bajo'
-            ? 'warning'
-            : 'danger';
-
-      const stockClass =
-        producto.estado === 'Stock Bajo'
-          ? 'text-warning fw-bold'
-          : producto.estado === 'Agotado'
-            ? 'text-danger fw-bold'
-            : '';
-
-      return `
-        <tr>
-
-          <td>
-            <span class="fw-bold text-success">
-              ${producto.codigo}
-            </span>
-          </td>
-
-          <td>
-            ${producto.nombre}
-          </td>
-
-          <td>
-            <span class="badge bg-secondary-subtle">
-              ${producto.categoria}
-            </span>
-          </td>
-
-          <td class="fw-bold">
-            $${Number(
-              producto.precio
-            ).toLocaleString(
-              'es-CO',
-              { minimumFractionDigits: 0 }
-            )}
-          </td>
-
-          <td
-            class="text-center ${stockClass}"
-          >
-            ${producto.stock}
-          </td>
-
-          <td class="text-center text-muted">
-            ${producto.stockMinimo}
-          </td>
-
-          <td>
-            <span
-              class="badge bg-${estadoColor}-subtle"
-            >
-              ${producto.estado}
-            </span>
-          </td>
-
-          <td>
-
-            ${
-              esAdmin
-                ? `
-                  <button
-                    class="btn btn-sm btn-outline-primary me-1 btn-editar-prod"
-                    data-id="${producto.id}"
-                  >
-                    <i class="bi bi-pencil"></i>
-                  </button>
-
-                  <button
-                    class="btn btn-sm btn-outline-danger btn-eliminar-prod"
-                    data-id="${producto.id}"
-                  >
-                    <i class="bi bi-trash"></i>
-                  </button>
-                `
-                : `
-                  <span class="text-muted">
-                    Solo lectura
-                  </span>
-                `
-            }
-
-          </td>
-
-        </tr>
-      `;
-    })
-    .join('');
+function selectedProducto() {
+  return productos.find(
+    producto =>
+      producto.id === selectedId
+  );
 }
 
+function showProductoDetail(producto) {
+  if (!producto) return;
 
-// ======================================================
-// ESTADÍSTICAS
-// ======================================================
+  selectedId = producto.id;
 
-function calcularEstadisticas(productos) {
-  const total = productos.length;
-
-  const disponibles =
-    productos.filter(
-      producto =>
-        producto.estado === 'Disponible'
-    ).length;
-
-  const stockBajo =
-    productos.filter(
-      producto =>
-        producto.estado === 'Stock Bajo'
-    ).length;
-
-  const valorInventario =
-    productos.reduce(
-      (totalValor, producto) =>
-        totalValor +
-        (
-          Number(producto.precio || 0) *
-          Number(producto.stock || 0)
-        ),
-      0
-    );
-
-  return {
-    total,
-    disponibles,
-    stockBajo,
-    valorInventario
-  };
-}
-
-
-// ======================================================
-// FILTROS
-// ======================================================
-
-async function aplicarFiltros() {
-  try {
-    const busqueda =
-      document
-        .getElementById('buscarProducto')
-        ?.value
-        .trim()
-        .toLowerCase() || '';
-
-    const estado =
-      document.getElementById(
-        'filtroEstado'
-      )?.value || '';
-
-    const categoria =
-      document.getElementById(
-        'filtroCategoria'
-      )?.value || '';
-
-    const productos =
-      await inventarioService.getAll();
-
-    const usuario =
-      sessionService.getUser();
-
-    const esAdmin =
-      usuario?.role === 'ADMIN';
-
-
-    const productosFiltrados =
-      productos.filter(producto => {
-
-        const coincideBusqueda =
-          !busqueda ||
-          producto.nombre
-            .toLowerCase()
-            .includes(busqueda) ||
-          producto.codigo
-            .toLowerCase()
-            .includes(busqueda) ||
-          (producto.proveedor || '')
-            .toLowerCase()
-            .includes(busqueda);
-
-        const coincideEstado =
-          !estado ||
-          producto.estado === estado;
-
-        const coincideCategoria =
-          !categoria ||
-          producto.categoria === categoria;
-
-        return (
-          coincideBusqueda &&
-          coincideEstado &&
-          coincideCategoria
-        );
-      });
-
-
-    const tbody =
-      document.getElementById(
-        'tablaProductosBody'
-      );
-
-    if (tbody) {
-      tbody.innerHTML =
-        renderTablaProductos(
-          productosFiltrados,
-          esAdmin
-        );
-
-      adjuntarEventosTabla();
-    }
-
-  } catch (error) {
-    showToast(
-      '❌ Error al cargar inventario: ' +
-      error.message,
-      'error'
-    );
-  }
-}
-
-
-// ======================================================
-// ACTUALIZAR KPIs
-// ======================================================
-
-async function actualizarEstadisticas() {
-  try {
-    const productos =
-      await inventarioService.getAll();
-
-    const estadisticas =
-      calcularEstadisticas(productos);
-
-    const cards =
-      document.querySelectorAll(
-        '.row.g-3.mb-4 .kpi-card .kpi-value'
-      );
-
-    if (cards.length === 4) {
-
-      cards[0].textContent =
-        estadisticas.total;
-
-      cards[1].textContent =
-        estadisticas.disponibles;
-
-      cards[2].textContent =
-        estadisticas.stockBajo;
-
-      cards[3].textContent =
-        '$' +
-        estadisticas.valorInventario.toLocaleString(
-          'es-CO',
-          { minimumFractionDigits: 0 }
-        );
-    }
-
-  } catch (error) {
-    console.error(
-      'Error actualizando estadísticas de inventario:',
-      error
-    );
-  }
-}
-
-
-// ======================================================
-// EVENTOS TABLA
-// ======================================================
-
-function adjuntarEventosTabla() {
-
-  // EDITAR
   document
-    .querySelectorAll(
-      '.btn-editar-prod'
-    )
-    .forEach(btn => {
+    .getElementById('productoDetailTitle')
+    .textContent =
+      producto.nombre;
 
-      btn.addEventListener(
-        'click',
-        async () => {
-
-          try {
-            const id =
-              parseInt(
-                btn.dataset.id
-              );
-
-            const producto =
-              await inventarioService.getById(
-                id
-              );
-
-            if (!producto) {
-              showToast(
-                '❌ Producto no encontrado',
-                'error'
-              );
-              return;
-            }
-
-
-            document.getElementById(
-              'modalTitulo'
-            ).textContent =
-              'Editar Producto';
-
-            document.getElementById(
-              'productoId'
-            ).value =
-              producto.id;
-
-            document.getElementById(
-              'productoNombre'
-            ).value =
-              producto.nombre;
-
-            document.getElementById(
-              'productoCategoria'
-            ).value =
-              producto.categoria;
-
-            document.getElementById(
-              'productoPrecio'
-            ).value =
-              producto.precio;
-
-            document.getElementById(
-              'productoStock'
-            ).value =
-              producto.stock;
-
-            document.getElementById(
-              'productoStockMinimo'
-            ).value =
-              producto.stockMinimo;
-
-            document.getElementById(
-              'productoProveedor'
-            ).value =
-              producto.proveedor || '';
-
-
-            if (!modalProductoInstance) {
-              modalProductoInstance =
-                new bootstrap.Modal(
-                  document.getElementById(
-                    'modalProducto'
-                  )
-                );
-            }
-
-            modalProductoInstance.show();
-
-          } catch (error) {
-            showToast(
-              '❌ Error al cargar el producto: ' +
-              error.message,
-              'error'
-            );
-          }
-        }
-      );
-
-    });
-
-
-  // ELIMINAR
   document
-    .querySelectorAll(
-      '.btn-eliminar-prod'
-    )
-    .forEach(btn => {
+    .getElementById('productoDetailDescription')
+    .textContent =
+      producto.descripcion ||
+      'Sin descripción.';
 
-      btn.addEventListener(
-        'click',
-        async () => {
+  document
+    .getElementById('productoDetailCodigo')
+    .textContent =
+      producto.codigo;
 
-          try {
-            const id =
-              parseInt(
-                btn.dataset.id
-              );
+  document
+    .getElementById('productoDetailCosto')
+    .textContent =
+      money(producto.costo);
 
-            const ok =
-              await showConfirm(
-                '¿Estás seguro de eliminar este producto?'
-              );
+  document
+    .getElementById('productoDetailStock')
+    .textContent =
+      `${producto.stock} unidades`;
 
-            if (!ok) {
-              return;
-            }
+  document
+    .getElementById('productoAdminActions')
+    ?.classList.toggle(
+      'hidden',
+      !sessionService.isAdmin()
+    );
 
-
-            await inventarioService.delete(
-              id
-            );
-
-            await aplicarFiltros();
-            await actualizarEstadisticas();
-
-
-            showToast(
-              '✅ Producto eliminado correctamente',
-              'success'
-            );
-
-          } catch (error) {
-            showToast(
-              '❌ Error al eliminar el producto: ' +
-              error.message,
-              'error'
-            );
-          }
-        }
-      );
-
-    });
+  openSideDetail(
+    'inventarioWorkspace',
+    'productoDetail'
+  );
 }
 
+function openProductoModal(producto = null) {
+  editingId =
+    producto?.id ?? null;
 
-// ======================================================
-// EVENTOS PRINCIPALES
-// ======================================================
+  document
+    .getElementById('productoForm')
+    .reset();
+
+  document
+    .getElementById('productoModalTitle')
+    .textContent =
+      producto
+        ? 'Editar producto'
+        : 'Nuevo producto';
+
+  document
+    .getElementById('productoModalSubtitle')
+    .textContent =
+      producto
+        ? 'Actualiza la información del producto seleccionado.'
+        : 'Registra un producto en el inventario.';
+
+  if (producto) {
+    document.getElementById('productoDescripcion').value =
+      producto.descripcion || '';
+
+    document.getElementById('productoCodigo').value =
+      producto.codigo;
+
+    document.getElementById('productoNombre').value =
+      producto.nombre;
+
+    document.getElementById('productoStock').value =
+      producto.stock;
+
+    document.getElementById('productoCosto').value =
+      producto.costo;
+
+    document.getElementById('productoPrecio').value =
+      producto.precio;
+  }
+
+  openModal('productoModal');
+}
 
 export function initInventarioEvents() {
+  initModalCloseEvents();
 
-  const usuario =
-    sessionService.getUser();
+  initSideDetailEvents({
+    productoDetail:
+      'inventarioWorkspace'
+  });
 
-  const esAdmin =
-    usuario?.role === 'ADMIN';
-
-
-  // NUEVO PRODUCTO
-  const btnNuevo =
-    document.getElementById(
-      'btnNuevoProducto'
-    );
-
-  if (btnNuevo && esAdmin) {
-
-    btnNuevo.addEventListener(
+  document
+    .getElementById('nuevoProductoBtn')
+    ?.addEventListener(
       'click',
-      () => {
+      () => openProductoModal()
+    );
 
-        document.getElementById(
-          'modalTitulo'
-        ).textContent =
-          'Nuevo Producto';
-
-        document.getElementById(
-          'formProducto'
-        ).reset();
-
-        document.getElementById(
-          'productoId'
-        ).value = '';
-
-
-        if (!modalProductoInstance) {
-          modalProductoInstance =
-            new bootstrap.Modal(
-              document.getElementById(
-                'modalProducto'
-              )
+  document
+    .querySelectorAll('.producto-row')
+    .forEach(row => {
+      row.addEventListener(
+        'click',
+        () => {
+          const id =
+            Number(
+              row.dataset.productoId
             );
+
+          showProductoDetail(
+            productos.find(
+              producto =>
+                producto.id === id
+            )
+          );
         }
+      );
+    });
 
-        modalProductoInstance.show();
-      }
+  document
+    .getElementById('editarProductoBtn')
+    ?.addEventListener(
+      'click',
+      () =>
+        openProductoModal(
+          selectedProducto()
+        )
     );
-  }
 
-
-  // GUARDAR / EDITAR
-  const btnGuardar =
-    document.getElementById(
-      'btnGuardarProducto'
-    );
-
-  if (btnGuardar && esAdmin) {
-
-    btnGuardar.addEventListener(
+  document
+    .getElementById('eliminarProductoBtn')
+    ?.addEventListener(
       'click',
       async () => {
+        const producto =
+          selectedProducto();
+
+        if (!producto) return;
+
+        const confirmed =
+          await showConfirm({
+            title: 'Eliminar producto',
+            message: `¿Eliminar el producto "${producto.nombre}"?`,
+            confirmText: 'Eliminar',
+            cancelText: 'Cancelar',
+            type: 'danger'
+          });
+
+        if (!confirmed) {
+          return;
+        }
 
         try {
-          const id =
-            document.getElementById(
-              'productoId'
-            ).value;
+          await inventarioService.delete(
+            producto.id
+          );
 
-          const nombre =
-            document.getElementById(
-              'productoNombre'
-            ).value.trim();
-
-          const precio =
-            parseFloat(
-              document.getElementById(
-                'productoPrecio'
-              ).value
-            );
-
-          const stock =
-            parseInt(
-              document.getElementById(
-                'productoStock'
-              ).value
-            );
-
-          const stockMinimo =
-            parseInt(
-              document.getElementById(
-                'productoStockMinimo'
-              ).value
-            );
-
-          const proveedor =
-            document.getElementById(
-              'productoProveedor'
-            ).value.trim();
-
-
-          // VALIDACIONES
-          if (!nombre) {
-            showToast(
-              '⚠️ Debes ingresar el nombre del producto',
-              'warning'
-            );
-            return;
-          }
-
-          if (
-            Number.isNaN(precio) ||
-            precio < 0
-          ) {
-            showToast(
-              '⚠️ El precio no puede ser negativo',
-              'error'
-            );
-            return;
-          }
-
-          if (
-            Number.isNaN(stock) ||
-            stock < 0
-          ) {
-            showToast(
-              '⚠️ El stock no puede ser negativo',
-              'error'
-            );
-            return;
-          }
-
-          if (
-            Number.isNaN(stockMinimo) ||
-            stockMinimo < 0
-          ) {
-            showToast(
-              '⚠️ El stock mínimo no puede ser negativo',
-              'error'
-            );
-            return;
-          }
-
-
-          const datos = {
-            nombre,
-
-            categoria:
-              document.getElementById(
-                'productoCategoria'
-              ).value,
-
-            precio,
-
-            stock,
-
-            stockMinimo,
-
-            proveedor
-          };
-
-
-          if (id) {
-            await inventarioService.update(
-              parseInt(id),
-              datos
-            );
-          } else {
-            await inventarioService.create(
-              datos
-            );
-          }
-
-
-          if (modalProductoInstance) {
-            modalProductoInstance.hide();
-          }
-
-
-          await aplicarFiltros();
-          await actualizarEstadisticas();
-
+          closeSideDetail(
+            'inventarioWorkspace',
+            'productoDetail'
+          );
 
           showToast(
-            id
-              ? '✅ Producto actualizado correctamente'
-              : '✅ Producto creado correctamente',
+            'Producto eliminado correctamente.',
             'success'
+          );
+
+          window.dispatchEvent(
+            new Event('app:refresh')
           );
 
         } catch (error) {
           showToast(
-            '❌ Error al guardar el producto: ' +
             error.message,
             'error'
           );
         }
       }
     );
-  }
 
+  document
+    .getElementById('productoForm')
+    ?.addEventListener(
+      'submit',
+      async event => {
+        event.preventDefault();
 
-  // BUSCADOR
-  const buscarInput =
-    document.getElementById(
-      'buscarProducto'
-    );
+        const productoActual =
+          selectedProducto();
 
-  if (buscarInput) {
-    buscarInput.addEventListener(
-      'input',
-      aplicarFiltros
-    );
-  }
+        const data = {
+          codigo:
+            document
+              .getElementById('productoCodigo')
+              .value
+              .trim(),
 
+          nombre:
+            document
+              .getElementById('productoNombre')
+              .value
+              .trim(),
 
-  // FILTRO ESTADO
-  const filtroEstado =
-    document.getElementById(
-      'filtroEstado'
-    );
+          categoria:
+            productoActual?.categoria ||
+            'Otros',
 
-  if (filtroEstado) {
-    filtroEstado.addEventListener(
-      'change',
-      aplicarFiltros
-    );
-  }
+          precio:
+            Number(
+              document.getElementById(
+                'productoPrecio'
+              ).value
+            ),
 
+          costo:
+            Number(
+              document.getElementById(
+                'productoCosto'
+              ).value
+            ),
 
-  // FILTRO CATEGORÍA
-  const filtroCategoria =
-    document.getElementById(
-      'filtroCategoria'
-    );
+          stock:
+            Number(
+              document.getElementById(
+                'productoStock'
+              ).value
+            ),
 
-  if (filtroCategoria) {
-    filtroCategoria.addEventListener(
-      'change',
-      aplicarFiltros
-    );
-  }
+          stockMinimo:
+            productoActual?.stockMinimo ??
+            5,
 
+          proveedor:
+            productoActual?.proveedor ||
+            '',
 
-  // LIMPIAR
-  const btnLimpiar =
-    document.getElementById(
-      'btnLimpiar'
-    );
+          descripcion:
+            document
+              .getElementById('productoDescripcion')
+              .value
+              .trim()
+        };
 
-  if (btnLimpiar) {
+        try {
+          if (editingId) {
+            await inventarioService.update(
+              editingId,
+              data
+            );
 
-    btnLimpiar.addEventListener(
-      'click',
-      async () => {
+            showToast(
+              'Producto actualizado correctamente.',
+              'success'
+            );
 
-        document.getElementById(
-          'buscarProducto'
-        ).value = '';
+          } else {
+            await inventarioService.create(
+              data
+            );
 
-        document.getElementById(
-          'filtroEstado'
-        ).value = '';
+            showToast(
+              'Producto creado correctamente.',
+              'success'
+            );
+          }
 
-        document.getElementById(
-          'filtroCategoria'
-        ).value = '';
+          closeModal('productoModal');
 
+          window.dispatchEvent(
+            new Event('app:refresh')
+          );
 
-        await aplicarFiltros();
-
-
-        showToast(
-          'Filtros limpiados',
-          'info'
-        );
+        } catch (error) {
+          showToast(
+            error.message,
+            'error'
+          );
+        }
       }
     );
-  }
-
-
-  // EDITAR / ELIMINAR
-  adjuntarEventosTabla();
 }

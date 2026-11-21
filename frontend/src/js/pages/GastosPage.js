@@ -1,1074 +1,646 @@
-// src/js/pages/GastosPage.js
 import { gastosService } from '../services/gastos.service.js';
-import * as bootstrap from 'bootstrap';
-import { showToast, showConfirm } from '../utils/toast.js';
+import { showToast, showConfirm } from '../components/ui/toast.js';
+import {
+  modalTemplate,
+  openModal,
+  closeModal,
+  initModalCloseEvents
+} from '../components/ui/modal.js';
+import {
+  sideDetailTemplate,
+  openSideDetail,
+  closeSideDetail,
+  initSideDetailEvents
+} from '../components/ui/sideDetail.js';
+import {
+  money,
+  shortDate,
+  escapeHtml
+} from '../utils/format.js';
 
-let modalGastoInstance = null;
+let gastos = [];
+let selectedId = null;
+let editingId = null;
 
+function renderGastoDetail() {
+  return sideDetailTemplate({
+    id: 'gastoDetail',
+    eyebrow: 'Detalle del gasto',
+    titleId: 'gastoDetailTitle',
+    descriptionId: null,
 
-// ======================================================
-// RENDER PRINCIPAL
-// ======================================================
+    fields: [
+      {
+        id: 'gastoDetailProveedor',
+        label: 'Proveedor'
+      },
+      {
+        id: 'gastoDetailConcepto',
+        label: 'Concepto'
+      },
+      {
+        id: 'gastoDetailFecha',
+        label: 'Vencimiento'
+      },
+      {
+        id: 'gastoDetailEstado',
+        label: 'Estado'
+      },
+      {
+        id: 'gastoDetailValor',
+        label: 'Valor',
+        divider: true,
+        accent: true
+      }
+    ],
+
+    actions: `
+      <div
+        class="grid grid-cols-[1fr_auto] gap-2 mt-5"
+      >
+        <button
+          id="editarGastoBtn"
+          type="button"
+          class="btn-ag rounded-xl py-2.5 px-4 font-bold text-sm"
+        >
+          <i class="fa-solid fa-pen-to-square mr-2"></i>
+          Editar
+        </button>
+
+        <button
+          id="eliminarGastoBtn"
+          type="button"
+          class="h-11 w-11 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition"
+          aria-label="Eliminar gasto"
+          title="Eliminar gasto"
+        >
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    `
+  });
+}
+
+function renderGastoModal() {
+  return modalTemplate({
+    id: 'gastoModal',
+    titleId: 'gastoModalTitle',
+    subtitleId: 'gastoModalSubtitle',
+
+    body: `
+      <form
+        id="gastoForm"
+        class="p-5 space-y-4"
+      >
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Proveedor
+          </label>
+
+          <input
+            id="gastoProveedor"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Concepto
+          </label>
+
+          <input
+            id="gastoConcepto"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Categoría
+          </label>
+
+          <input
+            id="gastoCategoria"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div>
+          <label
+            class="block text-sm font-semibold text-slate-700 mb-1.5"
+          >
+            Valor
+          </label>
+
+          <input
+            id="gastoMonto"
+            type="number"
+            min="0"
+            step="any"
+            required
+            class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+          />
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label
+              class="block text-sm font-semibold text-slate-700 mb-1.5"
+            >
+              Método de pago
+            </label>
+
+            <select
+              id="gastoMetodo"
+              class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white"
+            >
+              <option>Efectivo</option>
+              <option>Transferencia</option>
+              <option>Tarjeta</option>
+            </select>
+          </div>
+
+          <div>
+            <label
+              class="block text-sm font-semibold text-slate-700 mb-1.5"
+            >
+              Estado
+            </label>
+
+            <select
+              id="gastoEstado"
+              class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white"
+            >
+              <option>Pendiente</option>
+              <option>Pagado</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-2 pt-1">
+          <button
+            type="button"
+            data-close-modal="gastoModal"
+            class="w-full rounded-xl border border-slate-200 py-3 font-bold text-slate-600 hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="btn-ag w-full rounded-xl py-3 font-bold"
+          >
+            Guardar gasto
+          </button>
+        </div>
+      </form>
+    `
+  });
+}
 
 export async function renderGastosPage() {
-  const gastos = await gastosService.getAll();
-  const estadisticas = calcularEstadisticas(gastos);
-
-  const categorias = [
-    'Servicios Públicos',
-    'Insumos',
-    'Transporte',
-    'Nómina',
-    'Mantenimiento',
-    'Otros'
-  ];
-
-  const gastosRows = renderTablaGastos(gastos);
-
-  const categoriasOptions = categorias
-    .map(
-      categoria =>
-        `<option value="${categoria}">${categoria}</option>`
-    )
-    .join('');
+  gastos =
+    (await gastosService.getAll()) || [];
 
   return `
-    <div class="container-fluid">
+    <section>
 
-      <div class="page-header d-flex justify-content-between align-items-start mb-4">
+      <div
+        class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6"
+      >
         <div>
-          <div class="page-subtitle">GESTIÓN DE EGRESOS</div>
-          <h2>Gastos</h2>
-          <p class="page-description">
-            Administra los egresos y gastos del sistema.
+          <p
+            class="text-xs font-bold uppercase tracking-[0.18em] text-agg"
+          >
+            Egresos
+          </p>
+
+          <h2
+            class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1"
+          >
+            Gastos
+          </h2>
+
+          <p class="text-sm text-slate-500 mt-1">
+            Consulta el historial de gastos y cuentas por pagar.
           </p>
         </div>
 
-        <button class="btn btn-danger" id="btnNuevoGasto">
-          <i class="bi bi-plus-circle me-2"></i>
-          Nuevo Gasto
+        <button
+          id="nuevoGastoBtn"
+          type="button"
+          class="btn-ag rounded-xl px-4 py-2.5 text-sm font-bold self-start"
+        >
+          <i class="fa-solid fa-plus mr-2"></i>
+          Nuevo gasto
         </button>
       </div>
 
 
-      <!-- KPIs -->
-      <div class="row g-3 mb-4">
+      <div
+        id="gastosWorkspace"
+        class="detail-workspace"
+      >
 
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">Total Gastos</div>
-            <div class="kpi-value">
-              ${estadisticas.totalGastos}
-            </div>
-            <div class="kpi-trend down">
-              Registros acumulados
-            </div>
+        <article
+          class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        >
+          <div
+            class="px-5 py-4 border-b border-slate-100"
+          >
+            <h3 class="font-bold text-slate-900">
+              Historial de gastos
+            </h3>
+
+            <p
+              class="text-xs text-slate-500 mt-0.5"
+            >
+              Movimientos registrados.
+            </p>
           </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">Monto Total</div>
-            <div class="kpi-value">
-              $${estadisticas.montoTotal.toLocaleString(
-                'es-CO',
-                { minimumFractionDigits: 0 }
-              )}
-            </div>
-            <div class="kpi-trend down">
-              Egresos totales
-            </div>
-          </div>
-        </div>
+          <div class="table-wrap">
+            <table class="w-full text-sm">
 
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">Pagado</div>
-            <div class="kpi-value">
-              $${estadisticas.montoPagado.toLocaleString(
-                'es-CO',
-                { minimumFractionDigits: 0 }
-              )}
-            </div>
-            <div class="kpi-trend up">
-              Cancelados
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 col-sm-6 col-lg-3">
-          <div class="kpi-card">
-            <div class="kpi-label">Pendiente</div>
-            <div class="kpi-value">
-              $${estadisticas.montoPendiente.toLocaleString(
-                'es-CO',
-                { minimumFractionDigits: 0 }
-              )}
-            </div>
-            <div class="kpi-trend down">
-              Por pagar
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-
-      <!-- FILTROS -->
-      <div class="card mb-4">
-        <div class="card-body">
-
-          <div class="row g-3">
-
-            <div class="col-12 col-md-5">
-              <input
-                type="text"
-                class="form-control"
-                id="buscarGasto"
-                placeholder="🔍 Buscar por concepto, proveedor o número..."
+              <thead
+                class="bg-slate-50 text-slate-500"
               >
-            </div>
-
-            <div class="col-12 col-md-3">
-              <select
-                class="form-select"
-                id="filtroEstadoGasto"
-              >
-                <option value="">
-                  Todos los estados
-                </option>
-                <option value="Pagado">
-                  Pagado
-                </option>
-                <option value="Pendiente">
-                  Pendiente
-                </option>
-                <option value="Cancelado">
-                  Cancelado
-                </option>
-              </select>
-            </div>
-
-            <div class="col-12 col-md-2">
-              <select
-                class="form-select"
-                id="filtroCategoria"
-              >
-                <option value="">
-                  Todas las categorías
-                </option>
-                ${categoriasOptions}
-              </select>
-            </div>
-
-            <div class="col-12 col-md-2">
-              <button
-                class="btn btn-outline-secondary w-100"
-                id="btnLimpiarGastos"
-              >
-                <i class="bi bi-x-circle"></i>
-                Limpiar
-              </button>
-            </div>
-
-          </div>
-
-        </div>
-      </div>
-
-
-      <!-- TABLA -->
-      <div class="card">
-        <div class="card-body p-0">
-
-          <div class="table-responsive">
-
-            <table class="table table-hover mb-0 align-middle">
-
-              <thead>
                 <tr>
-                  <th>Número</th>
-                  <th>Fecha</th>
-                  <th>Categoría</th>
-                  <th>Concepto</th>
-                  <th>Proveedor</th>
-                  <th>Monto</th>
-                  <th>Estado</th>
-                  <th>Acciones</th>
+                  <th
+                    class="text-left px-5 py-3 font-semibold"
+                  >
+                    Referencia
+                  </th>
+
+                  <th
+                    class="text-left px-5 py-3 font-semibold"
+                  >
+                    Proveedor
+                  </th>
+
+                  <th
+                    class="text-right px-5 py-3 font-semibold"
+                  >
+                    Valor
+                  </th>
+
+                  <th
+                    class="text-center px-5 py-3 font-semibold"
+                  >
+                    Estado
+                  </th>
                 </tr>
               </thead>
 
-              <tbody id="tablaGastosBody">
-                ${gastosRows}
+              <tbody
+                class="divide-y divide-slate-100"
+              >
+                ${
+                  gastos.length
+                    ? gastos
+                        .map(
+                          gasto => `
+                            <tr
+                              data-gasto-id="${gasto.id}"
+                              class="gasto-row hover:bg-slate-50/70 cursor-pointer"
+                            >
+                              <td class="px-5 py-4">
+                                <button
+                                  type="button"
+                                  class="font-bold text-agnavy hover:underline text-left"
+                                >
+                                  ${escapeHtml(gasto.numero)}
+                                </button>
+                              </td>
+
+                              <td
+                                class="px-5 py-4 text-slate-700"
+                              >
+                                ${escapeHtml(gasto.proveedor)}
+                              </td>
+
+                              <td
+                                class="px-5 py-4 text-right font-bold text-slate-800"
+                              >
+                                ${money(gasto.monto)}
+                              </td>
+
+                              <td
+                                class="px-5 py-4 text-center"
+                              >
+                                ${escapeHtml(gasto.estado)}
+                              </td>
+                            </tr>
+                          `
+                        )
+                        .join('')
+                    : `
+                      <tr>
+                        <td
+                          colspan="4"
+                          class="px-5 py-8 text-center text-slate-500"
+                        >
+                          No hay gastos registrados.
+                        </td>
+                      </tr>
+                    `
+                }
               </tbody>
 
             </table>
-
           </div>
+        </article>
 
-        </div>
-      </div>
-
-
-      <!-- MODAL -->
-      <div
-        id="modalGasto"
-        class="modal fade"
-        tabindex="-1"
-      >
-
-        <div class="modal-dialog modal-lg">
-
-          <div class="modal-content">
-
-            <div class="modal-header">
-
-              <h5
-                class="modal-title fw-bold"
-                id="modalTituloGasto"
-              >
-                Nuevo Gasto
-              </h5>
-
-              <button
-                type="button"
-                class="btn-close"
-                data-bs-dismiss="modal"
-              ></button>
-
-            </div>
-
-
-            <div class="modal-body">
-
-              <form id="formGasto">
-
-                <input
-                  type="hidden"
-                  id="gastoId"
-                >
-
-                <div class="row g-3">
-
-                  <div class="col-12 col-md-6">
-
-                    <label class="form-label">
-                      Categoría
-                    </label>
-
-                    <select
-                      class="form-select"
-                      id="gastoCategoria"
-                      required
-                    >
-                      ${categoriasOptions}
-                    </select>
-
-                  </div>
-
-
-                  <div class="col-12 col-md-6">
-
-                    <label class="form-label">
-                      Proveedor
-                    </label>
-
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="gastoProveedor"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12">
-
-                    <label class="form-label">
-                      Concepto
-                    </label>
-
-                    <input
-                      type="text"
-                      class="form-control"
-                      id="gastoConcepto"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Monto
-                    </label>
-
-                    <input
-                      type="number"
-                      class="form-control"
-                      id="gastoMonto"
-                      min="0"
-                      step="0.01"
-                      required
-                    >
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Método de Pago
-                    </label>
-
-                    <select
-                      class="form-select"
-                      id="gastoMetodoPago"
-                      required
-                    >
-                      <option value="Efectivo">
-                        Efectivo
-                      </option>
-                      <option value="Tarjeta">
-                        Tarjeta
-                      </option>
-                      <option value="Transferencia">
-                        Transferencia
-                      </option>
-                      <option value="Cheque">
-                        Cheque
-                      </option>
-                    </select>
-
-                  </div>
-
-
-                  <div class="col-12 col-md-4">
-
-                    <label class="form-label">
-                      Estado
-                    </label>
-
-                    <select
-                      class="form-select"
-                      id="gastoEstado"
-                      required
-                    >
-                      <option value="Pendiente">
-                        Pendiente
-                      </option>
-                      <option value="Pagado">
-                        Pagado
-                      </option>
-                      <option value="Cancelado">
-                        Cancelado
-                      </option>
-                    </select>
-
-                  </div>
-
-                </div>
-
-              </form>
-
-            </div>
-
-
-            <div class="modal-footer">
-
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                class="btn btn-danger"
-                id="btnGuardarGasto"
-              >
-                <i class="bi bi-check-circle me-2"></i>
-                Guardar
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
+        ${renderGastoDetail()}
 
       </div>
 
-    </div>
+      ${renderGastoModal()}
+
+    </section>
   `;
 }
 
-
-// ======================================================
-// TABLA
-// ======================================================
-
-function renderTablaGastos(gastos) {
-  if (!gastos || gastos.length === 0) {
-    return `
-      <tr>
-        <td
-          colspan="8"
-          class="text-center text-muted py-4"
-        >
-          No hay gastos registrados
-        </td>
-      </tr>
-    `;
-  }
-
-  return gastos
-    .map(gasto => {
-      const estadoColor =
-        gasto.estado === 'Pagado'
-          ? 'success'
-          : gasto.estado === 'Pendiente'
-            ? 'warning'
-            : 'danger';
-
-      return `
-        <tr>
-
-          <td>
-            <span class="fw-bold text-danger">
-              ${gasto.numero}
-            </span>
-          </td>
-
-          <td>
-            ${gasto.fecha}
-          </td>
-
-          <td>
-            <span class="badge bg-secondary-subtle">
-              ${gasto.categoria}
-            </span>
-          </td>
-
-          <td>
-            ${gasto.concepto}
-          </td>
-
-          <td>
-            ${gasto.proveedor}
-          </td>
-
-          <td class="fw-bold text-danger">
-            $${Number(gasto.monto).toLocaleString(
-              'es-CO',
-              { minimumFractionDigits: 0 }
-            )}
-          </td>
-
-          <td>
-            <span
-              class="badge bg-${estadoColor}-subtle"
-            >
-              ${gasto.estado}
-            </span>
-          </td>
-
-          <td>
-
-            <button
-              class="btn btn-sm btn-outline-primary me-1 btn-editar-gasto"
-              data-id="${gasto.id}"
-            >
-              <i class="bi bi-pencil"></i>
-            </button>
-
-            <button
-              class="btn btn-sm btn-outline-danger btn-eliminar-gasto"
-              data-id="${gasto.id}"
-            >
-              <i class="bi bi-trash"></i>
-            </button>
-
-          </td>
-
-        </tr>
-      `;
-    })
-    .join('');
-}
-
-
-// ======================================================
-// ESTADÍSTICAS
-// ======================================================
-
-function calcularEstadisticas(gastos) {
-  const totalGastos = gastos.length;
-
-  const montoTotal = gastos.reduce(
-    (total, gasto) =>
-      total + Number(gasto.monto || 0),
-    0
+function selectedGasto() {
+  return gastos.find(
+    gasto =>
+      gasto.id === selectedId
   );
-
-  const montoPagado = gastos
-    .filter(
-      gasto => gasto.estado === 'Pagado'
-    )
-    .reduce(
-      (total, gasto) =>
-        total + Number(gasto.monto || 0),
-      0
-    );
-
-  const montoPendiente = gastos
-    .filter(
-      gasto => gasto.estado === 'Pendiente'
-    )
-    .reduce(
-      (total, gasto) =>
-        total + Number(gasto.monto || 0),
-      0
-    );
-
-  return {
-    totalGastos,
-    montoTotal,
-    montoPagado,
-    montoPendiente
-  };
 }
 
+function showGastoDetail(gasto) {
+  if (!gasto) return;
 
-// ======================================================
-// FILTROS
-// ======================================================
+  selectedId = gasto.id;
 
-async function aplicarFiltros() {
-  try {
-    const busqueda =
-      document
-        .getElementById('buscarGasto')
-        ?.value
-        .trim()
-        .toLowerCase() || '';
-
-    const estado =
-      document.getElementById(
-        'filtroEstadoGasto'
-      )?.value || '';
-
-    const categoria =
-      document.getElementById(
-        'filtroCategoria'
-      )?.value || '';
-
-    const gastos =
-      await gastosService.getAll();
-
-    const gastosFiltrados =
-      gastos.filter(gasto => {
-        const coincideBusqueda =
-          !busqueda ||
-          gasto.concepto
-            .toLowerCase()
-            .includes(busqueda) ||
-          gasto.proveedor
-            .toLowerCase()
-            .includes(busqueda) ||
-          gasto.numero
-            .toLowerCase()
-            .includes(busqueda);
-
-        const coincideEstado =
-          !estado ||
-          gasto.estado === estado;
-
-        const coincideCategoria =
-          !categoria ||
-          gasto.categoria === categoria;
-
-        return (
-          coincideBusqueda &&
-          coincideEstado &&
-          coincideCategoria
-        );
-      });
-
-    const tbody =
-      document.getElementById(
-        'tablaGastosBody'
-      );
-
-    if (tbody) {
-      tbody.innerHTML =
-        renderTablaGastos(
-          gastosFiltrados
-        );
-
-      adjuntarEventosTabla();
-    }
-
-  } catch (error) {
-    showToast(
-      '❌ Error al cargar los gastos: ' +
-      error.message,
-      'error'
-    );
-  }
-}
-
-
-// ======================================================
-// ACTUALIZAR KPIs
-// ======================================================
-
-async function actualizarEstadisticas() {
-  try {
-    const gastos =
-      await gastosService.getAll();
-
-    const estadisticas =
-      calcularEstadisticas(gastos);
-
-    const cards =
-      document.querySelectorAll(
-        '.row.g-3.mb-4 .kpi-card .kpi-value'
-      );
-
-    if (cards.length === 4) {
-
-      cards[0].textContent =
-        estadisticas.totalGastos;
-
-      cards[1].textContent =
-        '$' +
-        estadisticas.montoTotal.toLocaleString(
-          'es-CO',
-          { minimumFractionDigits: 0 }
-        );
-
-      cards[2].textContent =
-        '$' +
-        estadisticas.montoPagado.toLocaleString(
-          'es-CO',
-          { minimumFractionDigits: 0 }
-        );
-
-      cards[3].textContent =
-        '$' +
-        estadisticas.montoPendiente.toLocaleString(
-          'es-CO',
-          { minimumFractionDigits: 0 }
-        );
-    }
-
-  } catch (error) {
-    console.error(
-      'Error actualizando estadísticas de gastos:',
-      error
-    );
-  }
-}
-
-
-// ======================================================
-// EVENTOS DE TABLA
-// ======================================================
-
-function adjuntarEventosTabla() {
-
-  // EDITAR
   document
-    .querySelectorAll(
-      '.btn-editar-gasto'
-    )
-    .forEach(btn => {
+    .getElementById('gastoDetailTitle')
+    .textContent =
+      gasto.numero;
 
-      btn.addEventListener(
-        'click',
-        async () => {
-
-          try {
-            const id =
-              parseInt(
-                btn.dataset.id
-              );
-
-            const gasto =
-              await gastosService.getById(
-                id
-              );
-
-            if (!gasto) {
-              showToast(
-                '❌ No se encontró el gasto',
-                'error'
-              );
-              return;
-            }
-
-            document.getElementById(
-              'modalTituloGasto'
-            ).textContent =
-              'Editar Gasto';
-
-            document.getElementById(
-              'gastoId'
-            ).value =
-              gasto.id;
-
-            document.getElementById(
-              'gastoCategoria'
-            ).value =
-              gasto.categoria;
-
-            document.getElementById(
-              'gastoProveedor'
-            ).value =
-              gasto.proveedor;
-
-            document.getElementById(
-              'gastoConcepto'
-            ).value =
-              gasto.concepto;
-
-            document.getElementById(
-              'gastoMonto'
-            ).value =
-              gasto.monto;
-
-            document.getElementById(
-              'gastoMetodoPago'
-            ).value =
-              gasto.metodoPago;
-
-            document.getElementById(
-              'gastoEstado'
-            ).value =
-              gasto.estado;
-
-            if (!modalGastoInstance) {
-              modalGastoInstance =
-                new bootstrap.Modal(
-                  document.getElementById(
-                    'modalGasto'
-                  )
-                );
-            }
-
-            modalGastoInstance.show();
-
-          } catch (error) {
-            showToast(
-              '❌ Error al cargar el gasto: ' +
-              error.message,
-              'error'
-            );
-          }
-        }
-      );
-
-    });
-
-
-  // ELIMINAR
   document
-    .querySelectorAll(
-      '.btn-eliminar-gasto'
-    )
-    .forEach(btn => {
+    .getElementById('gastoDetailProveedor')
+    .textContent =
+      gasto.proveedor;
 
-      btn.addEventListener(
-        'click',
-        async () => {
+  document
+    .getElementById('gastoDetailConcepto')
+    .textContent =
+      gasto.concepto;
 
-          try {
-            const id =
-              parseInt(
-                btn.dataset.id
-              );
+  document
+    .getElementById('gastoDetailFecha')
+    .textContent =
+      shortDate(gasto.fecha);
 
-            const ok =
-              await showConfirm(
-                '¿Estás seguro de eliminar este gasto?'
-              );
+  document
+    .getElementById('gastoDetailEstado')
+    .textContent =
+      gasto.estado;
 
-            if (!ok) {
-              return;
-            }
+  document
+    .getElementById('gastoDetailValor')
+    .textContent =
+      money(gasto.monto);
 
-            await gastosService.delete(
-              id
-            );
-
-            await aplicarFiltros();
-            await actualizarEstadisticas();
-
-            showToast(
-              '✅ Gasto eliminado correctamente',
-              'success'
-            );
-
-          } catch (error) {
-            showToast(
-              '❌ Error al eliminar el gasto: ' +
-              error.message,
-              'error'
-            );
-          }
-        }
-      );
-
-    });
+  openSideDetail(
+    'gastosWorkspace',
+    'gastoDetail'
+  );
 }
 
+function openGastoModal(gasto = null) {
+  editingId =
+    gasto?.id ?? null;
 
-// ======================================================
-// EVENTOS PRINCIPALES
-// ======================================================
+  document
+    .getElementById('gastoForm')
+    .reset();
+
+  document
+    .getElementById('gastoModalTitle')
+    .textContent =
+      gasto
+        ? 'Editar gasto'
+        : 'Nuevo gasto';
+
+  document
+    .getElementById('gastoModalSubtitle')
+    .textContent =
+      gasto
+        ? 'Actualiza la información del gasto seleccionado.'
+        : 'Registra una cuenta por pagar o egreso.';
+
+  if (gasto) {
+    document.getElementById('gastoProveedor').value =
+      gasto.proveedor;
+
+    document.getElementById('gastoConcepto').value =
+      gasto.concepto;
+
+    document.getElementById('gastoCategoria').value =
+      gasto.categoria;
+
+    document.getElementById('gastoMonto').value =
+      gasto.monto;
+
+    document.getElementById('gastoMetodo').value =
+      gasto.metodoPago;
+
+    document.getElementById('gastoEstado').value =
+      gasto.estado;
+  }
+
+  openModal('gastoModal');
+}
 
 export function initGastosEvents() {
+  initModalCloseEvents();
 
-  // NUEVO
-  const btnNuevo =
-    document.getElementById(
-      'btnNuevoGasto'
-    );
+  initSideDetailEvents({
+    gastoDetail:
+      'gastosWorkspace'
+  });
 
-  if (btnNuevo) {
-    btnNuevo.addEventListener(
+  document
+    .getElementById('nuevoGastoBtn')
+    ?.addEventListener(
       'click',
-      () => {
+      () => openGastoModal()
+    );
 
-        document.getElementById(
-          'modalTituloGasto'
-        ).textContent =
-          'Nuevo Gasto';
-
-        document.getElementById(
-          'formGasto'
-        ).reset();
-
-        document.getElementById(
-          'gastoId'
-        ).value = '';
-
-        if (!modalGastoInstance) {
-          modalGastoInstance =
-            new bootstrap.Modal(
-              document.getElementById(
-                'modalGasto'
-              )
+  document
+    .querySelectorAll('.gasto-row')
+    .forEach(row => {
+      row.addEventListener(
+        'click',
+        () => {
+          const id =
+            Number(
+              row.dataset.gastoId
             );
+
+          showGastoDetail(
+            gastos.find(
+              gasto =>
+                gasto.id === id
+            )
+          );
         }
+      );
+    });
 
-        modalGastoInstance.show();
-      }
+  document
+    .getElementById('editarGastoBtn')
+    ?.addEventListener(
+      'click',
+      () =>
+        openGastoModal(
+          selectedGasto()
+        )
     );
-  }
 
-
-  // GUARDAR / EDITAR
-  const btnGuardar =
-    document.getElementById(
-      'btnGuardarGasto'
-    );
-
-  if (btnGuardar) {
-    btnGuardar.addEventListener(
+  document
+    .getElementById('eliminarGastoBtn')
+    ?.addEventListener(
       'click',
       async () => {
+        const gasto =
+          selectedGasto();
+
+        if (!gasto) return;
+
+        const confirmed =
+          await showConfirm({
+            title: 'Eliminar gasto',
+            message: `¿Eliminar el gasto ${gasto.numero}?`,
+            confirmText: 'Eliminar',
+            cancelText: 'Cancelar',
+            type: 'danger'
+          });
+
+        if (!confirmed) {
+          return;
+        }
 
         try {
-          const id =
-            document.getElementById(
-              'gastoId'
-            ).value;
+          await gastosService.delete(
+            gasto.id
+          );
 
-          const monto =
-            parseFloat(
-              document.getElementById(
-                'gastoMonto'
-              ).value
-            );
-
-          const proveedor =
-            document.getElementById(
-              'gastoProveedor'
-            ).value.trim();
-
-          const concepto =
-            document.getElementById(
-              'gastoConcepto'
-            ).value.trim();
-
-
-          // VALIDACIONES
-          if (!proveedor || !concepto) {
-            showToast(
-              '⚠️ Debes completar todos los campos',
-              'warning'
-            );
-            return;
-          }
-
-          if (
-            Number.isNaN(monto) ||
-            monto <= 0
-          ) {
-            showToast(
-              '⚠️ El monto debe ser mayor a cero',
-              'error'
-            );
-            return;
-          }
-
-
-          const datos = {
-            categoria:
-              document.getElementById(
-                'gastoCategoria'
-              ).value,
-
-            proveedor,
-
-            concepto,
-
-            monto,
-
-            metodoPago:
-              document.getElementById(
-                'gastoMetodoPago'
-              ).value,
-
-            estado:
-              document.getElementById(
-                'gastoEstado'
-              ).value
-          };
-
-
-          if (id) {
-            await gastosService.update(
-              parseInt(id),
-              datos
-            );
-          } else {
-            await gastosService.create(
-              datos
-            );
-          }
-
-
-          if (modalGastoInstance) {
-            modalGastoInstance.hide();
-          }
-
-
-          await aplicarFiltros();
-          await actualizarEstadisticas();
-
+          closeSideDetail(
+            'gastosWorkspace',
+            'gastoDetail'
+          );
 
           showToast(
-            id
-              ? '✅ Gasto actualizado correctamente'
-              : '✅ Gasto creado correctamente',
+            'Gasto eliminado correctamente.',
             'success'
+          );
+
+          window.dispatchEvent(
+            new Event('app:refresh')
           );
 
         } catch (error) {
           showToast(
-            '❌ Error al guardar el gasto: ' +
             error.message,
             'error'
           );
         }
       }
     );
-  }
 
+  document
+    .getElementById('gastoForm')
+    ?.addEventListener(
+      'submit',
+      async event => {
+        event.preventDefault();
 
-  // BUSCADOR
-  const buscarInput =
-    document.getElementById(
-      'buscarGasto'
-    );
+        const data = {
+          categoria:
+            document
+              .getElementById('gastoCategoria')
+              .value
+              .trim(),
 
-  if (buscarInput) {
-    buscarInput.addEventListener(
-      'input',
-      aplicarFiltros
-    );
-  }
+          proveedor:
+            document
+              .getElementById('gastoProveedor')
+              .value
+              .trim(),
 
+          concepto:
+            document
+              .getElementById('gastoConcepto')
+              .value
+              .trim(),
 
-  // FILTRO ESTADO
-  const filtroEstado =
-    document.getElementById(
-      'filtroEstadoGasto'
-    );
+          monto:
+            Number(
+              document.getElementById(
+                'gastoMonto'
+              ).value
+            ),
 
-  if (filtroEstado) {
-    filtroEstado.addEventListener(
-      'change',
-      aplicarFiltros
-    );
-  }
+          metodoPago:
+            document.getElementById(
+              'gastoMetodo'
+            ).value,
 
+          estado:
+            document.getElementById(
+              'gastoEstado'
+            ).value,
 
-  // FILTRO CATEGORÍA
-  const filtroCategoria =
-    document.getElementById(
-      'filtroCategoria'
-    );
+          comprobante: ''
+        };
 
-  if (filtroCategoria) {
-    filtroCategoria.addEventListener(
-      'change',
-      aplicarFiltros
-    );
-  }
+        try {
+          if (editingId) {
+            await gastosService.update(
+              editingId,
+              data
+            );
 
+            showToast(
+              'Gasto actualizado correctamente.',
+              'success'
+            );
 
-  // LIMPIAR
-  const btnLimpiar =
-    document.getElementById(
-      'btnLimpiarGastos'
-    );
+          } else {
+            await gastosService.create(
+              data
+            );
 
-  if (btnLimpiar) {
-    btnLimpiar.addEventListener(
-      'click',
-      async () => {
+            showToast(
+              'Gasto creado correctamente.',
+              'success'
+            );
+          }
 
-        document.getElementById(
-          'buscarGasto'
-        ).value = '';
+          closeModal('gastoModal');
 
-        document.getElementById(
-          'filtroEstadoGasto'
-        ).value = '';
+          window.dispatchEvent(
+            new Event('app:refresh')
+          );
 
-        document.getElementById(
-          'filtroCategoria'
-        ).value = '';
-
-        await aplicarFiltros();
-
-        showToast(
-          'Filtros limpiados',
-          'info'
-        );
+        } catch (error) {
+          showToast(
+            error.message,
+            'error'
+          );
+        }
       }
     );
-  }
-
-
-  // EDITAR / ELIMINAR
-  adjuntarEventosTabla();
 }

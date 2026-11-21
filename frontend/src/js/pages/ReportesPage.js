@@ -1,1232 +1,1425 @@
-// src/js/pages/ReportesPage.js
-import { reportesService } from '../services/reportes.service.js';
-import { chartsService } from '../services/charts.service.js';
+import { ventasService } from '../services/ventas.service.js';
+import { gastosService } from '../services/gastos.service.js';
+
+import {
+  money,
+  shortDate,
+  escapeHtml
+} from '../utils/format.js';
+
+import {
+  modalTemplate,
+  openModal,
+  closeModal,
+  initModalCloseEvents
+} from '../components/ui/modal.js';
 
 
-// ======================================================
-// RENDER PRINCIPAL
-// ======================================================
+let ventas = [];
+let gastos = [];
 
-export async function renderReportesPage() {
-  let resumen = {
-    totalVentas: 0,
-    totalGastos: 0,
-    utilidad: 0,
-    margen: 0
-  };
+let reportPeriod =
+  'month';
 
-  try {
-    resumen = await reportesService.getResumen();
-  } catch (error) {
-    console.error(
-      'Error cargando resumen financiero:',
-      error
-    );
+let reportStartDate =
+  '';
+
+let reportEndDate =
+  '';
+
+let reportRows =
+  [];
+
+
+function parseDate(value) {
+  if (!value) {
+    return null;
   }
 
-  return `
-    <div class="container-fluid">
+  return new Date(
+    `${value}T00:00:00`
+  );
+}
 
-      <div
-        class="d-flex justify-content-between align-items-center mb-4"
-      >
-        <div>
-          <h2 class="h4 fw-bold mb-1">
-            Centro de Reportes
-          </h2>
 
-          <p class="text-muted mb-0 small">
-            Análisis financiero y operativo del sistema
-          </p>
+function startOfWeek(date) {
+  const result =
+    new Date(date);
+
+  const day =
+    result.getDay();
+
+  const difference =
+    day === 0
+      ? -6
+      : 1 - day;
+
+  result.setDate(
+    result.getDate() +
+    difference
+  );
+
+  result.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  return result;
+}
+
+
+function endOfWeek(date) {
+  const result =
+    startOfWeek(date);
+
+  result.setDate(
+    result.getDate() + 6
+  );
+
+  return result;
+}
+
+
+function dateKey(date) {
+  const year =
+    date.getFullYear();
+
+  const month =
+    String(
+      date.getMonth() + 1
+    ).padStart(
+      2,
+      '0'
+    );
+
+  const day =
+    String(
+      date.getDate()
+    ).padStart(
+      2,
+      '0'
+    );
+
+  return `${year}-${month}-${day}`;
+}
+
+
+function periodInfo(
+  date,
+  period
+) {
+  const year =
+    date.getFullYear();
+
+  const month =
+    date.getMonth();
+
+
+  if (
+    period === 'week'
+  ) {
+    const start =
+      startOfWeek(date);
+
+    const end =
+      endOfWeek(date);
+
+    return {
+      key:
+        `week-${dateKey(start)}`,
+
+      label:
+        `${shortDate(
+          dateKey(start)
+        )} - ${shortDate(
+          dateKey(end)
+        )}`,
+
+      start
+    };
+  }
+
+
+  if (
+    period === 'quarter'
+  ) {
+    const quarter =
+      Math.floor(
+        month / 3
+      ) + 1;
+
+    return {
+      key:
+        `${year}-Q${quarter}`,
+
+      label:
+        `${year} · Trimestre ${quarter}`,
+
+      start:
+        new Date(
+          year,
+          (quarter - 1) * 3,
+          1
+        )
+    };
+  }
+
+
+  if (
+    period === 'semester'
+  ) {
+    const semester =
+      month < 6
+        ? 1
+        : 2;
+
+    return {
+      key:
+        `${year}-S${semester}`,
+
+      label:
+        `${year} · Semestre ${semester}`,
+
+      start:
+        new Date(
+          year,
+          semester === 1
+            ? 0
+            : 6,
+          1
+        )
+    };
+  }
+
+
+  if (
+    period === 'year'
+  ) {
+    return {
+      key:
+        `${year}`,
+
+      label:
+        `${year}`,
+
+      start:
+        new Date(
+          year,
+          0,
+          1
+        )
+    };
+  }
+
+
+  const formatter =
+    new Intl.DateTimeFormat(
+      'es-CO',
+      {
+        month: 'long',
+        year: 'numeric'
+      }
+    );
+
+
+  return {
+    key:
+      `${year}-${String(
+        month + 1
+      ).padStart(
+        2,
+        '0'
+      )}`,
+
+    label:
+      formatter.format(
+        new Date(
+          year,
+          month,
+          1
+        )
+      ),
+
+    start:
+      new Date(
+        year,
+        month,
+        1
+      )
+  };
+}
+
+
+function inDateRange(date) {
+  if (!date) {
+    return false;
+  }
+
+
+  if (
+    reportStartDate
+  ) {
+    const start =
+      parseDate(
+        reportStartDate
+      );
+
+    if (
+      date < start
+    ) {
+      return false;
+    }
+  }
+
+
+  if (
+    reportEndDate
+  ) {
+    const end =
+      parseDate(
+        reportEndDate
+      );
+
+    end.setHours(
+      23,
+      59,
+      59,
+      999
+    );
+
+    if (
+      date > end
+    ) {
+      return false;
+    }
+  }
+
+
+  return true;
+}
+
+
+function allMovements() {
+  const ventasMovements =
+    ventas.map(
+      venta => ({
+        id:
+          `venta-${venta.id}`,
+
+        tipo:
+          'Venta',
+
+        fecha:
+          venta.fecha,
+
+        documento:
+          venta.numero,
+
+        tercero:
+          venta.cliente,
+
+        concepto:
+          venta.producto,
+
+        estado:
+          venta.estado,
+
+        valor:
+          Number(
+            venta.total || 0
+          )
+      })
+    );
+
+
+  const gastosMovements =
+    gastos.map(
+      gasto => ({
+        id:
+          `gasto-${gasto.id}`,
+
+        tipo:
+          'Gasto',
+
+        fecha:
+          gasto.fecha,
+
+        documento:
+          gasto.numero,
+
+        tercero:
+          gasto.proveedor,
+
+        concepto:
+          gasto.concepto,
+
+        estado:
+          gasto.estado,
+
+        valor:
+          Number(
+            gasto.monto || 0
+          )
+      })
+    );
+
+
+  return [
+    ...ventasMovements,
+    ...gastosMovements
+  ];
+}
+
+
+function buildReportRows() {
+  const grouped =
+    new Map();
+
+
+  allMovements()
+    .forEach(
+      movement => {
+
+        const date =
+          parseDate(
+            movement.fecha
+          );
+
+
+        if (
+          !inDateRange(date)
+        ) {
+          return;
+        }
+
+
+        const info =
+          periodInfo(
+            date,
+            reportPeriod
+          );
+
+
+        if (
+          !grouped.has(
+            info.key
+          )
+        ) {
+          grouped.set(
+            info.key,
+            {
+              key:
+                info.key,
+
+              label:
+                info.label,
+
+              start:
+                info.start,
+
+              ingresos:
+                0,
+
+              gastos:
+                0,
+
+              movements:
+                []
+            }
+          );
+        }
+
+
+        const row =
+          grouped.get(
+            info.key
+          );
+
+
+        if (
+          movement.tipo ===
+          'Venta'
+        ) {
+          row.ingresos +=
+            movement.valor;
+        } else {
+          row.gastos +=
+            movement.valor;
+        }
+
+
+        row.movements.push(
+          movement
+        );
+      }
+    );
+
+
+  reportRows =
+    [...grouped.values()]
+      .map(
+        row => ({
+          ...row,
+          resultado:
+            row.ingresos -
+            row.gastos
+        })
+      )
+      .sort(
+        (a, b) =>
+          b.start -
+          a.start
+      );
+}
+
+
+function periodSubtitle() {
+  const labels = {
+    week:
+      'Resumen semanal de movimientos registrados.',
+
+    month:
+      'Resumen mensual de movimientos registrados.',
+
+    quarter:
+      'Resumen trimestral de movimientos registrados.',
+
+    semester:
+      'Resumen semestral de movimientos registrados.',
+
+    year:
+      'Resumen anual de movimientos registrados.'
+  };
+
+  return labels[
+    reportPeriod
+  ];
+}
+
+
+function reportModalTemplate() {
+  return modalTemplate({
+    id:
+      'reportDetailModal',
+
+    titleId:
+      'reportDetailModalTitle',
+
+    subtitleId:
+      'reportDetailModalSubtitle',
+
+    maxWidth:
+      'max-w-3xl',
+
+    body: `
+      <div class="p-5 sm:p-6">
+
+        <div
+          class="grid sm:grid-cols-3 gap-3 mb-6"
+        >
+
+          <article
+            class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4"
+          >
+            <p
+              class="text-xs font-bold uppercase tracking-[0.12em] text-emerald-700"
+            >
+              Ingresos
+            </p>
+
+            <p
+              id="reportModalIngresos"
+              class="text-xl font-black text-emerald-700 mt-1"
+            ></p>
+          </article>
+
+
+          <article
+            class="rounded-2xl border border-red-200 bg-red-50 p-4"
+          >
+            <p
+              class="text-xs font-bold uppercase tracking-[0.12em] text-red-700"
+            >
+              Gastos
+            </p>
+
+            <p
+              id="reportModalGastos"
+              class="text-xl font-black text-red-700 mt-1"
+            ></p>
+          </article>
+
+
+          <article
+            class="rounded-2xl border border-indigo-200 bg-indigo-50 p-4"
+          >
+            <p
+              class="text-xs font-bold uppercase tracking-[0.12em] text-agnavy"
+            >
+              Resultado
+            </p>
+
+            <p
+              id="reportModalResultado"
+              class="text-xl font-black text-agnavy mt-1"
+            ></p>
+          </article>
+
         </div>
+
+
+        <div
+          class="flex items-center justify-between gap-4 mb-3"
+        >
+          <div>
+            <h4
+              class="font-bold text-slate-900"
+            >
+              Movimientos del período
+            </h4>
+
+            <p
+              id="reportModalMovementCount"
+              class="text-xs text-slate-500 mt-0.5"
+            ></p>
+          </div>
+        </div>
+
+
+        <div
+          id="reportModalMovements"
+          class="space-y-3"
+        ></div>
+
       </div>
+    `
+  });
+}
 
 
-      <!-- TABS -->
-      <ul
-        class="nav nav-tabs mb-4"
-        id="reportesTabs"
-        role="tablist"
-      >
-
-        <li
-          class="nav-item"
-          role="presentation"
-        >
-          <button
-            class="nav-link active"
-            id="financiero-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#financiero"
-            type="button"
-          >
-            Financiero
-          </button>
-        </li>
+function renderReportMovement(
+  movement
+) {
+  const isExpense =
+    movement.tipo ===
+    'Gasto';
 
 
-        <li
-          class="nav-item"
-          role="presentation"
-        >
-          <button
-            class="nav-link"
-            id="inventario-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#inventario"
-            type="button"
-          >
-            Inventario
-          </button>
-        </li>
-
-
-        <li
-          class="nav-item"
-          role="presentation"
-        >
-          <button
-            class="nav-link"
-            id="ventas-tab"
-            data-bs-toggle="tab"
-            data-bs-target="#ventas"
-            type="button"
-          >
-            Ventas
-          </button>
-        </li>
-
-      </ul>
-
-
+  return `
+    <article
+      class="
+        rounded-2xl
+        border border-slate-200
+        bg-white
+        p-4
+      "
+    >
       <div
-        class="tab-content"
-        id="reportesTabsContent"
+        class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3"
       >
 
-
-        <!-- ========================================== -->
-        <!-- FINANCIERO -->
-        <!-- ========================================== -->
-
-        <div
-          class="tab-pane fade show active"
-          id="financiero"
-          role="tabpanel"
-        >
-
-          <div class="row g-3 mb-4">
-
-
-            <div class="col-md-4">
-
-              <div
-                class="card border-0 shadow-sm bg-primary text-white"
-              >
-
-                <div class="card-body">
-
-                  <h6
-                    class="card-title opacity-75"
-                  >
-                    Total Ventas
-                  </h6>
-
-                  <h3 class="fw-bold mb-0">
-                    $${Number(
-                      resumen.totalVentas || 0
-                    ).toLocaleString(
-                      'es-CO'
-                    )}
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-              <div
-                class="card border-0 shadow-sm bg-danger text-white"
-              >
-
-                <div class="card-body">
-
-                  <h6
-                    class="card-title opacity-75"
-                  >
-                    Total Gastos
-                  </h6>
-
-                  <h3 class="fw-bold mb-0">
-                    $${Number(
-                      resumen.totalGastos || 0
-                    ).toLocaleString(
-                      'es-CO'
-                    )}
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="col-md-4">
-
-              <div
-                class="
-                  card
-                  border-0
-                  shadow-sm
-                  ${
-                    Number(
-                      resumen.utilidad || 0
-                    ) >= 0
-                      ? 'bg-success'
-                      : 'bg-warning'
-                  }
-                  text-white
-                "
-              >
-
-                <div class="card-body">
-
-                  <h6
-                    class="card-title opacity-75"
-                  >
-                    Utilidad Neta
-                  </h6>
-
-                  <h3 class="fw-bold mb-0">
-
-                    $${Number(
-                      resumen.utilidad || 0
-                    ).toLocaleString(
-                      'es-CO'
-                    )}
-
-                    <small class="fs-6">
-                      (${Number(
-                        resumen.margen || 0
-                      )}%)
-                    </small>
-
-                  </h3>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="row g-4">
-
-
-            <div class="col-lg-8">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="
-                    card-header
-                    bg-white
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                  "
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Gastos por Categoría
-                  </h5>
-
-                  <button
-                    class="
-                      btn
-                      btn-sm
-                      btn-outline-secondary
-                      btn-export-gastos
-                    "
-                  >
-                    <i class="bi bi-download"></i>
-                    CSV
-                  </button>
-
-                </div>
-
-
-                <div class="card-body">
-
-                  <div style="height: 300px;">
-
-                    <canvas
-                      id="chartGastosCat"
-                    ></canvas>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="col-lg-4">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="card-header bg-white"
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Distribución de Pagos
-                  </h5>
-
-                </div>
-
-
-                <div class="card-body">
-
-                  <div style="height: 300px;">
-
-                    <canvas
-                      id="chartVentasMetodo"
-                    ></canvas>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- ========================================== -->
-        <!-- INVENTARIO -->
-        <!-- ========================================== -->
-
-        <div
-          class="tab-pane fade"
-          id="inventario"
-          role="tabpanel"
-        >
+        <div class="min-w-0">
 
           <div
-            class="card border-0 shadow-sm mb-4"
+            class="flex items-center gap-2 flex-wrap"
           >
-
-            <div
+            <span
               class="
-                card-header
-                bg-white
-                d-flex
-                justify-content-between
-                align-items-center
+                inline-flex
+                rounded-full
+                px-2.5 py-1
+                text-[11px] font-bold
+                ${
+                  isExpense
+                    ? 'bg-red-50 text-red-700'
+                    : 'bg-emerald-50 text-emerald-700'
+                }
               "
             >
+              ${escapeHtml(
+                movement.tipo
+              )}
+            </span>
 
-              <h5 class="fw-bold mb-0">
-                Valorización de Inventario por Categoría
-              </h5>
-
-              <button
-                class="
-                  btn
-                  btn-sm
-                  btn-outline-secondary
-                  btn-export-inventario
-                "
-              >
-                <i class="bi bi-download"></i>
-                CSV
-              </button>
-
-            </div>
-
-
-            <div class="card-body">
-
-              <div style="height: 350px;">
-
-                <canvas
-                  id="chartInventarioCat"
-                ></canvas>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div
-            class="card border-0 shadow-sm"
-          >
-
-            <div
-              class="card-header bg-white"
+            <strong
+              class="text-sm text-slate-900"
             >
-
-              <h5 class="fw-bold mb-0">
-                Top 5 Productos con Mayor Valor en Stock
-              </h5>
-
-            </div>
-
-
-            <div class="card-body p-0">
-
-              <div class="table-responsive">
-
-                <table
-                  class="table table-hover mb-0 align-middle"
-                >
-
-                  <thead class="table-light">
-
-                    <tr>
-                      <th>Código</th>
-                      <th>Producto</th>
-                      <th>Stock</th>
-                      <th>Precio Unit.</th>
-                      <th class="text-end">
-                        Valor Total
-                      </th>
-                    </tr>
-
-                  </thead>
-
-
-                  <tbody
-                    id="tablaTopProductos"
-                  ></tbody>
-
-                </table>
-
-              </div>
-
-            </div>
-
+              ${escapeHtml(
+                movement.documento
+              )}
+            </strong>
           </div>
+
+
+          <p
+            class="text-sm text-slate-700 mt-2"
+          >
+            ${escapeHtml(
+              movement.tercero ||
+              'Sin tercero'
+            )}
+          </p>
+
+
+          <p
+            class="text-xs text-slate-500 mt-1"
+          >
+            ${escapeHtml(
+              movement.concepto ||
+              'Sin concepto'
+            )}
+            ·
+            ${shortDate(
+              movement.fecha
+            )}
+          </p>
 
         </div>
 
 
-        <!-- ========================================== -->
-        <!-- VENTAS -->
-        <!-- ========================================== -->
-
-        <div
-          class="tab-pane fade"
-          id="ventas"
-          role="tabpanel"
+        <strong
+          class="
+            text-base whitespace-nowrap
+            ${
+              isExpense
+                ? 'text-red-600'
+                : 'text-agnavy'
+            }
+          "
         >
-
-          <div class="row g-4 mb-4">
-
-
-            <div class="col-lg-6">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="
-                    card-header
-                    bg-white
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                  "
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Top 5 Clientes
-                  </h5>
-
-                  <button
-                    class="
-                      btn
-                      btn-sm
-                      btn-outline-secondary
-                      btn-export-ventas-clientes
-                    "
-                  >
-                    <i class="bi bi-download"></i>
-                    CSV
-                  </button>
-
-                </div>
-
-
-                <div class="card-body">
-
-                  <div style="height: 300px;">
-
-                    <canvas
-                      id="chartVentasCliente"
-                    ></canvas>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="col-lg-6">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="
-                    card-header
-                    bg-white
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                  "
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Productos Más Vendidos
-                  </h5>
-
-                  <button
-                    class="
-                      btn
-                      btn-sm
-                      btn-outline-secondary
-                      btn-export-ventas-productos
-                    "
-                  >
-                    <i class="bi bi-download"></i>
-                    CSV
-                  </button>
-
-                </div>
-
-
-                <div class="card-body">
-
-                  <div style="height: 300px;">
-
-                    <canvas
-                      id="chartVentasProducto"
-                    ></canvas>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="row g-4">
-
-
-            <div class="col-lg-6">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="card-header bg-white"
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Ventas por Estado
-                  </h5>
-
-                </div>
-
-
-                <div class="card-body">
-
-                  <div style="height: 250px;">
-
-                    <canvas
-                      id="chartVentasEstado"
-                    ></canvas>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </div>
-
-
-            <div class="col-lg-6">
-
-              <div
-                class="card border-0 shadow-sm h-100"
-              >
-
-                <div
-                  class="
-                    card-header
-                    bg-white
-                    d-flex
-                    justify-content-between
-                    align-items-center
-                  "
-                >
-
-                  <h5 class="fw-bold mb-0">
-                    Todas las Ventas
-                  </h5>
-
-                  <button
-                    class="
-                      btn
-                      btn-sm
-                      btn-outline-secondary
-                      btn-export-ventas
-                    "
-                  >
-                    <i class="bi bi-download"></i>
-                    CSV
-                  </button>
-
-                </div>
-
-
-                <div
-                  class="card-body p-0"
-                  style="
-                    max-height: 300px;
-                    overflow-y: auto;
-                  "
-                >
-
-                  <table
-                    class="
-                      table
-                      table-sm
-                      table-hover
-                      mb-0
-                    "
-                  >
-
-                    <thead
-                      class="
-                        table-light
-                        sticky-top
-                      "
-                    >
-
-                      <tr>
-                        <th>Número</th>
-                        <th>Cliente</th>
-                        <th class="text-end">
-                          Total
-                        </th>
-                        <th>Estado</th>
-                      </tr>
-
-                    </thead>
-
-
-                    <tbody
-                      id="tablaTodasVentas"
-                    ></tbody>
-
-                  </table>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
+          ${
+            isExpense
+              ? '- '
+              : ''
+          }${money(
+            movement.valor
+          )}
+        </strong>
 
       </div>
-
-    </div>
+    </article>
   `;
 }
 
 
-// ======================================================
-// INICIALIZAR REPORTES
-// ======================================================
-
-export async function initReportesEvents() {
-  chartsService.destroyAll();
-
-  try {
-
-    const [
-      gastosData,
-      ventasMetodo,
-      inventarioData,
-      topProductos,
-      ventasCliente,
-      ventasProducto,
-      ventasEstado,
-      todasVentas
-    ] = await Promise.all([
-      reportesService.getGastosCategoria(),
-      reportesService.getVentasMetodoPago(),
-      reportesService.getInventarioCategoria(),
-      reportesService.getTopProductos(),
-      reportesService.getVentasCliente(),
-      reportesService.getVentasProducto(),
-      reportesService.getVentasEstado(),
-      reportesService.getHistorialVentas()
-    ]);
-
-
-    // ==================================================
-    // GRÁFICO GASTOS
-    // ==================================================
-
-    chartsService.createBarChart(
-      'chartGastosCat',
-      {
-        labels:
-          gastosData?.labels || [],
-
-        datasets: [
-          {
-            label: 'Monto ($)',
-            data:
-              gastosData?.data || [],
-            backgroundColor:
-              '#dc3545',
-            borderRadius: 5
-          }
-        ]
-      }
+function showReportDetail(key) {
+  const row =
+    reportRows.find(
+      item =>
+        item.key === key
     );
 
 
-    // ==================================================
-    // MÉTODOS DE PAGO
-    // ==================================================
-
-    chartsService.createDoughnutChart(
-      'chartVentasMetodo',
-      {
-        labels:
-          ventasMetodo?.labels || [],
-
-        datasets: [
-          {
-            data:
-              ventasMetodo?.data || [],
-
-            backgroundColor: [
-              '#0d6efd',
-              '#198754',
-              '#ffc107',
-              '#6f42c1'
-            ],
-
-            borderWidth: 0
-          }
-        ]
-      }
-    );
+  if (!row) {
+    return;
+  }
 
 
-    // ==================================================
-    // INVENTARIO POR CATEGORÍA
-    // ==================================================
-
-    chartsService.createBarChart(
-      'chartInventarioCat',
-      {
-        labels:
-          inventarioData?.labels || [],
-
-        datasets: [
-          {
-            label:
-              'Valor en Stock ($)',
-
-            data:
-              inventarioData?.data || [],
-
-            backgroundColor:
-              '#0dcaf0',
-
-            borderRadius: 5
-          }
-        ]
-      },
-      {
-        indexAxis: 'y'
-      }
-    );
+  document
+    .getElementById(
+      'reportDetailModalTitle'
+    )
+    .textContent =
+      'Detalle del reporte';
 
 
-    // ==================================================
-    // TOP PRODUCTOS
-    // ==================================================
+  document
+    .getElementById(
+      'reportDetailModalSubtitle'
+    )
+    .textContent =
+      row.label;
 
-    const tbodyTop =
-      document.getElementById(
-        'tablaTopProductos'
+
+  document
+    .getElementById(
+      'reportModalIngresos'
+    )
+    .textContent =
+      money(
+        row.ingresos
       );
 
-    if (tbodyTop) {
 
-      if (
-        !topProductos ||
-        topProductos.length === 0
-      ) {
+  document
+    .getElementById(
+      'reportModalGastos'
+    )
+    .textContent =
+      money(
+        row.gastos
+      );
 
-        tbodyTop.innerHTML = `
-          <tr>
-            <td
-              colspan="5"
-              class="text-center text-muted py-4"
-            >
-              No hay productos registrados
-            </td>
-          </tr>
-        `;
 
-      } else {
+  document
+    .getElementById(
+      'reportModalResultado'
+    )
+    .textContent =
+      money(
+        row.resultado
+      );
 
-        tbodyTop.innerHTML =
-          topProductos
-            .map(producto => `
-              <tr>
+
+  document
+    .getElementById(
+      'reportModalMovementCount'
+    )
+    .textContent =
+      `${row.movements.length} movimiento${
+        row.movements.length === 1
+          ? ''
+          : 's'
+      } registrado${
+        row.movements.length === 1
+          ? ''
+          : 's'
+      }.`;
+
+
+  document
+    .getElementById(
+      'reportModalMovements'
+    )
+    .innerHTML =
+      row.movements
+        .slice()
+        .sort(
+          (a, b) =>
+            parseDate(
+              b.fecha
+            ) -
+            parseDate(
+              a.fecha
+            )
+        )
+        .map(
+          renderReportMovement
+        )
+        .join('');
+
+
+  openModal(
+    'reportDetailModal'
+  );
+}
+
+
+function renderHistoryBody() {
+  const body =
+    document.getElementById(
+      'reportHistoryBody'
+    );
+
+
+  if (!body) {
+    return;
+  }
+
+
+  body.innerHTML =
+    reportRows.length
+      ? reportRows
+          .map(
+            row => `
+              <tr
+                data-report-key="${row.key}"
+                class="report-row hover:bg-slate-50/70 cursor-pointer"
+              >
 
                 <td
-                  class="fw-bold text-success"
+                  class="px-5 py-4"
                 >
-                  ${producto.codigo}
-                </td>
-
-                <td>
-                  ${producto.nombre}
-                </td>
-
-                <td>
-                  ${producto.stock}
-                </td>
-
-                <td>
-                  $${Number(
-                    producto.precio || 0
-                  ).toLocaleString(
-                    'es-CO'
-                  )}
+                  <button
+                    type="button"
+                    class="font-bold text-agnavy hover:underline text-left"
+                  >
+                    ${escapeHtml(row.label)}
+                  </button>
                 </td>
 
                 <td
-                  class="text-end fw-bold"
+                  class="px-5 py-4 text-right font-bold text-emerald-700"
                 >
-                  $${Number(
-                    producto.valorTotal || 0
-                  ).toLocaleString(
-                    'es-CO',
-                    {
-                      minimumFractionDigits: 2
-                    }
-                  )}
+                  ${money(row.ingresos)}
+                </td>
+
+                <td
+                  class="px-5 py-4 text-right font-bold text-red-600"
+                >
+                  ${money(row.gastos)}
+                </td>
+
+                <td
+                  class="px-5 py-4 text-right font-bold ${
+                    row.resultado >= 0
+                      ? 'text-agnavy'
+                      : 'text-red-600'
+                  }"
+                >
+                  ${money(row.resultado)}
+                </td>
+
+                <td
+                  class="px-5 py-4 text-right text-slate-600"
+                >
+                  ${row.movements.length}
                 </td>
 
               </tr>
-            `)
-            .join('');
-      }
-    }
+            `
+          )
+          .join('')
+      : `
+        <tr>
+          <td
+            colspan="5"
+            class="px-5 py-8 text-center text-slate-500"
+          >
+            No hay movimientos para el período seleccionado.
+          </td>
+        </tr>
+      `;
 
 
-    // ==================================================
-    // VENTAS POR CLIENTE
-    // ==================================================
+  document
+    .getElementById(
+      'reportHistorySubtitle'
+    )
+    .textContent =
+      periodSubtitle();
 
-    chartsService.createBarChart(
-      'chartVentasCliente',
-      {
-        labels:
-          ventasCliente?.labels || [],
 
-        datasets: [
-          {
-            label:
-              'Total Ventas ($)',
+  bindReportRows();
+}
 
-            data:
-              ventasCliente?.data || [],
 
-            backgroundColor:
-              '#0d6efd',
+function bindReportRows() {
+  document
+    .querySelectorAll(
+      '.report-row'
+    )
+    .forEach(row => {
 
-            borderRadius: 5
-          }
-        ]
-      }
+      row.addEventListener(
+        'click',
+        () => {
+
+          showReportDetail(
+            row.dataset.reportKey
+          );
+
+        }
+      );
+
+    });
+}
+
+
+function updateDateLabel() {
+  const label =
+    document.getElementById(
+      'dateFilterLabel'
     );
 
 
-    // ==================================================
-    // VENTAS POR PRODUCTO
-    // ==================================================
-
-    chartsService.createBarChart(
-      'chartVentasProducto',
-      {
-        labels:
-          ventasProducto?.labels || [],
-
-        datasets: [
-          {
-            label:
-              'Cantidad Vendida',
-
-            data:
-              ventasProducto?.data || [],
-
-            backgroundColor:
-              '#198754',
-
-            borderRadius: 5
-          }
-        ]
-      },
-      {
-        indexAxis: 'y'
-      }
-    );
-
-
-    // ==================================================
-    // VENTAS POR ESTADO
-    // ==================================================
-
-    chartsService.createDoughnutChart(
-      'chartVentasEstado',
-      {
-        labels:
-          ventasEstado?.labels || [],
-
-        datasets: [
-          {
-            data:
-              ventasEstado?.data || [],
-
-            backgroundColor: [
-              '#198754',
-              '#ffc107',
-              '#dc3545'
-            ],
-
-            borderWidth: 0
-          }
-        ]
-      }
-    );
-
-
-    // ==================================================
-    // TABLA TODAS LAS VENTAS
-    // ==================================================
-
-    const tbodyVentas =
-      document.getElementById(
-        'tablaTodasVentas'
-      );
-
-    if (tbodyVentas) {
-
-      if (
-        !todasVentas ||
-        todasVentas.length === 0
-      ) {
-
-        tbodyVentas.innerHTML = `
-          <tr>
-            <td
-              colspan="4"
-              class="text-center text-muted py-4"
-            >
-              No hay ventas registradas
-            </td>
-          </tr>
-        `;
-
-      } else {
-
-        tbodyVentas.innerHTML =
-          todasVentas
-            .map(venta => {
-
-              const estadoColor =
-                venta.estado ===
-                'Completada'
-                  ? 'success'
-                  : venta.estado ===
-                    'Pendiente'
-                    ? 'warning'
-                    : 'danger';
-
-              return `
-                <tr>
-
-                  <td
-                    class="fw-bold text-primary"
-                  >
-                    ${venta.numero}
-                  </td>
-
-                  <td>
-                    ${venta.cliente}
-                  </td>
-
-                  <td
-                    class="text-end fw-bold"
-                  >
-                    $${Number(
-                      venta.total || 0
-                    ).toLocaleString(
-                      'es-CO',
-                      {
-                        minimumFractionDigits: 2
-                      }
-                    )}
-                  </td>
-
-                  <td>
-                    <span
-                      class="
-                        badge
-                        bg-${estadoColor}-subtle
-                        text-${estadoColor}
-                      "
-                    >
-                      ${venta.estado}
-                    </span>
-                  </td>
-
-                </tr>
-              `;
-            })
-            .join('');
-      }
-    }
-
-
-    // ==================================================
-    // EXPORTAR GASTOS
-    // ==================================================
-
-    const btnGastos =
-      document.querySelector(
-        '.btn-export-gastos'
-      );
-
-    if (btnGastos) {
-
-      btnGastos.addEventListener(
-        'click',
-        () => {
-
-          const datos =
-            (gastosData?.labels || [])
-              .map(
-                (categoria, index) => ({
-                  Categoria:
-                    categoria,
-
-                  Monto:
-                    gastosData.data[index]
-                })
-              );
-
-          reportesService.exportarCSV(
-            datos,
-            'gastos_por_categoria'
-          );
-        }
-      );
-    }
-
-
-    // ==================================================
-    // EXPORTAR INVENTARIO
-    // ==================================================
-
-    const btnInventario =
-      document.querySelector(
-        '.btn-export-inventario'
-      );
-
-    if (btnInventario) {
-
-      btnInventario.addEventListener(
-        'click',
-        () => {
-
-          const datos =
-            (
-              inventarioData?.labels ||
-              []
-            ).map(
-              (categoria, index) => ({
-                Categoria:
-                  categoria,
-
-                Valor:
-                  inventarioData
-                    .data[index]
-              })
-            );
-
-          reportesService.exportarCSV(
-            datos,
-            'valorizacion_inventario'
-          );
-        }
-      );
-    }
-
-
-    // ==================================================
-    // EXPORTAR CLIENTES
-    // ==================================================
-
-    const btnClientes =
-      document.querySelector(
-        '.btn-export-ventas-clientes'
-      );
-
-    if (btnClientes) {
-
-      btnClientes.addEventListener(
-        'click',
-        () => {
-
-          const datos =
-            (
-              ventasCliente?.labels ||
-              []
-            ).map(
-              (cliente, index) => ({
-                Cliente:
-                  cliente,
-
-                Total:
-                  ventasCliente
-                    .data[index]
-              })
-            );
-
-          reportesService.exportarCSV(
-            datos,
-            'ventas_por_cliente'
-          );
-        }
-      );
-    }
-
-
-    // ==================================================
-    // EXPORTAR PRODUCTOS
-    // ==================================================
-
-    const btnProductos =
-      document.querySelector(
-        '.btn-export-ventas-productos'
-      );
-
-    if (btnProductos) {
-
-      btnProductos.addEventListener(
-        'click',
-        () => {
-
-          const datos =
-            (
-              ventasProducto?.labels ||
-              []
-            ).map(
-              (producto, index) => ({
-                Producto:
-                  producto,
-
-                Cantidad:
-                  ventasProducto
-                    .data[index]
-              })
-            );
-
-          reportesService.exportarCSV(
-            datos,
-            'productos_mas_vendidos'
-          );
-        }
-      );
-    }
-
-
-    // ==================================================
-    // EXPORTAR TODAS LAS VENTAS
-    // ==================================================
-
-    const btnVentas =
-      document.querySelector(
-        '.btn-export-ventas'
-      );
-
-    if (btnVentas) {
-
-      btnVentas.addEventListener(
-        'click',
-        () => {
-
-          reportesService.exportarCSV(
-            todasVentas || [],
-            'todas_las_ventas'
-          );
-        }
-      );
-    }
-
-  } catch (error) {
-
-    console.error(
-      'Error cargando reportes:',
-      error
-    );
+  if (!label) {
+    return;
   }
+
+
+  if (
+    reportStartDate &&
+    reportEndDate
+  ) {
+    label.textContent =
+      `${shortDate(
+        reportStartDate
+      )} - ${shortDate(
+        reportEndDate
+      )}`;
+
+    return;
+  }
+
+
+  if (
+    reportStartDate
+  ) {
+    label.textContent =
+      `Desde ${shortDate(
+        reportStartDate
+      )}`;
+
+    return;
+  }
+
+
+  if (
+    reportEndDate
+  ) {
+    label.textContent =
+      `Hasta ${shortDate(
+        reportEndDate
+      )}`;
+
+    return;
+  }
+
+
+  label.textContent =
+    'Todas las fechas';
+}
+
+
+function refreshReports() {
+  buildReportRows();
+
+  renderHistoryBody();
+
+  closeModal(
+    'reportDetailModal'
+  );
+}
+
+
+export async function renderReportesPage() {
+  [
+    ventas,
+    gastos
+  ] = await Promise.all([
+    ventasService.getAll(),
+    gastosService.getAll()
+  ]);
+
+
+  ventas =
+    ventas || [];
+
+  gastos =
+    gastos || [];
+
+
+  buildReportRows();
+
+
+  return `
+    <section>
+
+      <div class="mb-6">
+
+        <p
+          class="text-xs font-bold uppercase tracking-[0.18em] text-agg"
+        >
+          Información financiera
+        </p>
+
+        <h2
+          class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1"
+        >
+          Reportes
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+          Consulta el historial financiero por períodos y filtra por rango de fechas.
+        </p>
+
+      </div>
+
+
+      <div
+        class="flex flex-col sm:flex-row gap-3 mb-5 relative"
+      >
+
+        <div class="relative">
+
+          <button
+            id="dateFilterButton"
+            type="button"
+            class="w-full sm:w-56 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-700 flex items-center justify-between gap-3"
+          >
+            <span id="dateFilterLabel">
+              Todas las fechas
+            </span>
+
+            <i
+              class="fa-solid fa-chevron-down text-slate-400"
+            ></i>
+          </button>
+
+
+          <div
+            id="dateFilterPanel"
+            class="hidden absolute left-0 top-14 z-40 w-[min(92vw,340px)] rounded-2xl border border-slate-200 bg-white shadow-2xl p-4"
+          >
+
+            <div class="space-y-4">
+
+              <div>
+                <label
+                  class="block text-sm font-semibold text-slate-700 mb-1.5"
+                >
+                  Desde
+                </label>
+
+                <input
+                  id="reportStartDate"
+                  type="date"
+                  class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                />
+              </div>
+
+
+              <div>
+                <label
+                  class="block text-sm font-semibold text-slate-700 mb-1.5"
+                >
+                  Hasta
+                </label>
+
+                <input
+                  id="reportEndDate"
+                  type="date"
+                  class="input-ag w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                />
+              </div>
+
+
+              <div
+                class="grid grid-cols-1 gap-2"
+              >
+
+                <button
+                  id="applyDateFilterBtn"
+                  type="button"
+                  class="btn-ag w-full rounded-xl py-2.5 text-sm font-bold"
+                >
+                  Aplicar fechas
+                </button>
+
+                <button
+                  id="clearDateFilterBtn"
+                  type="button"
+                  class="w-full rounded-xl border border-slate-200 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50"
+                >
+                  Todas las fechas
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <select
+          id="reportPeriodFilter"
+          class="w-full sm:w-56 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700"
+        >
+          <option value="week">
+            Semanal
+          </option>
+
+          <option
+            value="month"
+            selected
+          >
+            Mensual
+          </option>
+
+          <option value="quarter">
+            Trimestral
+          </option>
+
+          <option value="semester">
+            Semestral
+          </option>
+
+          <option value="year">
+            Anual
+          </option>
+        </select>
+
+      </div>
+
+
+      <article
+        class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+      >
+
+        <div
+          class="px-5 py-4 border-b border-slate-100"
+        >
+          <h3
+            class="font-bold text-slate-900"
+          >
+            Historial de períodos
+          </h3>
+
+          <p
+            id="reportHistorySubtitle"
+            class="text-xs text-slate-500 mt-0.5"
+          >
+            ${periodSubtitle()}
+          </p>
+        </div>
+
+
+        <div class="table-wrap">
+
+          <table
+            class="w-full text-sm"
+            style="min-width:720px;"
+          >
+
+            <thead
+              class="bg-slate-50 text-slate-500"
+            >
+              <tr>
+                <th
+                  class="text-left px-5 py-3 font-semibold"
+                >
+                  Período
+                </th>
+
+                <th
+                  class="text-right px-5 py-3 font-semibold"
+                >
+                  Ingresos
+                </th>
+
+                <th
+                  class="text-right px-5 py-3 font-semibold"
+                >
+                  Gastos
+                </th>
+
+                <th
+                  class="text-right px-5 py-3 font-semibold"
+                >
+                  Resultado
+                </th>
+
+                <th
+                  class="text-right px-5 py-3 font-semibold"
+                >
+                  Movimientos
+                </th>
+              </tr>
+            </thead>
+
+            <tbody
+              id="reportHistoryBody"
+              class="divide-y divide-slate-100"
+            >
+              ${
+                reportRows.length
+                  ? reportRows
+                      .map(
+                        row => `
+                          <tr
+                            data-report-key="${row.key}"
+                            class="report-row hover:bg-slate-50/70 cursor-pointer"
+                          >
+                            <td class="px-5 py-4">
+                              <button
+                                type="button"
+                                class="font-bold text-agnavy hover:underline text-left"
+                              >
+                                ${escapeHtml(row.label)}
+                              </button>
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-right font-bold text-emerald-700"
+                            >
+                              ${money(row.ingresos)}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-right font-bold text-red-600"
+                            >
+                              ${money(row.gastos)}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-right font-bold ${
+                                row.resultado >= 0
+                                  ? 'text-agnavy'
+                                  : 'text-red-600'
+                              }"
+                            >
+                              ${money(row.resultado)}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-right text-slate-600"
+                            >
+                              ${row.movements.length}
+                            </td>
+                          </tr>
+                        `
+                      )
+                      .join('')
+                  : `
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="px-5 py-8 text-center text-slate-500"
+                      >
+                        No hay movimientos registrados.
+                      </td>
+                    </tr>
+                  `
+              }
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </article>
+
+
+      ${reportModalTemplate()}
+
+    </section>
+  `;
+}
+
+
+export function initReportesEvents() {
+  initModalCloseEvents();
+
+
+  bindReportRows();
+
+
+  const dateButton =
+    document.getElementById(
+      'dateFilterButton'
+    );
+
+  const datePanel =
+    document.getElementById(
+      'dateFilterPanel'
+    );
+
+
+  dateButton
+    ?.addEventListener(
+      'click',
+      () => {
+
+        datePanel
+          ?.classList.toggle(
+            'hidden'
+          );
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      'reportPeriodFilter'
+    )
+    ?.addEventListener(
+      'change',
+      event => {
+
+        reportPeriod =
+          event.target.value;
+
+        refreshReports();
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      'applyDateFilterBtn'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        reportStartDate =
+          document
+            .getElementById(
+              'reportStartDate'
+            )
+            .value;
+
+        reportEndDate =
+          document
+            .getElementById(
+              'reportEndDate'
+            )
+            .value;
+
+
+        updateDateLabel();
+
+
+        datePanel
+          ?.classList.add(
+            'hidden'
+          );
+
+
+        refreshReports();
+
+      }
+    );
+
+
+  document
+    .getElementById(
+      'clearDateFilterBtn'
+    )
+    ?.addEventListener(
+      'click',
+      () => {
+
+        reportStartDate =
+          '';
+
+        reportEndDate =
+          '';
+
+
+        document
+          .getElementById(
+            'reportStartDate'
+          )
+          .value =
+            '';
+
+        document
+          .getElementById(
+            'reportEndDate'
+          )
+          .value =
+            '';
+
+
+        updateDateLabel();
+
+
+        datePanel
+          ?.classList.add(
+            'hidden'
+          );
+
+
+        refreshReports();
+
+      }
+    );
 }

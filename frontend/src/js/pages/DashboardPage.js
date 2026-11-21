@@ -1,515 +1,217 @@
-// src/js/pages/DashboardPage.js
-import { httpClient } from '../api/http.js';
-import { renderKPICards } from '../components/dashboard/KPICard.js';
-import { showToast } from '../utils/toast.js';
+import { dashboardService } from '../services/dashboard.service.js';
+import { money, shortDate, escapeHtml } from '../utils/format.js';
 
+export async function renderDashboardPage() {
+  const data =
+    await dashboardService.get();
 
-// ======================================================
-// RENDER INICIAL
-// ======================================================
+  const kpis =
+    data.kpis || {};
 
-export function renderDashboardPage() {
+  const movements =
+    data.ultimasTransacciones || [];
+
+  const cards = [
+    [
+      'Ventas del mes',
+      money(
+        kpis.ventasMes?.valor
+      ),
+      'fa-arrow-trend-up'
+    ],
+    [
+      'Gastos del mes',
+      money(
+        kpis.gastosMes?.valor
+      ),
+      'fa-arrow-trend-down'
+    ],
+    [
+      'Utilidad neta',
+      money(
+        kpis.utilidad?.valor
+      ),
+      'fa-scale-balanced'
+    ],
+    [
+      'Stock bajo',
+      Number(
+        kpis.inventarioBajo?.valor || 0
+      ),
+      'fa-box-open'
+    ]
+  ];
+
   return `
-    <div class="container-fluid">
+    <section>
 
-      <div class="page-header d-flex justify-content-between align-items-start">
-        <div>
-          <div class="page-subtitle">
-            RESUMEN FINANCIERO
-          </div>
+      <div class="mb-6">
 
-          <h2>Dashboard</h2>
+        <p
+          class="text-xs font-bold uppercase tracking-[0.18em] text-agg"
+        >
+          Resumen general
+        </p>
 
-          <p class="page-description">
-            Cargando datos del sistema...
-          </p>
-        </div>
+        <h2
+          class="text-2xl sm:text-3xl font-bold text-slate-900 mt-1"
+        >
+          Dashboard
+        </h2>
+
+        <p class="text-sm text-slate-500 mt-1">
+          Indicadores principales del sistema contable.
+        </p>
+
       </div>
 
-      <div class="text-center py-5">
-        <div
-          class="spinner-border text-primary"
-          role="status"
-        >
-          <span class="visually-hidden">
-            Cargando...
-          </span>
-        </div>
-      </div>
 
-    </div>
-  `;
-}
+      <div
+        class="grid sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6"
+      >
 
-
-// ======================================================
-// CARGAR DASHBOARD REAL
-// ======================================================
-
-export async function initDashboardCharts() {
-  try {
-    const data =
-      await httpClient.get('/dashboard');
-
-    const kpisBackend =
-      data.kpis || {};
-
-    const transacciones =
-      data.ultimasTransacciones || [];
-
-
-    // --------------------------------------------------
-    // KPIs
-    // --------------------------------------------------
-
-    const ventasMes =
-      kpisBackend.ventasMes || {
-        valor: 0,
-        cambio: 0,
-        tendencia: 'up',
-        label: 'Ventas del mes'
-      };
-
-    const gastosMes =
-      kpisBackend.gastosMes || {
-        valor: 0,
-        cambio: 0,
-        tendencia: 'down',
-        label: 'Gastos del mes'
-      };
-
-    const utilidad =
-      kpisBackend.utilidad || {
-        valor: 0,
-        cambio: 0,
-        tendencia: 'up',
-        label: 'Utilidad neta'
-      };
-
-    const inventarioBajo =
-      kpisBackend.inventarioBajo || {
-        valor: 0,
-        cambio: 0,
-        tendencia: 'down',
-        label: 'Productos con stock bajo'
-      };
-
-
-    const kpis = [
-      {
-        ...ventasMes,
-        valorFormateado:
-          '$' +
-          Number(
-            ventasMes.valor || 0
-          ).toLocaleString('es-CO')
-      },
-
-      {
-        ...gastosMes,
-        valorFormateado:
-          '$' +
-          Number(
-            gastosMes.valor || 0
-          ).toLocaleString('es-CO')
-      },
-
-      {
-        ...utilidad,
-        valorFormateado:
-          '$' +
-          Number(
-            utilidad.valor || 0
-          ).toLocaleString('es-CO')
-      },
-
-      {
-        ...inventarioBajo,
-        valorFormateado:
-          Number(
-            inventarioBajo.valor || 0
-          ).toLocaleString('es-CO')
-      }
-    ];
-
-
-    // --------------------------------------------------
-    // TABLA DE MOVIMIENTOS
-    // --------------------------------------------------
-
-    const transaccionesRows =
-      transacciones.length > 0
-        ? transacciones
-            .map(transaccion => {
-
-              const esVenta =
-                transaccion.tipo === 'Venta';
-
-              const tipoColor =
-                esVenta
-                  ? 'success'
-                  : 'danger';
-
-              const tipoIcono =
-                esVenta
-                  ? 'bi-arrow-down-circle'
-                  : 'bi-arrow-up-circle';
-
-              const signo =
-                esVenta ? '+' : '-';
-
-              const concepto =
-                esVenta
-                  ? transaccion.cliente
-                  : transaccion.concepto;
-
-              const estadoColor =
-                transaccion.estado === 'Completada' ||
-                transaccion.estado === 'Pagado'
-                  ? 'success'
-                  : transaccion.estado === 'Pendiente'
-                    ? 'warning'
-                    : 'danger';
-
-              return `
-                <tr>
-
-                  <td>
-                    ${transaccion.fecha}
-                  </td>
-
-                  <td>
-                    <span
-                      class="badge bg-${tipoColor}-subtle text-${tipoColor}"
-                    >
-                      <i
-                        class="bi ${tipoIcono} me-1"
-                      ></i>
-
-                      ${transaccion.tipo}
-                    </span>
-                  </td>
-
-                  <td>
-                    ${concepto || '-'}
-                  </td>
-
-                  <td>
-                    <span
-                      class="badge bg-${estadoColor}-subtle text-${estadoColor}"
-                    >
-                      ${transaccion.estado}
-                    </span>
-                  </td>
-
-                  <td
-                    class="fw-bold text-end text-${tipoColor}"
-                  >
-                    ${signo}$${Number(
-                      transaccion.monto || 0
-                    ).toLocaleString(
-                      'es-CO',
-                      {
-                        minimumFractionDigits: 0
-                      }
-                    )}
-                  </td>
-
-                </tr>
-              `;
-            })
-            .join('')
-        : `
-            <tr>
-              <td
-                colspan="5"
-                class="text-center text-muted py-4"
+        ${cards
+          .map(
+            ([label, value, icon]) => `
+              <article
+                class="rounded-2xl bg-white border border-slate-200 shadow-sm p-5"
               >
-                No hay movimientos recientes
-              </td>
-            </tr>
-          `;
-
-
-    // --------------------------------------------------
-    // FLUJO DEL PERÍODO
-    // --------------------------------------------------
-
-    const totalVentas =
-      Number(ventasMes.valor || 0);
-
-    const totalGastos =
-      Number(gastosMes.valor || 0);
-
-    const porcentajeGastos =
-      totalVentas > 0
-        ? Math.min(
-            Math.round(
-              (totalGastos / totalVentas) *
-              100
-            ),
-            100
-          )
-        : 0;
-
-
-    // --------------------------------------------------
-    // RENDER FINAL
-    // --------------------------------------------------
-
-    const app =
-      document.querySelector(
-        '#app main.main-content'
-      );
-
-    if (!app) {
-      return;
-    }
-
-
-    app.innerHTML = `
-      <div class="container-fluid">
-
-        <div
-          class="page-header d-flex justify-content-between align-items-start"
-        >
-
-          <div>
-            <div class="page-subtitle">
-              RESUMEN FINANCIERO
-            </div>
-
-            <h2>Dashboard</h2>
-
-            <p class="page-description">
-              Vista general del movimiento contable del negocio.
-            </p>
-          </div>
-
-
-          <div
-            class="badge bg-success-subtle text-success px-3 py-2"
-          >
-            <i
-              class="bi bi-circle-fill me-1"
-              style="font-size: 0.5rem;"
-            ></i>
-
-            Datos en tiempo real
-          </div>
-
-        </div>
-
-
-        <!-- KPIs -->
-        <div class="row g-4 mb-4">
-          ${renderKPICards(kpis)}
-        </div>
-
-
-        <div class="row g-4">
-
-
-          <!-- ÚLTIMOS MOVIMIENTOS -->
-          <div class="col-12 col-lg-8">
-
-            <div class="card">
-
-              <div
-                class="card-header d-flex justify-content-between align-items-center"
-              >
-
-                <div>
-                  <h5 class="fw-bold mb-1">
-                    Últimos movimientos
-                  </h5>
-
-                  <small class="text-muted">
-                    Ingresos y egresos recientes.
-                  </small>
-                </div>
-
-              </div>
-
-
-              <div class="card-body p-0">
-
-                <div class="table-responsive">
-
-                  <table
-                    class="table table-hover mb-0 align-middle"
-                  >
-
-                    <thead>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Concepto</th>
-                        <th>Estado</th>
-                        <th class="text-end">
-                          Valor
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      ${transaccionesRows}
-                    </tbody>
-
-                  </table>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <!-- FLUJO -->
-          <div class="col-12 col-lg-4">
-
-            <div class="card">
-
-              <div class="card-header">
-
-                <h5 class="fw-bold mb-1">
-                  Flujo del período
-                </h5>
-
-                <small class="text-muted">
-                  Comparación del mes actual.
-                </small>
-
-              </div>
-
-
-              <div class="card-body">
-
-                <div class="mb-4">
-
-                  <div
-                    class="d-flex justify-content-between mb-2"
-                  >
-                    <span class="fw-semibold">
-                      Ventas
-                    </span>
-
-                    <span class="fw-bold">
-                      100%
-                    </span>
-                  </div>
-
-                  <div
-                    class="progress"
-                    style="height: 8px; border-radius: 4px;"
-                  >
-                    <div
-                      class="progress-bar"
-                      style="
-                        width: 100%;
-                        background: var(--primary);
-                      "
-                    ></div>
-                  </div>
-
-                </div>
-
-
-                <div class="mb-4">
-
-                  <div
-                    class="d-flex justify-content-between mb-2"
-                  >
-                    <span class="fw-semibold">
-                      Gastos
-                    </span>
-
-                    <span class="fw-bold">
-                      ${porcentajeGastos}%
-                    </span>
-                  </div>
-
-                  <div
-                    class="progress"
-                    style="height: 8px; border-radius: 4px;"
-                  >
-                    <div
-                      class="progress-bar"
-                      style="
-                        width: ${porcentajeGastos}%;
-                        background: var(--accent);
-                      "
-                    ></div>
-                  </div>
-
-                </div>
-
 
                 <div
-                  class="alert bg-info-subtle border-0 d-flex align-items-start"
+                  class="h-10 w-10 rounded-xl bg-indigo-50 text-agnavy grid place-items-center mb-4"
                 >
-
-                  <i
-                    class="bi bi-info-circle-fill me-2 mt-1"
-                  ></i>
-
-                  <div>
-
-                    <strong>
-                      Lectura rápida
-                    </strong>
-
-                    <div class="small text-muted">
-                      La utilidad del mes es
-                      $${Number(
-                        utilidad.valor || 0
-                      ).toLocaleString(
-                        'es-CO'
-                      )}.
-                    </div>
-
-                  </div>
-
+                  <i class="fa-solid ${icon}"></i>
                 </div>
 
-              </div>
+                <p
+                  class="text-xs font-semibold text-slate-500"
+                >
+                  ${label}
+                </p>
 
-            </div>
+                <p
+                  class="text-2xl font-black text-slate-900 mt-1"
+                >
+                  ${value}
+                </p>
 
-          </div>
+              </article>
+            `
+          )
+          .join('')}
+
+      </div>
+
+
+      <article
+        class="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden"
+      >
+
+        <div
+          class="px-5 py-4 border-b border-slate-100"
+        >
+          <h3 class="font-bold text-slate-900">
+            Últimos movimientos
+          </h3>
+        </div>
+
+        <div class="table-wrap">
+
+          <table class="w-full text-sm">
+
+            <thead
+              class="bg-slate-50 text-slate-500"
+            >
+              <tr>
+                <th class="text-left px-5 py-3">
+                  Documento
+                </th>
+
+                <th class="text-left px-5 py-3">
+                  Tipo
+                </th>
+
+                <th class="text-left px-5 py-3">
+                  Detalle
+                </th>
+
+                <th class="text-left px-5 py-3">
+                  Fecha
+                </th>
+
+                <th class="text-right px-5 py-3">
+                  Valor
+                </th>
+              </tr>
+            </thead>
+
+            <tbody
+              class="divide-y divide-slate-100"
+            >
+
+              ${
+                movements.length
+                  ? movements
+                      .map(
+                        item => `
+                          <tr>
+
+                            <td
+                              class="px-5 py-4 font-bold text-agnavy"
+                            >
+                              ${escapeHtml(item.id)}
+                            </td>
+
+                            <td class="px-5 py-4">
+                              ${escapeHtml(item.tipo)}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-slate-600"
+                            >
+                              ${escapeHtml(
+                                item.cliente ||
+                                item.concepto ||
+                                '—'
+                              )}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-slate-600"
+                            >
+                              ${shortDate(item.fecha)}
+                            </td>
+
+                            <td
+                              class="px-5 py-4 text-right font-bold"
+                            >
+                              ${money(item.monto)}
+                            </td>
+
+                          </tr>
+                        `
+                      )
+                      .join('')
+                  : `
+                    <tr>
+                      <td
+                        colspan="5"
+                        class="px-5 py-10 text-center text-slate-500"
+                      >
+                        No hay movimientos registrados.
+                      </td>
+                    </tr>
+                  `
+              }
+
+            </tbody>
+
+          </table>
 
         </div>
 
-      </div>
-    `;
+      </article>
 
-
-    initDashboardEvents();
-
-  } catch (error) {
-
-    console.error(
-      'Error cargando dashboard:',
-      error
-    );
-
-    showToast(
-      '❌ Error al cargar el dashboard: ' +
-      error.message,
-      'error'
-    );
-  }
-}
-
-
-// ======================================================
-// EVENTOS
-// ======================================================
-
-export function initDashboardEvents() {
-  console.log(
-    '✅ Dashboard conectado con API real'
-  );
+    </section>
+  `;
 }

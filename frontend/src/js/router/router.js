@@ -1,119 +1,298 @@
-// src/js/router/router.js
 import { sessionService } from '../auth/session.service.js';
-import { moduleGuard } from './guards.js';
-import { getCurrentRoute, navigateTo } from './routes.js';
-import { renderNavbar, initNavbarEvents } from '../components/layout/navbar.js';
-import { renderLoginPage, initLoginEvents } from '../pages/LoginPage.js';
-import { renderForbiddenPage } from '../pages/ForbiddenPage.js';
-import { renderDashboardPage, initDashboardCharts, initDashboardEvents } from '../pages/DashboardPage.js';
-import { renderVentasPage, initVentasEvents } from '../pages/VentasPage.js';
-import { renderGastosPage, initGastosEvents } from '../pages/GastosPage.js';
-import { renderInventarioPage, initInventarioEvents } from '../pages/InventarioPage.js';
-import { renderReportesPage, initReportesEvents } from '../pages/ReportesPage.js';
-import { renderUsuariosPage, initUsuariosEvents } from '../pages/UsuariosPage.js';
-import { renderConfiguracionPage, initConfiguracionEvents } from '../pages/ConfiguracionPage.js';
-import { chartsService } from '../services/charts.service.js';
 
-const moduleRenderers = {
-  dashboard: () => renderDashboardPage(),
-  ventas: () => renderVentasPage(),
-  gastos: () => renderGastosPage(),
-  inventario: () => renderInventarioPage(),
-  reportes: () => renderReportesPage(),
-  configuracion: () => renderConfiguracionPage(),
-  usuarios: () => renderUsuariosPage(),
+import {
+  renderNavbar,
+  initNavbarEvents
+} from '../components/layout/navbar.js';
+
+import { showToast } from '../components/ui/toast.js';
+
+import {
+  renderLoginPage,
+  initLoginEvents
+} from '../pages/LoginPage.js';
+
+import {
+  renderDashboardPage
+} from '../pages/DashboardPage.js';
+
+import {
+  renderVentasPage,
+  initVentasEvents
+} from '../pages/VentasPage.js';
+
+import {
+  renderGastosPage,
+  initGastosEvents
+} from '../pages/GastosPage.js';
+
+import {
+  renderInventarioPage,
+  initInventarioEvents
+} from '../pages/InventarioPage.js';
+
+import {
+  renderReportesPage,
+  initReportesEvents
+} from '../pages/ReportesPage.js';
+
+import {
+  renderCuentasPage,
+  initCuentasEvents
+} from '../pages/CuentasPage.js';
+
+
+const routes = {
+  dashboard: {
+    render:
+      renderDashboardPage
+  },
+
+  ventas: {
+    render:
+      renderVentasPage,
+
+    init:
+      initVentasEvents
+  },
+
+  gastos: {
+    render:
+      renderGastosPage,
+
+    init:
+      initGastosEvents,
+
+    adminOnly:
+      true
+  },
+
+  inventario: {
+    render:
+      renderInventarioPage,
+
+    init:
+      initInventarioEvents
+  },
+
+  reportes: {
+    render:
+      renderReportesPage,
+
+    init:
+      initReportesEvents,
+
+    adminOnly:
+      true
+  },
+
+  cuentas: {
+    render:
+      renderCuentasPage,
+
+    init:
+      initCuentasEvents,
+
+    adminOnly:
+      true
+  }
 };
 
-const postRenderInitializers = {
-  dashboard: () => {
-    chartsService.destroyAll();
-    setTimeout(() => {
-      initDashboardCharts();
-      initDashboardEvents();
-    }, 100);
-  },
-  ventas: () => {
-    setTimeout(() => initVentasEvents(), 100);
-  },
-  gastos: () => {
-    setTimeout(() => initGastosEvents(), 100);
-  },
-  inventario: () => {
-    setTimeout(() => initInventarioEvents(), 100);
-  },
-  reportes: () => {
-    setTimeout(() => {
-      chartsService.destroyAll();
-      initReportesEvents();
-    }, 100);
-  },
-  usuarios: () => {
-    setTimeout(() => initUsuariosEvents(), 100);
-  },
-  configuracion: () => {
-    setTimeout(() => initConfiguracionEvents(), 100);
-  },
-};
 
-export function initRouter() {
-  async function handleRouteChange() {  
-    const currentRoute = getCurrentRoute();
-    const app = document.querySelector('#app');
+function currentRoute() {
+  return (
+    window.location.hash
+      .replace(
+        '#',
+        ''
+      ) ||
+    'dashboard'
+  );
+}
 
-    if (!sessionService.isAuthenticated()) {
-      if (currentRoute !== 'login') {
-        navigateTo('login');
-      }
-      app.innerHTML = renderLoginPage();
-      setTimeout(() => initLoginEvents(), 100);
+
+async function renderCurrent() {
+  /*
+   * Si venimos de una vista que tenía
+   * detalle abierto, limpiamos el estado.
+   */
+  document.body.classList.remove(
+    'detail-menu-open'
+  );
+
+
+  const app =
+    document.getElementById(
+      'app'
+    );
+
+
+  const route =
+    currentRoute();
+
+
+  if (
+    !sessionService.isAuthenticated()
+  ) {
+
+    if (
+      route !== 'login'
+    ) {
+      window.location.hash =
+        'login';
+
       return;
     }
 
-    if (currentRoute === 'login') {
-      navigateTo('dashboard');
-      return;
-    }
 
-    const guardResult = moduleGuard(currentRoute);
+    app.innerHTML =
+      renderLoginPage();
 
-    if (!guardResult.allowed) {
-      if (guardResult.redirectTo === 'forbidden') {
-        app.innerHTML = `
-          <div class="app-container">
-            ${renderNavbar()}
-            <div class="main-content">
-              ${renderForbiddenPage(guardResult.message)}
-            </div>
-          </div>
-        `;
-        initNavbarEvents();
-      } else {
-        navigateTo('login');
-        app.innerHTML = renderLoginPage();
-        setTimeout(() => initLoginEvents(), 100);
-      }
-      return;
-    }
 
-    const renderer = moduleRenderers[currentRoute] || moduleRenderers.dashboard;
-const renderedPage = await renderer();
+    initLoginEvents();
 
-app.innerHTML = `
-  <div class="app-container">
-    ${renderNavbar()}
-    <main class="main-content">
-      ${renderedPage}
-    </main>
-  </div>
-`;
+    return;
+  }
+
+
+  if (
+    route === 'login'
+  ) {
+    window.location.hash =
+      'dashboard';
+
+    return;
+  }
+
+
+  const config =
+    routes[route] ||
+    routes.dashboard;
+
+
+  if (
+    config.adminOnly &&
+    !sessionService.isAdmin()
+  ) {
+
+    showToast(
+      'No tienes permisos para acceder a este módulo.',
+      'warning'
+    );
+
+
+    window.location.hash =
+      'dashboard';
+
+    return;
+  }
+
+
+  try {
+
+    const page =
+      await config.render();
+
+
+    app.innerHTML = `
+      <div class="min-h-screen">
+
+        ${renderNavbar(route)}
+
+        <main
+          class="main-page-content max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8"
+        >
+          ${page}
+        </main>
+
+      </div>
+    `;
+
 
     initNavbarEvents();
 
-    if (postRenderInitializers[currentRoute]) {
-      postRenderInitializers[currentRoute]();
-    }
-  }
+    config.init?.();
 
-  window.addEventListener('hashchange', handleRouteChange);
-  handleRouteChange();
+
+  } catch (error) {
+
+    if (
+      error.status === 401
+    ) {
+
+      sessionService.clear();
+
+      window.location.hash =
+        'login';
+
+      return;
+    }
+
+
+    app.innerHTML = `
+      <div
+        class="min-h-screen grid place-items-center p-4"
+      >
+
+        <div
+          class="max-w-lg w-full rounded-3xl bg-white border border-slate-200 shadow-lg p-7"
+        >
+
+          <p
+            class="text-xs font-bold uppercase tracking-[0.16em] text-agg"
+          >
+            Error
+          </p>
+
+          <h2
+            class="text-2xl font-black text-slate-900 mt-1"
+          >
+            No se pudo cargar la vista
+          </h2>
+
+          <p
+            class="text-sm text-slate-500 mt-3"
+          >
+            ${error.message}
+          </p>
+
+          <button
+            id="retryBtn"
+            class="btn-ag rounded-xl px-4 py-2.5 text-sm font-bold mt-5"
+          >
+            Reintentar
+          </button>
+
+        </div>
+
+      </div>
+    `;
+
+
+    document
+      .getElementById(
+        'retryBtn'
+      )
+      ?.addEventListener(
+        'click',
+        renderCurrent
+      );
+  }
+}
+
+
+export function initRouter() {
+  window.addEventListener(
+    'hashchange',
+    renderCurrent
+  );
+
+
+  window.addEventListener(
+    'app:refresh',
+    renderCurrent
+  );
+
+
+  renderCurrent();
 }

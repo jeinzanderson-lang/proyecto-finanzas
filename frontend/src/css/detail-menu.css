@@ -1,0 +1,301 @@
+/* =========================================================
+   DETALLE LATERAL TIPO MENÚ
+   EXACTAMENTE: CONTENIDO IZQUIERDA | DETALLE DERECHA
+   NO ES MODAL. NO ES TARJETA FLOTANTE.
+   ========================================================= */
+
+:root {
+  --detail-menu-width: 360px;
+  --detail-menu-top: 152px;
+}
+
+/*
+  Cuando hay un detalle abierto, el contenido principal
+  se REDIMENSIONA y deja libre todo el lateral derecho.
+*/
+body.detail-menu-open .main-page-content {
+  width: calc(100% - var(--detail-menu-width));
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding-left: clamp(24px, 5vw, 72px);
+  padding-right: 24px;
+}
+
+/*
+  El workspace NO crea otra tarjeta ni otra columna.
+  El panel vive fuera del flujo visual, como sidebar de app.
+*/
+.detail-workspace {
+  width: 100%;
+  min-width: 0;
+}
+
+.detail-workspace.has-detail {
+  width: 100%;
+}
+
+
+/* =========================================================
+   SIDEBAR DERECHO
+   ========================================================= */
+
+.side-detail-menu {
+  position: fixed;
+  top: var(--detail-menu-top);
+  right: 0;
+  bottom: 0;
+
+  width: var(--detail-menu-width);
+
+  z-index: 35;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #ffffff;
+
+  border-left: 1px solid #d8dee8;
+  border-top: 1px solid #e2e8f0;
+
+  border-radius: 0 !important;
+  box-shadow: none !important;
+
+  overflow: hidden;
+}
+
+.side-detail-menu.hidden {
+  display: none !important;
+}
+
+
+/* =========================================================
+   CABECERA DEL MENÚ
+   ========================================================= */
+
+.side-detail-menu-header {
+  flex-shrink: 0;
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid #e5eaf0;
+  background: #ffffff;
+}
+
+.side-detail-menu-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.side-detail-menu-eyebrow {
+  margin: 0;
+  color: var(--ag-gold);
+  font-size: 11px;
+  line-height: 1.2;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+}
+
+.side-detail-menu-title {
+  margin: 10px 0 0;
+  color: #0f172a;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 800;
+}
+
+.side-detail-menu-description {
+  margin: 18px 0 0;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.side-detail-menu-close {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 9px;
+
+  background: #f1f5f9;
+  color: #64748b;
+
+  cursor: pointer;
+}
+
+.side-detail-menu-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+
+/* =========================================================
+   CUERPO
+   ========================================================= */
+
+.side-detail-menu-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 24px;
+  background: #ffffff;
+}
+
+.side-detail-menu-fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-detail-menu-row {
+  min-height: 54px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 18px;
+}
+
+.side-detail-menu-divider {
+  border-top: 1px solid #e5eaf0;
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.side-detail-menu-label {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.side-detail-menu-value {
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.side-detail-menu-accent {
+  color: var(--ag-navy);
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   ACCIONES ABAJO
+   ========================================================= */
+
+.side-detail-menu-actions {
+  flex-shrink: 0;
+
+  padding: 18px 24px 24px;
+
+  border-top: 1px solid #e5eaf0;
+
+  background: #ffffff;
+}
+
+.side-detail-menu-actions > div {
+  display: grid !important;
+  grid-template-columns: 1fr 48px !important;
+  gap: 10px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+.side-detail-menu-actions .btn-ag {
+  width: 100%;
+  min-height: 48px;
+}
+
+.side-detail-menu-actions button:not(.btn-ag) {
+  width: 48px;
+  height: 48px;
+}
+
+
+/* =========================================================
+   REPORTES: lista interna de movimientos en sidebar
+   ========================================================= */
+
+.report-detail-summary {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.report-detail-movements {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-detail-movement {
+  padding: 12px;
+  border: 1px solid #e5eaf0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.report-detail-movement-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 5px;
+}
+
+.report-detail-movement-title {
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.report-detail-movement-value {
+  color: var(--ag-navy);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.report-detail-movement-meta {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  :root {
+    --detail-menu-width: 320px;
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --detail-menu-width: min(92vw, 360px);
+    --detail-menu-top: 0px;
+  }
+
+  body.detail-menu-open .main-page-content {
+    width: 100%;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .side-detail-menu {
+    z-index: 60;
+  }
+}

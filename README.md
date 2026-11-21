@@ -44,7 +44,6 @@ El sistema incluye:
 - Persistencia de información en MySQL.
 - Migraciones de base de datos.
 - API REST organizada por dominios funcionales.
-- Modo claro y modo oscuro.
 
 ---
 
@@ -59,7 +58,6 @@ El administrador tiene acceso a todas las funciones del sistema:
 - Gastos.
 - Inventario.
 - Reportes.
-- Configuración.
 - Catálogo de cuentas.
 - Creación y modificación de registros.
 
@@ -229,14 +227,6 @@ Ingresar a la carpeta:
 ```bash
 cd proyecto-finanzas
 ```
-
-Para trabajar con la versión integrada del proyecto:
-
-```bash
-git switch backend-integracion
-```
-
----
 
 ## 9. Configuración de la base de datos
 
